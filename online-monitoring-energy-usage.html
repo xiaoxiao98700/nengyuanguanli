@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用能监测</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #0f1e2d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans', Arial, sans-serif;
+            color: #e0e6ed;
+        }
+        .iframe-page-wrapper {
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="iframe-page-wrapper">
+<div class="sub-menu-content-container">
+    <div class="page-header">
+        <h2 class="page-title"><i class="fas fa-chart-line"></i> 用能监测</h2>
+        <p class="page-description">实时洞察您的能源消耗，优化管理，助力高效节能。</p>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-button active" onclick="openEnergyMonitorTab(event, 'electricity-monitor')">电监测</button>
+        <button class="tab-button" onclick="openEnergyMonitorTab(event, 'water-monitor')">水监测</button>
+        <button class="tab-button" onclick="openEnergyMonitorTab(event, 'steam-monitor')">蒸汽监测</button>
+        <button class="tab-button" onclick="openEnergyMonitorTab(event, 'compressed-air-monitor')">压缩空气监测</button>
+        <button class="tab-button" onclick="openEnergyMonitorTab(event, 'nitrogen-monitor')">氮气监测</button>
+        <button class="tab-button" onclick="openEnergyMonitorTab(event, 'other-energy-monitor')">其他能源监测</button>
+    </div>
+
+    <div id="electricity-monitor" class="tab-content active">
+        <h3>电监测</h3>
+        <div class="filter-bar">
+            <label for="electricity-date-start">开始日期:</label>
+            <input type="date" id="electricity-date-start">
+            <label for="electricity-date-end">结束日期:</label>
+            <input type="date" id="electricity-date-end">
+            <button class="action-button">查询</button>
+        </div>
+        <div class="chart-container" style="position: relative; height: 400px; padding: 20px; overflow: hidden;">
+            <div style="font-weight: bold; text-align: center; margin-bottom: 10px; color: #00bcd4;">电监测数据折线图 (模拟)</div>
+            
+            <!-- 模拟 Y 轴 -->
+            <div style="position: absolute; left: 0px; top: 40px; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; font-size: 0.8em; color: #a7bed3; text-align: right; padding-right: 5px;">
+                <span>120A/230V</span>
+                <span>90A/225V</span>
+                <span>60A/220V</span>
+                <span>30A/215V</span>
+                <span>0A/210V</span>
+            </div>
+
+            <!-- 模拟 X 轴和数据区域 -->
+            <div style="position: absolute; left: 40px; right: 20px; top: 40px; bottom: 40px; border-left: 1px solid #3c5472; border-bottom: 1px solid #3c5472;">
+                <!-- 模拟水平网格线 -->
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 0%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 25%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 50%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 75%;"></div>
+
+                <!-- SVG 连接线层 -->
+                <svg style="position: absolute; width: 100%; height: 100%; pointer-events: none;" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 电流折线 (蓝色) - Y坐标反转: bottom 79%→21, 92%→8, 85%→15, 98%→2, 95%→5 -->
+                    <polyline points="5,21 25,8 45,15 65,2 85,5" fill="none" stroke="#3498db" stroke-width="1" opacity="0.9" vector-effect="non-scaling-stroke"/>
+                    <!-- 电压折线 (绿色) - Y坐标反转: bottom 30%→70, 31%→69, 29%→71, 30%→70, 32%→68 -->
+                    <polyline points="8,70 28,69 48,71 68,70 88,68" fill="none" stroke="#2ecc71" stroke-width="1" opacity="0.9" vector-effect="non-scaling-stroke"/>
+                </svg>
+
+                <!-- 模拟数据点: 电流 (蓝色) -->
+                <div class="data-point" style="left: 5%; bottom: 79%; background-color: #3498db; z-index: 10;"></div>
+                <div class="data-point" style="left: 25%; bottom: 92%; background-color: #3498db; z-index: 10;"></div>
+                <div class="data-point" style="left: 45%; bottom: 85%; background-color: #3498db; z-index: 10;"></div>
+                <div class="data-point" style="left: 65%; bottom: 98%; background-color: #3498db; z-index: 10;"></div>
+                <div class="data-point" style="left: 85%; bottom: 95%; background-color: #3498db; z-index: 10;"></div>
+                
+                <!-- 模拟数据点: 电压 (绿色) -->
+                <div class="data-point" style="left: 8%; bottom: 30%; background-color: #2ecc71; z-index: 10;"></div>
+                <div class="data-point" style="left: 28%; bottom: 31%; background-color: #2ecc71; z-index: 10;"></div>
+                <div class="data-point" style="left: 48%; bottom: 29%; background-color: #2ecc71; z-index: 10;"></div>
+                <div class="data-point" style="left: 68%; bottom: 30%; background-color: #2ecc71; z-index: 10;"></div>
+                <div class="data-point" style="left: 88%; bottom: 32%; background-color: #2ecc71; z-index: 10;"></div>
+            </div>
+
+            <!-- 模拟 X 轴标签 -->
+            <div style="position: absolute; left: 40px; right: 20px; bottom: 10px; height: 30px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8em; color: #a7bed3; border-top: 1px solid #3c5472;">
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span>18:00</span>
+                <span>23:59</span>
+            </div>
+            
+            <!-- 图例 -->
+            <div style="position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); background-color: #2a3d54; padding: 5px 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); font-size: 0.9em;">
+                <span style="color: #3498db; margin-right: 10px;">&#9679; 电流 (A)</span>
+                <span style="color: #2ecc71;">&#9679; 电压 (V)</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-table"></i>电监测详细数据</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>电流 (A)</th>
+                        <th>电压 (V)</th>
+                        <th>有功 (kW)</th>
+                        <th>无功 (kVar)</th>
+                        <th>电度 (kWh)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-10-26 10:00:00</td>
+                        <td>100</td>
+                        <td>220</td>
+                        <td>20</td>
+                        <td>5</td>
+                        <td>1000</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 11:00:00</td>
+                        <td>105</td>
+                        <td>221</td>
+                        <td>22</td>
+                        <td>6</td>
+                        <td>1020</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 12:00:00</td>
+                        <td>102</td>
+                        <td>219</td>
+                        <td>21</td>
+                        <td>5.5</td>
+                        <td>1045</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 水监测 Tab Content -->
+    <div id="water-monitor" class="tab-content">
+        <h3>水监测</h3>
+        <div class="filter-bar">
+            <label for="water-date-start">开始日期:</label>
+            <input type="date" id="water-date-start">
+            <label for="water-date-end">结束日期:</label>
+            <input type="date" id="water-date-end">
+            <button class="action-button">查询</button>
+        </div>
+        <div class="chart-container" style="position: relative; height: 400px; padding: 20px; overflow: hidden;">
+            <div style="font-weight: bold; text-align: center; margin-bottom: 10px; color: #00bcd4;">水监测数据折线图 (模拟)</div>
+            
+            <!-- 模拟 Y 轴 -->
+            <div style="position: absolute; left: 0px; top: 40px; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; font-size: 0.8em; color: #a7bed3; text-align: right; padding-right: 5px;">
+                <span>30 m³/h</span>
+                <span>20 m³/h</span>
+                <span>10 m³/h</span>
+                <span>5 m³/h</span>
+                <span>0 m³/h</span>
+            </div>
+
+            <!-- 模拟 X 轴和数据区域 -->
+            <div style="position: absolute; left: 40px; right: 20px; top: 40px; bottom: 40px; border-left: 1px solid #3c5472; border-bottom: 1px solid #3c5472;">
+                <!-- 模拟水平网格线 -->
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 0%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 25%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 50%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 75%;"></div>
+
+                <!-- SVG 连接线层 -->
+                <svg style="position: absolute; width: 100%; height: 100%; pointer-events: none;" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 瞬时流量折线 (橙色) -->
+                    <polyline points="5,45 25,35 45,55 65,25 85,40" fill="none" stroke="#e67e22" stroke-width="0.5" opacity="0.8" vector-effect="non-scaling-stroke"/>
+                </svg>
+
+                <!-- 模拟数据点: 瞬时流量 (橙色) -->
+                <div class="data-point" style="left: 5%; bottom: 55%; background-color: #e67e22; z-index: 10;"></div>
+                <div class="data-point" style="left: 25%; bottom: 65%; background-color: #e67e22; z-index: 10;"></div>
+                <div class="data-point" style="left: 45%; bottom: 45%; background-color: #e67e22; z-index: 10;"></div>
+                <div class="data-point" style="left: 65%; bottom: 75%; background-color: #e67e22; z-index: 10;"></div>
+                <div class="data-point" style="left: 85%; bottom: 60%; background-color: #e67e22; z-index: 10;"></div>
+            </div>
+
+            <!-- 模拟 X 轴标签 -->
+            <div style="position: absolute; left: 40px; right: 20px; bottom: 10px; height: 30px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8em; color: #a7bed3; border-top: 1px solid #3c5472;">
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span>18:00</span>
+                <span>23:59</span>
+            </div>
+
+            <!-- 图例 -->
+            <div style="position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); background-color: #2a3d54; padding: 5px 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); font-size: 0.9em;">
+                <span style="color: #e67e22; margin-right: 10px;">&#9679; 瞬时流量 (m³/h)</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-table"></i>水监测详细数据</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>瞬时流量 (m³/h)</th>
+                        <th>累计流量 (m³)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-10-26 10:00:00</td>
+                        <td>10</td>
+                        <td>1000</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 11:00:00</td>
+                        <td>12</td>
+                        <td>1012</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 12:00:00</td>
+                        <td>11</td>
+                        <td>1023</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 蒸汽监测 Tab Content -->
+    <div id="steam-monitor" class="tab-content">
+        <h3>蒸汽监测</h3>
+        <div class="filter-bar">
+            <label for="steam-date-start">开始日期:</label>
+            <input type="date" id="steam-date-start">
+            <label for="steam-date-end">结束日期:</label>
+            <input type="date" id="steam-date-end">
+            <button class="action-button">查询</button>
+        </div>
+        <div class="chart-container" style="position: relative; height: 400px; padding: 20px; overflow: hidden;">
+            <div style="font-weight: bold; text-align: center; margin-bottom: 10px; color: #00bcd4;">蒸汽监测数据折线图 (模拟)</div>
+            
+            <!-- 模拟 Y 轴 -->
+            <div style="position: absolute; left: 0px; top: 40px; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; font-size: 0.8em; color: #a7bed3; text-align: right; padding-right: 5px;">
+                <span>100 kg/h</span>
+                <span>75 kg/h</span>
+                <span>50 kg/h</span>
+                <span>25 kg/h</span>
+                <span>0 kg/h</span>
+            </div>
+
+            <!-- 模拟 X 轴和数据区域 -->
+            <div style="position: absolute; left: 40px; right: 20px; top: 40px; bottom: 40px; border-left: 1px solid #3c5472; border-bottom: 1px solid #3c5472;">
+                <!-- 模拟水平网格线 -->
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 0%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 25%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 50%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 75%;"></div>
+
+                <!-- SVG 连接线层 -->
+                <svg style="position: absolute; width: 100%; height: 100%; pointer-events: none;" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 瞬时流量折线 (紫色) -->
+                    <polyline points="5,55 25,30 45,40 65,15 85,25" fill="none" stroke="#9b59b6" stroke-width="0.5" opacity="0.8" vector-effect="non-scaling-stroke"/>
+                </svg>
+
+                <!-- 模拟数据点: 瞬时流量 (紫色) -->
+                <div class="data-point" style="left: 5%; bottom: 45%; background-color: #9b59b6; z-index: 10;"></div>
+                <div class="data-point" style="left: 25%; bottom: 70%; background-color: #9b59b6; z-index: 10;"></div>
+                <div class="data-point" style="left: 45%; bottom: 60%; background-color: #9b59b6; z-index: 10;"></div>
+                <div class="data-point" style="left: 65%; bottom: 85%; background-color: #9b59b6; z-index: 10;"></div>
+                <div class="data-point" style="left: 85%; bottom: 75%; background-color: #9b59b6; z-index: 10;"></div>
+            </div>
+
+            <!-- 模拟 X 轴标签 -->
+            <div style="position: absolute; left: 40px; right: 20px; bottom: 10px; height: 30px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8em; color: #a7bed3; border-top: 1px solid #3c5472;">
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span>18:00</span>
+                <span>23:59</span>
+            </div>
+            
+            <!-- 图例 -->
+            <div style="position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); background-color: #2a3d54; padding: 5px 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); font-size: 0.9em;">
+                <span style="color: #9b59b6; margin-right: 10px;">&#9679; 瞬时流量 (kg/h)</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-table"></i>蒸汽监测详细数据</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>瞬时流量 (kg/h)</th>
+                        <th>累计流量 (kg)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-10-26 10:00:00</td>
+                        <td>50</td>
+                        <td>5000</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 11:00:00</td>
+                        <td>55</td>
+                        <td>5055</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 12:00:00</td>
+                        <td>52</td>
+                        <td>5107</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 压缩空气监测 Tab Content -->
+    <div id="compressed-air-monitor" class="tab-content">
+        <h3>压缩空气监测</h3>
+        <div class="filter-bar">
+            <label for="compressed-air-date-start">开始日期:</label>
+            <input type="date" id="compressed-air-date-start">
+            <label for="compressed-air-date-end">结束日期:</label>
+            <input type="date" id="compressed-air-date-end">
+            <button class="action-button">查询</button>
+        </div>
+        <div class="chart-container" style="position: relative; height: 400px; padding: 20px; overflow: hidden;">
+            <div style="font-weight: bold; text-align: center; margin-bottom: 10px; color: #00bcd4;">压缩空气监测数据折线图 (模拟)</div>
+            
+            <!-- 模拟 Y 轴 -->
+            <div style="position: absolute; left: 0px; top: 40px; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; font-size: 0.8em; color: #a7bed3; text-align: right; padding-right: 5px;">
+                <span>10 m³/min</span>
+                <span>7.5 m³/min</span>
+                <span>5 m³/min</span>
+                <span>2.5 m³/min</span>
+                <span>0 m³/min</span>
+            </div>
+
+            <!-- 模拟 X 轴和数据区域 -->
+            <div style="position: absolute; left: 40px; right: 20px; top: 40px; bottom: 40px; border-left: 1px solid #3c5472; border-bottom: 1px solid #3c5472;">
+                <!-- 模拟水平网格线 -->
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 0%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 25%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 50%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 75%;"></div>
+
+                <!-- SVG 连接线层 -->
+                <svg style="position: absolute; width: 100%; height: 100%; pointer-events: none;" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 瞬时流量折线 (棕色) -->
+                    <polyline points="5,40 25,60 45,30 65,50 85,20" fill="none" stroke="#795548" stroke-width="0.5" opacity="0.8" vector-effect="non-scaling-stroke"/>
+                </svg>
+
+                <!-- 模拟数据点: 瞬时流量 (棕色) -->
+                <div class="data-point" style="left: 5%; bottom: 60%; background-color: #795548; z-index: 10;"></div>
+                <div class="data-point" style="left: 25%; bottom: 40%; background-color: #795548; z-index: 10;"></div>
+                <div class="data-point" style="left: 45%; bottom: 70%; background-color: #795548; z-index: 10;"></div>
+                <div class="data-point" style="left: 65%; bottom: 50%; background-color: #795548; z-index: 10;"></div>
+                <div class="data-point" style="left: 85%; bottom: 80%; background-color: #795548; z-index: 10;"></div>
+            </div>
+
+            <!-- 模拟 X 轴标签 -->
+            <div style="position: absolute; left: 40px; right: 20px; bottom: 10px; height: 30px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8em; color: #a7bed3; border-top: 1px solid #3c5472;">
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span>18:00</span>
+                <span>23:59</span>
+            </div>
+            
+            <!-- 图例 -->
+            <div style="position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); background-color: #2a3d54; padding: 5px 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); font-size: 0.9em;">
+                <span style="color: #795548; margin-right: 10px;">&#9679; 瞬时流量 (m³/min)</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-table"></i>压缩空气监测详细数据</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>瞬时流量 (m³/min)</th>
+                        <th>累计流量 (m³)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-10-26 10:00:00</td>
+                        <td>5</td>
+                        <td>500</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 11:00:00</td>
+                        <td>5.2</td>
+                        <td>505.2</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 12:00:00</td>
+                        <td>5.1</td>
+                        <td>510.3</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 氮气监测 Tab Content -->
+    <div id="nitrogen-monitor" class="tab-content">
+        <h3>氮气监测</h3>
+        <div class="filter-bar">
+            <label for="nitrogen-date-start">开始日期:</label>
+            <input type="date" id="nitrogen-date-start">
+            <label for="nitrogen-date-end">结束日期:</label>
+            <input type="date" id="nitrogen-date-end">
+            <button class="action-button">查询</button>
+        </div>
+        <div class="chart-container" style="position: relative; height: 400px; padding: 20px; overflow: hidden;">
+            <div style="font-weight: bold; text-align: center; margin-bottom: 10px; color: #00bcd4;">氮气监测数据折线图 (模拟)</div>
+            
+            <!-- 模拟 Y 轴 -->
+            <div style="position: absolute; left: 0px; top: 40px; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; font-size: 0.8em; color: #a7bed3; text-align: right; padding-right: 5px;">
+                <span>15 m³/h</span>
+                <span>10 m³/h</span>
+                <span>5 m³/h</span>
+                <span>2 m³/h</span>
+                <span>0 m³/h</span>
+            </div>
+
+            <!-- 模拟 X 轴和数据区域 -->
+            <div style="position: absolute; left: 40px; right: 20px; top: 40px; bottom: 40px; border-left: 1px solid #3c5472; border-bottom: 1px solid #3c5472;">
+                <!-- 模拟水平网格线 -->
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 0%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 25%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 50%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 75%;"></div>
+
+                <!-- SVG 连接线层 -->
+                <svg style="position: absolute; width: 100%; height: 100%; pointer-events: none;" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 瞬时流量折线 (粉色) -->
+                    <polyline points="5,35 25,22 45,42 65,15 85,30" fill="none" stroke="#e84393" stroke-width="0.5" opacity="0.8" vector-effect="non-scaling-stroke"/>
+                </svg>
+
+                <!-- 模拟数据点: 瞬时流量 (粉色) -->
+                <div class="data-point" style="left: 5%; bottom: 65%; background-color: #e84393; z-index: 10;"></div>
+                <div class="data-point" style="left: 25%; bottom: 78%; background-color: #e84393; z-index: 10;"></div>
+                <div class="data-point" style="left: 45%; bottom: 58%; background-color: #e84393; z-index: 10;"></div>
+                <div class="data-point" style="left: 65%; bottom: 85%; background-color: #e84393; z-index: 10;"></div>
+                <div class="data-point" style="left: 85%; bottom: 70%; background-color: #e84393; z-index: 10;"></div>
+            </div>
+
+            <!-- 模拟 X 轴标签 -->
+            <div style="position: absolute; left: 40px; right: 20px; bottom: 10px; height: 30px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8em; color: #a7bed3; border-top: 1px solid #3c5472;">
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span>18:00</span>
+                <span>23:59</span>
+            </div>
+
+            <!-- 图例 -->
+            <div style="position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); background-color: #2a3d54; padding: 5px 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); font-size: 0.9em;">
+                <span style="color: #e84393; margin-right: 10px;">&#9679; 瞬时流量 (m³/h)</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-table"></i>氮气监测详细数据</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>瞬时流量 (m³/h)</th>
+                        <th>累计流量 (m³)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-10-26 10:00:00</td>
+                        <td>8</td>
+                        <td>800</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 11:00:00</td>
+                        <td>8.5</td>
+                        <td>808.5</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 12:00:00</td>
+                        <td>8.2</td>
+                        <td>816.7</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 其他能源监测 Tab Content -->
+    <div id="other-energy-monitor" class="tab-content">
+        <h3>其他能源监测</h3>
+        <div class="filter-bar">
+            <label for="other-date-start">开始日期:</label>
+            <input type="date" id="other-date-start">
+            <label for="other-date-end">结束日期:</label>
+            <input type="date" id="other-date-end">
+            <button class="action-button">查询</button>
+        </div>
+        <div class="chart-container" style="position: relative; height: 400px; padding: 20px; overflow: hidden;">
+            <div style="font-weight: bold; text-align: center; margin-bottom: 10px; color: #00bcd4;">其他能源监测数据折线图 (模拟) - 天然气</div>
+            
+            <!-- 模拟 Y 轴 -->
+            <div style="position: absolute; left: 0px; top: 40px; bottom: 40px; width: 40px; display: flex; flex-direction: column; justify-content: space-between; font-size: 0.8em; color: #a7bed3; text-align: right; padding-right: 5px;">
+                <span>20 m³/h</span>
+                <span>15 m³/h</span>
+                <span>10 m³/h</span>
+                <span>5 m³/h</span>
+                <span>0 m³/h</span>
+            </div>
+
+            <!-- 模拟 X 轴和数据区域 -->
+            <div style="position: absolute; left: 40px; right: 20px; top: 40px; bottom: 40px; border-left: 1px solid #3c5472; border-bottom: 1px solid #3c5472;">
+                <!-- 模拟水平网格线 -->
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 0%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 25%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 50%;"></div>
+                <div style="position: absolute; width: 100%; height: 1px; background-color: #314a60; top: 75%;"></div>
+
+                <!-- SVG 连接线层 -->
+                <svg style="position: absolute; width: 100%; height: 100%; pointer-events: none;" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 天然气流量折线 (青色) -->
+                    <polyline points="5,50 25,30 45,60 65,20 85,40" fill="none" stroke="#1abc9c" stroke-width="0.5" opacity="0.8" vector-effect="non-scaling-stroke"/>
+                </svg>
+
+                <!-- 模拟数据点: 天然气流量 (青色) -->
+                <div class="data-point" style="left: 5%; bottom: 50%; background-color: #1abc9c; z-index: 10;"></div>
+                <div class="data-point" style="left: 25%; bottom: 70%; background-color: #1abc9c; z-index: 10;"></div>
+                <div class="data-point" style="left: 45%; bottom: 40%; background-color: #1abc9c; z-index: 10;"></div>
+                <div class="data-point" style="left: 65%; bottom: 80%; background-color: #1abc9c; z-index: 10;"></div>
+                <div class="data-point" style="left: 85%; bottom: 60%; background-color: #1abc9c; z-index: 10;"></div>
+            </div>
+
+            <!-- 模拟 X 轴标签 -->
+            <div style="position: absolute; left: 40px; right: 20px; bottom: 10px; height: 30px; display: flex; justify-content: space-between; align-items: center; font-size: 0.8em; color: #a7bed3; border-top: 1px solid #3c5472;">
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span>18:00</span>
+                <span>23:59</span>
+            </div>
+
+            <!-- 图例 -->
+            <div style="position: absolute; bottom: 0px; left: 50%; transform: translateX(-50%); background-color: #2a3d54; padding: 5px 10px; border-radius: 5px; box-shadow: 0 0 5px rgba(0,0,0,0.1); font-size: 0.9em;">
+                <span style="color: #1abc9c; margin-right: 10px;">&#9679; 天然气流量 (m³/h)</span>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title"><i class="fas fa-table"></i>其他能源监测详细数据</div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>能源类型</th>
+                        <th>参数1</th>
+                        <th>参数2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-10-26 10:00:00</td>
+                        <td>天然气</td>
+                        <td>15</td>
+                        <td>500</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 11:00:00</td>
+                        <td>太阳能</td>
+                        <td>20</td>
+                        <td>600</td>
+                    </tr>
+                    <tr>
+                        <td>2023-10-26 12:00:00</td>
+                        <td>煤炭</td>
+                        <td>25</td>
+                        <td>700</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</div>
+<script src="iframe-common.js"></script>
+</body>
+</html>

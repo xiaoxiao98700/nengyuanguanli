@@ -1,0 +1,2075 @@
+<div class="sub-menu-content-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+        
+        .energy-network-config-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Tab导航 */
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3c5472;
+            padding-bottom: 0;
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: #a7bed3;
+            padding: 12px 24px;
+            font-size: 15px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .tab-button:hover {
+            color: #00bcd4;
+            background: rgba(0, 188, 212, 0.1);
+        }
+
+        .tab-button.active {
+            color: #00bcd4;
+            border-bottom-color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .tab-button i {
+            font-size: 16px;
+        }
+
+        /* Tab内容 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            border: none;
+            color: #1a2a3a;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.2);
+        }
+
+        .action-button:hover {
+            background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+        }
+
+        .action-button.secondary {
+            background: linear-gradient(135deg, #3c5472 0%, #2a3d54 100%);
+            color: #e0e6ed;
+            box-shadow: 0 2px 8px rgba(60, 84, 114, 0.2);
+        }
+
+        .action-button.secondary:hover {
+            background: linear-gradient(135deg, #4a6a8a 0%, #3c5472 100%);
+            box-shadow: 0 4px 12px rgba(60, 84, 114, 0.3);
+        }
+
+        .action-button.danger {
+            background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+        }
+
+        .action-button.danger:hover {
+            background: linear-gradient(135deg, #e53935 0%, #d32f2f 100%);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        /* 搜索框 */
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 15px 10px 40px;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a7bed3;
+        }
+
+        /* 表格 */
+        .data-table-container {
+            background: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #1a2a3a 0%, #2a3d54 100%);
+        }
+
+        .data-table th {
+            padding: 14px 12px;
+            text-align: left;
+            color: #e0e6ed;
+            font-weight: 600;
+            border-bottom: 2px solid #3c5472;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px;
+            color: #a7bed3;
+            border-bottom: 1px solid #3c5472;
+        }
+
+        .data-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(0, 188, 212, 0.1);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-button {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: #2a3d54;
+            border-color: #00bcd4;
+            color: #00bcd4;
+            transform: translateY(-1px);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            color: #1a2a3a;
+            border-color: #00bcd4;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+        }
+
+        .pagination-info {
+            color: #a7bed3;
+            font-size: 14px;
+            margin: 0 12px;
+            white-space: nowrap;
+        }
+
+        .pagination-jump {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .pagination-jump input {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .pagination-jump input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .pagination-jump button {
+            background: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-jump button:hover {
+            background: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.enabled {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .status-badge.disabled {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+            border: 1px solid #9e9e9e;
+        }
+
+        /* 操作按钮 */
+        .action-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-link {
+            color: #00bcd4;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+        }
+
+        .action-link:hover {
+            background: rgba(0, 188, 212, 0.2);
+            color: #00e5ff;
+        }
+
+        .action-link.danger {
+            color: #f44336;
+        }
+
+        .action-link.danger:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #ff5252;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%);
+            border: 1px solid #3c5472;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #3c5472;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #1a2a3a 0%, #2a3d54 100%);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            color: #00bcd4;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #a7bed3;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            color: #a7bed3;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #f44336;
+        }
+
+        .form-input,
+        .form-select {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+        }
+
+        .form-textarea {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+        }
+
+        .form-actions {
+            padding: 20px 24px;
+            border-top: 1px solid #3c5472;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a7bed3;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #3c5472;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+    </style>
+
+    <div class="energy-network-config-container">
+        <div class="page-header">
+            <h2 class="page-title">
+                <i class="fas fa-network-wired"></i> 能源网络配置
+            </h2>
+            <p class="page-description">
+                对能源类型、能源指标和能源成本进行统一配置管理，为能源监测和分析提供基础数据支撑。
+            </p>
+        </div>
+
+        <!-- Tab导航 -->
+        <div class="tab-nav">
+            <button class="tab-button active" onclick="switchTab('energy-type')">
+                <i class="fas fa-bolt"></i> 能源类型配置
+            </button>
+            <button class="tab-button" onclick="switchTab('energy-indicator')">
+                <i class="fas fa-chart-bar"></i> 能源指标配置
+            </button>
+            <button class="tab-button" onclick="switchTab('energy-cost')">
+                <i class="fas fa-yen-sign"></i> 能源成本配置
+            </button>
+        </div>
+
+        <!-- 能源类型配置 -->
+        <div id="tab-energy-type" class="tab-content active">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showEnergyTypeForm()">
+                        <i class="fas fa-plus"></i> 新增能源类型
+                    </button>
+                    <button class="action-button secondary" onclick="exportEnergyType()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importEnergyType()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-energy-type" placeholder="搜索能源编码、名称..." oninput="filterEnergyType()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>能源编码</th>
+                            <th>能源名称</th>
+                            <th>能源类型</th>
+                            <th>中文计量单位</th>
+                            <th>英文计量单位</th>
+                            <th>标煤折算系数</th>
+                            <th>父能源名称</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="energy-type-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                <!-- 分页控件 -->
+                <div class="pagination" id="energy-type-pagination" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 能源指标配置 -->
+        <div id="tab-energy-indicator" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showEnergyIndicatorForm()">
+                        <i class="fas fa-plus"></i> 新增能源指标
+                    </button>
+                    <button class="action-button secondary" onclick="exportEnergyIndicator()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importEnergyIndicator()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-energy-indicator" placeholder="搜索指标名称、能源类型..." oninput="filterEnergyIndicator()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>指标编码</th>
+                            <th>指标名称</th>
+                            <th>能源类型</th>
+                            <th>指标类型</th>
+                            <th>计量单位</th>
+                            <th>数据来源</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="energy-indicator-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                <!-- 分页控件 -->
+                <div class="pagination" id="energy-indicator-pagination" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 能源成本配置 -->
+        <div id="tab-energy-cost" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showEnergyCostForm()">
+                        <i class="fas fa-plus"></i> 新增成本配置
+                    </button>
+                    <button class="action-button secondary" onclick="exportEnergyCost()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importEnergyCost()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-energy-cost" placeholder="搜索能源名称、价格..." oninput="filterEnergyCost()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>能源名称</th>
+                            <th>能源类型</th>
+                            <th>单价（元/单位）</th>
+                            <th>生效日期</th>
+                            <th>失效日期</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="energy-cost-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                <!-- 分页控件 -->
+                <div class="pagination" id="energy-cost-pagination" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 能源类型配置模态框 -->
+    <div class="modal-overlay" id="energy-type-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-bolt"></i> <span id="energy-type-modal-title">新增能源类型</span>
+                </h3>
+                <button class="modal-close" onclick="closeEnergyTypeModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="energy-type-form" onsubmit="saveEnergyType(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">能源编码</label>
+                            <input type="text" class="form-input" id="energy-type-code" required placeholder="如：ELEC-001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">能源名称</label>
+                            <input type="text" class="form-input" id="energy-type-name" required placeholder="如：电能">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">能源类型</label>
+                            <select class="form-select" id="energy-type-category" required>
+                                <option value="">请选择</option>
+                                <option value="electricity">电</option>
+                                <option value="water">水</option>
+                                <option value="steam">蒸汽</option>
+                                <option value="compressed-air">压缩空气</option>
+                                <option value="nitrogen">氮气</option>
+                                <option value="gas">燃气</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">中文计量单位</label>
+                            <input type="text" class="form-input" id="energy-type-unit-cn" required placeholder="如：千瓦时">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">英文计量单位</label>
+                            <input type="text" class="form-input" id="energy-type-unit-en" required placeholder="如：kWh">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">标煤折算系数</label>
+                            <input type="number" class="form-input" id="energy-type-coal-factor" required step="0.0001" placeholder="如：0.1229">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">父能源名称</label>
+                            <select class="form-select" id="energy-type-parent">
+                                <option value="">无（顶级能源）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">启用状态</label>
+                            <select class="form-select" id="energy-type-enabled" required>
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeEnergyTypeModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 能源指标配置模态框 -->
+    <div class="modal-overlay" id="energy-indicator-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-chart-bar"></i> <span id="energy-indicator-modal-title">新增能源指标</span>
+                </h3>
+                <button class="modal-close" onclick="closeEnergyIndicatorModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="energy-indicator-form" onsubmit="saveEnergyIndicator(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">指标编码</label>
+                            <input type="text" class="form-input" id="indicator-code" required placeholder="如：IND-001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">指标名称</label>
+                            <input type="text" class="form-input" id="indicator-name" required placeholder="如：电流">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">能源类型</label>
+                            <select class="form-select" id="indicator-energy-type" required>
+                                <option value="">请选择</option>
+                                <option value="electricity">电</option>
+                                <option value="water">水</option>
+                                <option value="steam">蒸汽</option>
+                                <option value="compressed-air">压缩空气</option>
+                                <option value="nitrogen">氮气</option>
+                                <option value="gas">燃气</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">指标类型</label>
+                            <select class="form-select" id="indicator-type" required>
+                                <option value="">请选择</option>
+                                <option value="consumption">能耗</option>
+                                <option value="power">功率</option>
+                                <option value="current">电流</option>
+                                <option value="voltage">电压</option>
+                                <option value="flow">流量</option>
+                                <option value="pressure">压力</option>
+                                <option value="temperature">温度</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">计量单位</label>
+                            <input type="text" class="form-input" id="indicator-unit" required placeholder="如：A、V、kW等">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">数据来源</label>
+                            <select class="form-select" id="indicator-source" required>
+                                <option value="">请选择</option>
+                                <option value="meter">电表/水表</option>
+                                <option value="sensor">传感器</option>
+                                <option value="calculation">计算值</option>
+                                <option value="manual">手工录入</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">启用状态</label>
+                            <select class="form-select" id="indicator-enabled" required>
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeEnergyIndicatorModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 能源成本配置模态框 -->
+    <div class="modal-overlay" id="energy-cost-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-yen-sign"></i> <span id="energy-cost-modal-title">新增成本配置</span>
+                </h3>
+                <button class="modal-close" onclick="closeEnergyCostModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="energy-cost-form" onsubmit="saveEnergyCost(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">能源名称</label>
+                            <select class="form-select" id="cost-energy-name" required>
+                                <option value="">请选择能源</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">能源类型</label>
+                            <select class="form-select" id="cost-energy-type" required>
+                                <option value="">请选择</option>
+                                <option value="electricity">电</option>
+                                <option value="water">水</option>
+                                <option value="steam">蒸汽</option>
+                                <option value="compressed-air">压缩空气</option>
+                                <option value="nitrogen">氮气</option>
+                                <option value="gas">燃气</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">单价（元/单位）</label>
+                            <input type="number" class="form-input" id="cost-price" required step="0.01" min="0" placeholder="如：0.65">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">生效日期</label>
+                            <input type="date" class="form-input" id="cost-start-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">失效日期</label>
+                            <input type="date" class="form-input" id="cost-end-date" placeholder="留空表示永久有效">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-textarea" id="cost-remark" placeholder="请输入备注信息（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeEnergyCostModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // 能源类型数据
+    let energyTypeData = [
+        {
+            id: 1,
+            code: 'ELEC-001',
+            name: '电能',
+            category: 'electricity',
+            categoryName: '电',
+            unitCn: '千瓦时',
+            unitEn: 'kWh',
+            coalFactor: 0.1229,
+            parentName: '',
+            enabled: true
+        },
+        {
+            id: 2,
+            code: 'WATER-001',
+            name: '生产用水',
+            category: 'water',
+            categoryName: '水',
+            unitCn: '立方米',
+            unitEn: 'm³',
+            coalFactor: 0.0857,
+            parentName: '',
+            enabled: true
+        },
+        {
+            id: 3,
+            code: 'WATER-002',
+            name: '冷却水',
+            category: 'water',
+            categoryName: '水',
+            unitCn: '立方米',
+            unitEn: 'm³',
+            coalFactor: 0.0857,
+            parentName: '生产用水',
+            enabled: true
+        },
+        {
+            id: 4,
+            code: 'STEAM-001',
+            name: '蒸汽',
+            category: 'steam',
+            categoryName: '蒸汽',
+            unitCn: '吨',
+            unitEn: 't',
+            coalFactor: 0.1286,
+            parentName: '',
+            enabled: true
+        },
+        {
+            id: 5,
+            code: 'AIR-001',
+            name: '压缩空气',
+            category: 'compressed-air',
+            categoryName: '压缩空气',
+            unitCn: '立方米',
+            unitEn: 'm³',
+            coalFactor: 0.04,
+            parentName: '',
+            enabled: true
+        },
+        {
+            id: 6,
+            code: 'N2-001',
+            name: '氮气',
+            category: 'nitrogen',
+            categoryName: '氮气',
+            unitCn: '立方米',
+            unitEn: 'm³',
+            coalFactor: 0.15,
+            parentName: '',
+            enabled: true
+        },
+        {
+            id: 7,
+            code: 'GAS-001',
+            name: '天然气',
+            category: 'gas',
+            categoryName: '燃气',
+            unitCn: '立方米',
+            unitEn: 'm³',
+            coalFactor: 1.33,
+            parentName: '',
+            enabled: true
+        },
+        {
+            id: 8,
+            code: 'ELEC-002',
+            name: '高压电',
+            category: 'electricity',
+            categoryName: '电',
+            unitCn: '千瓦时',
+            unitEn: 'kWh',
+            coalFactor: 0.1229,
+            parentName: '电能',
+            enabled: true
+        },
+        {
+            id: 9,
+            code: 'ELEC-003',
+            name: '低压电',
+            category: 'electricity',
+            categoryName: '电',
+            unitCn: '千瓦时',
+            unitEn: 'kWh',
+            coalFactor: 0.1229,
+            parentName: '电能',
+            enabled: false
+        }
+    ];
+
+    // 能源指标数据
+    let energyIndicatorData = [
+        {
+            id: 1,
+            code: 'IND-001',
+            name: '电流',
+            energyType: 'electricity',
+            energyTypeName: '电',
+            indicatorType: 'current',
+            indicatorTypeName: '电流',
+            unit: 'A',
+            source: 'meter',
+            sourceName: '电表/水表',
+            enabled: true
+        },
+        {
+            id: 2,
+            code: 'IND-002',
+            name: '电压',
+            energyType: 'electricity',
+            energyTypeName: '电',
+            indicatorType: 'voltage',
+            indicatorTypeName: '电压',
+            unit: 'V',
+            source: 'meter',
+            sourceName: '电表/水表',
+            enabled: true
+        },
+        {
+            id: 3,
+            code: 'IND-003',
+            name: '功率',
+            energyType: 'electricity',
+            energyTypeName: '电',
+            indicatorType: 'power',
+            indicatorTypeName: '功率',
+            unit: 'kW',
+            source: 'calculation',
+            sourceName: '计算值',
+            enabled: true
+        },
+        {
+            id: 4,
+            code: 'IND-004',
+            name: '能耗',
+            energyType: 'electricity',
+            energyTypeName: '电',
+            indicatorType: 'consumption',
+            indicatorTypeName: '能耗',
+            unit: 'kWh',
+            source: 'meter',
+            sourceName: '电表/水表',
+            enabled: true
+        },
+        {
+            id: 5,
+            code: 'IND-005',
+            name: '流量',
+            energyType: 'water',
+            energyTypeName: '水',
+            indicatorType: 'flow',
+            indicatorTypeName: '流量',
+            unit: 'm³/h',
+            source: 'meter',
+            sourceName: '电表/水表',
+            enabled: true
+        },
+        {
+            id: 6,
+            code: 'IND-006',
+            name: '流速',
+            energyType: 'water',
+            energyTypeName: '水',
+            indicatorType: 'flow',
+            indicatorTypeName: '流量',
+            unit: 'm/s',
+            source: 'sensor',
+            sourceName: '传感器',
+            enabled: true
+        },
+        {
+            id: 7,
+            code: 'IND-007',
+            name: '压力',
+            energyType: 'water',
+            energyTypeName: '水',
+            indicatorType: 'pressure',
+            indicatorTypeName: '压力',
+            unit: 'MPa',
+            source: 'sensor',
+            sourceName: '传感器',
+            enabled: true
+        },
+        {
+            id: 8,
+            code: 'IND-008',
+            name: '蒸汽压力',
+            energyType: 'steam',
+            energyTypeName: '蒸汽',
+            indicatorType: 'pressure',
+            indicatorTypeName: '压力',
+            unit: 'MPa',
+            source: 'sensor',
+            sourceName: '传感器',
+            enabled: true
+        },
+        {
+            id: 9,
+            code: 'IND-009',
+            name: '蒸汽温度',
+            energyType: 'steam',
+            energyTypeName: '蒸汽',
+            indicatorType: 'temperature',
+            indicatorTypeName: '温度',
+            unit: '℃',
+            source: 'sensor',
+            sourceName: '传感器',
+            enabled: true
+        },
+        {
+            id: 10,
+            code: 'IND-010',
+            name: '蒸汽流量',
+            energyType: 'steam',
+            energyTypeName: '蒸汽',
+            indicatorType: 'flow',
+            indicatorTypeName: '流量',
+            unit: 't/h',
+            source: 'meter',
+            sourceName: '电表/水表',
+            enabled: true
+        },
+        {
+            id: 11,
+            code: 'IND-011',
+            name: '压缩空气压力',
+            energyType: 'compressed-air',
+            energyTypeName: '压缩空气',
+            indicatorType: 'pressure',
+            indicatorTypeName: '压力',
+            unit: 'MPa',
+            source: 'sensor',
+            sourceName: '传感器',
+            enabled: true
+        },
+        {
+            id: 12,
+            code: 'IND-012',
+            name: '压缩空气流量',
+            energyType: 'compressed-air',
+            energyTypeName: '压缩空气',
+            indicatorType: 'flow',
+            indicatorTypeName: '流量',
+            unit: 'm³/min',
+            source: 'meter',
+            sourceName: '电表/水表',
+            enabled: true
+        },
+        {
+            id: 13,
+            code: 'IND-013',
+            name: '氮气压力',
+            energyType: 'nitrogen',
+            energyTypeName: '氮气',
+            indicatorType: 'pressure',
+            indicatorTypeName: '压力',
+            unit: 'MPa',
+            source: 'sensor',
+            sourceName: '传感器',
+            enabled: true
+        },
+        {
+            id: 14,
+            code: 'IND-014',
+            name: '氮气流量',
+            energyType: 'nitrogen',
+            energyTypeName: '氮气',
+            indicatorType: 'flow',
+            indicatorTypeName: '流量',
+            unit: 'm³/h',
+            source: 'meter',
+            sourceName: '电表/水表',
+            enabled: true
+        },
+        {
+            id: 15,
+            code: 'IND-015',
+            name: '氮气纯度',
+            energyType: 'nitrogen',
+            energyTypeName: '氮气',
+            indicatorType: 'other',
+            indicatorTypeName: '其他',
+            unit: '%',
+            source: 'sensor',
+            sourceName: '传感器',
+            enabled: true
+        }
+    ];
+
+    // 能源成本数据
+    let energyCostData = [
+        {
+            id: 1,
+            energyName: '电能',
+            energyType: 'electricity',
+            energyTypeName: '电',
+            price: 0.65,
+            startDate: '2024-01-01',
+            endDate: '',
+            remark: '峰谷电价平均值'
+        },
+        {
+            id: 2,
+            energyName: '生产用水',
+            energyType: 'water',
+            energyTypeName: '水',
+            price: 3.50,
+            startDate: '2024-01-01',
+            endDate: '',
+            remark: '工业用水价格'
+        },
+        {
+            id: 3,
+            energyName: '冷却水',
+            energyType: 'water',
+            energyTypeName: '水',
+            price: 2.80,
+            startDate: '2024-01-01',
+            endDate: '',
+            remark: '循环冷却水价格'
+        },
+        {
+            id: 4,
+            energyName: '蒸汽',
+            energyType: 'steam',
+            energyTypeName: '蒸汽',
+            price: 180.00,
+            startDate: '2024-01-01',
+            endDate: '',
+            remark: '每吨蒸汽价格'
+        },
+        {
+            id: 5,
+            energyName: '压缩空气',
+            energyType: 'compressed-air',
+            energyTypeName: '压缩空气',
+            price: 0.12,
+            startDate: '2024-01-01',
+            endDate: '',
+            remark: '每立方米压缩空气成本'
+        },
+        {
+            id: 6,
+            energyName: '氮气',
+            energyType: 'nitrogen',
+            energyTypeName: '氮气',
+            price: 0.85,
+            startDate: '2024-01-01',
+            endDate: '',
+            remark: '每立方米氮气价格'
+        },
+        {
+            id: 7,
+            energyName: '天然气',
+            energyType: 'gas',
+            energyTypeName: '燃气',
+            price: 3.20,
+            startDate: '2024-01-01',
+            endDate: '',
+            remark: '每立方米天然气价格'
+        },
+        {
+            id: 8,
+            energyName: '电能',
+            energyType: 'electricity',
+            energyTypeName: '电',
+            price: 0.68,
+            startDate: '2024-06-01',
+            endDate: '',
+            remark: '电价调整后新价格'
+        }
+    ];
+
+    let currentEditingId = null;
+    let currentTab = 'energy-type';
+    
+    // 分页配置
+    const pageSize = 10; // 每页显示10条数据
+    const paginationState = {
+        'energy-type': { currentPage: 1 },
+        'energy-indicator': { currentPage: 1 },
+        'energy-cost': { currentPage: 1 }
+    };
+
+    // Tab切换
+    window.switchTab = function(tab) {
+        // 更新Tab按钮状态
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // 更新Tab内容
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById('tab-' + tab).classList.add('active');
+
+        currentTab = tab;
+        
+        // 重新渲染当前Tab的数据
+        if (tab === 'energy-type') {
+            renderEnergyTypeTable();
+        } else if (tab === 'energy-indicator') {
+            renderEnergyIndicatorTable();
+        } else if (tab === 'energy-cost') {
+            renderEnergyCostTable();
+        }
+    };
+
+    // 通用分页渲染函数
+    function renderPagination(tabName, totalRecords, startRecord, endRecord) {
+        const pagination = document.getElementById(`${tabName}-pagination`);
+        if (!pagination) return;
+
+        const state = paginationState[tabName];
+        const totalPages = Math.ceil(totalRecords / pageSize);
+
+        if (totalPages <= 1) {
+            pagination.style.display = 'none';
+            return;
+        }
+
+        pagination.style.display = 'flex';
+
+        let html = '';
+
+        // 上一页按钮
+        html += `<button class="pagination-button" onclick="goToPage('${tabName}', ${state.currentPage - 1})" ${state.currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i> 上一页
+        </button>`;
+
+        // 页码按钮
+        const maxVisiblePages = 7;
+        let startPage = Math.max(1, state.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // 第一页
+        if (startPage > 1) {
+            html += `<button class="pagination-button" onclick="goToPage('${tabName}', 1)">1</button>`;
+            if (startPage > 2) {
+                html += `<span class="pagination-info">...</span>`;
+            }
+        }
+
+        // 中间页码
+        for (let i = startPage; i <= endPage; i++) {
+            html += `<button class="pagination-button ${i === state.currentPage ? 'active' : ''}" onclick="goToPage('${tabName}', ${i})">${i}</button>`;
+        }
+
+        // 最后一页
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<span class="pagination-info">...</span>`;
+            }
+            html += `<button class="pagination-button" onclick="goToPage('${tabName}', ${totalPages})">${totalPages}</button>`;
+        }
+
+        // 下一页按钮
+        html += `<button class="pagination-button" onclick="goToPage('${tabName}', ${state.currentPage + 1})" ${state.currentPage === totalPages ? 'disabled' : ''}>
+            下一页 <i class="fas fa-chevron-right"></i>
+        </button>`;
+
+        // 分页信息
+        html += `<span class="pagination-info">共 ${totalRecords} 条，第 ${startRecord}-${endRecord} 条</span>`;
+
+        // 跳转输入
+        html += `<div class="pagination-jump">
+            <span style="color: #a7bed3; font-size: 13px;">跳至</span>
+            <input type="number" id="${tabName}-page-jump-input" min="1" max="${totalPages}" value="${state.currentPage}" onkeypress="handlePageJump('${tabName}', event)">
+            <span style="color: #a7bed3; font-size: 13px;">页</span>
+            <button onclick="jumpToPage('${tabName}')">确定</button>
+        </div>`;
+
+        pagination.innerHTML = html;
+    }
+
+    // 跳转到指定页（通用函数）
+    window.goToPage = function(tabName, page) {
+        const state = paginationState[tabName];
+        if (!state) return;
+
+        // 根据tab名称调用对应的渲染函数
+        const renderFunctions = {
+            'energy-type': () => {
+                const totalPages = Math.ceil(energyTypeData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderEnergyTypeTable();
+            },
+            'energy-indicator': () => {
+                const totalPages = Math.ceil(energyIndicatorData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderEnergyIndicatorTable();
+            },
+            'energy-cost': () => {
+                const totalPages = Math.ceil(energyCostData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderEnergyCostTable();
+            }
+        };
+
+        if (renderFunctions[tabName]) {
+            renderFunctions[tabName]();
+        }
+    };
+
+    // 处理跳转输入框的Enter键
+    window.handlePageJump = function(tabName, event) {
+        if (event.key === 'Enter') {
+            jumpToPage(tabName);
+        }
+    };
+
+    // 跳转到指定页（通过输入框）
+    window.jumpToPage = function(tabName) {
+        const input = document.getElementById(`${tabName}-page-jump-input`);
+        if (!input) return;
+        
+        const targetPage = parseInt(input.value);
+        if (isNaN(targetPage) || targetPage < 1) {
+            alert('请输入有效的页码');
+            return;
+        }
+
+        const state = paginationState[tabName];
+        if (!state) return;
+
+        const dataLengths = {
+            'energy-type': energyTypeData.length,
+            'energy-indicator': energyIndicatorData.length,
+            'energy-cost': energyCostData.length
+        };
+
+        const totalPages = Math.ceil((dataLengths[tabName] || 0) / pageSize);
+        
+        if (targetPage > totalPages) {
+            alert(`页码不能超过 ${totalPages}`);
+            input.value = state.currentPage;
+            return;
+        }
+
+        goToPage(tabName, targetPage);
+    };
+
+    // 渲染能源类型表格（带分页）
+    function renderEnergyTypeTable(data = null) {
+        const tbody = document.getElementById('energy-type-table-body');
+        const displayData = data || energyTypeData;
+        const state = paginationState['energy-type'];
+
+        if (displayData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无数据</p>
+                    </td>
+                </tr>
+            `;
+            const pagination = document.getElementById('energy-type-pagination');
+            if (pagination) pagination.style.display = 'none';
+            return;
+        }
+
+        // 计算分页
+        const totalRecords = displayData.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        if (state.currentPage > totalPages && totalPages > 0) {
+            state.currentPage = 1;
+        }
+
+        const startIndex = (state.currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = displayData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = currentPageData.map((item, index) => {
+            const globalIndex = startIndex + index;
+            return `
+            <tr>
+                <td>${item.code}</td>
+                <td>${item.name}</td>
+                <td>${item.categoryName}</td>
+                <td>${item.unitCn}</td>
+                <td>${item.unitEn}</td>
+                <td>${item.coalFactor}</td>
+                <td>${item.parentName || '-'}</td>
+                <td>
+                    <span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">
+                        ${item.enabled ? '启用' : '禁用'}
+                    </span>
+                </td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editEnergyType(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteEnergyType(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        renderPagination('energy-type', totalRecords, startIndex + 1, endIndex);
+    }
+
+    // 渲染能源指标表格（带分页）
+    function renderEnergyIndicatorTable(data = null) {
+        const tbody = document.getElementById('energy-indicator-table-body');
+        const displayData = data || energyIndicatorData;
+        const state = paginationState['energy-indicator'];
+
+        if (displayData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无数据</p>
+                    </td>
+                </tr>
+            `;
+            const pagination = document.getElementById('energy-indicator-pagination');
+            if (pagination) pagination.style.display = 'none';
+            return;
+        }
+
+        // 计算分页
+        const totalRecords = displayData.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        if (state.currentPage > totalPages && totalPages > 0) {
+            state.currentPage = 1;
+        }
+
+        const startIndex = (state.currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = displayData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = currentPageData.map((item, index) => {
+            const globalIndex = startIndex + index;
+            return `
+            <tr>
+                <td>${item.code}</td>
+                <td>${item.name}</td>
+                <td>${item.energyTypeName}</td>
+                <td>${item.indicatorTypeName}</td>
+                <td>${item.unit}</td>
+                <td>${item.sourceName}</td>
+                <td>
+                    <span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">
+                        ${item.enabled ? '启用' : '禁用'}
+                    </span>
+                </td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editEnergyIndicator(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteEnergyIndicator(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        renderPagination('energy-cost', totalRecords, startIndex + 1, endIndex);
+    }
+
+    // 渲染能源成本表格（带分页）
+    function renderEnergyCostTable(data = null) {
+        const tbody = document.getElementById('energy-cost-table-body');
+        const displayData = data || energyCostData;
+        const state = paginationState['energy-cost'];
+
+        if (displayData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无数据</p>
+                    </td>
+                </tr>
+            `;
+            const pagination = document.getElementById('energy-cost-pagination');
+            if (pagination) pagination.style.display = 'none';
+            return;
+        }
+
+        // 计算分页
+        const totalRecords = displayData.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        if (state.currentPage > totalPages && totalPages > 0) {
+            state.currentPage = 1;
+        }
+
+        const startIndex = (state.currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = displayData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = currentPageData.map((item, index) => {
+            const globalIndex = startIndex + index;
+            return `
+            <tr>
+                <td>${item.energyName}</td>
+                <td>${item.energyTypeName}</td>
+                <td>¥${item.price.toFixed(2)}</td>
+                <td>${item.startDate}</td>
+                <td>${item.endDate || '永久有效'}</td>
+                <td>${item.remark || '-'}</td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editEnergyCost(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteEnergyCost(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        renderPagination('energy-cost', totalRecords, startIndex + 1, endIndex);
+    }
+
+    // 能源类型相关函数
+    window.showEnergyTypeForm = function() {
+        currentEditingId = null;
+        document.getElementById('energy-type-modal-title').textContent = '新增能源类型';
+        document.getElementById('energy-type-form').reset();
+        document.getElementById('energy-type-modal').classList.add('active');
+        
+        // 更新父能源下拉框
+        updateParentEnergyOptions();
+    };
+
+    window.closeEnergyTypeModal = function() {
+        document.getElementById('energy-type-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editEnergyType = function(id) {
+        const item = energyTypeData.find(d => d.id === id);
+        if (!item) return;
+
+        currentEditingId = id;
+        document.getElementById('energy-type-modal-title').textContent = '编辑能源类型';
+        document.getElementById('energy-type-code').value = item.code;
+        document.getElementById('energy-type-name').value = item.name;
+        document.getElementById('energy-type-category').value = item.category;
+        document.getElementById('energy-type-unit-cn').value = item.unitCn;
+        document.getElementById('energy-type-unit-en').value = item.unitEn;
+        document.getElementById('energy-type-coal-factor').value = item.coalFactor;
+        document.getElementById('energy-type-enabled').value = item.enabled.toString();
+        
+        updateParentEnergyOptions();
+        document.getElementById('energy-type-parent').value = item.parentName || '';
+        
+        document.getElementById('energy-type-modal').classList.add('active');
+    };
+
+    window.deleteEnergyType = function(id) {
+        if (confirm('确定要删除这条能源类型配置吗？')) {
+            energyTypeData = energyTypeData.filter(d => d.id !== id);
+            renderEnergyTypeTable();
+        }
+    };
+
+    window.saveEnergyType = function(e) {
+        e.preventDefault();
+        
+        const data = {
+            code: document.getElementById('energy-type-code').value,
+            name: document.getElementById('energy-type-name').value,
+            category: document.getElementById('energy-type-category').value,
+            unitCn: document.getElementById('energy-type-unit-cn').value,
+            unitEn: document.getElementById('energy-type-unit-en').value,
+            coalFactor: parseFloat(document.getElementById('energy-type-coal-factor').value),
+            parentName: document.getElementById('energy-type-parent').value || '',
+            enabled: document.getElementById('energy-type-enabled').value === 'true'
+        };
+
+        const categoryMap = {
+            'electricity': '电',
+            'water': '水',
+            'steam': '蒸汽',
+            'compressed-air': '压缩空气',
+            'nitrogen': '氮气',
+            'gas': '燃气',
+            'other': '其他'
+        };
+        data.categoryName = categoryMap[data.category] || '其他';
+
+        if (currentEditingId) {
+            const index = energyTypeData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                energyTypeData[index] = { ...energyTypeData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...energyTypeData.map(d => d.id), 0) + 1;
+            energyTypeData.push({ id: newId, ...data });
+            paginationState['energy-type'].currentPage = 1; // 重置到第一页
+        }
+
+        renderEnergyTypeTable();
+        closeEnergyTypeModal();
+    };
+
+    function updateParentEnergyOptions() {
+        const select = document.getElementById('energy-type-parent');
+        const currentOptions = Array.from(select.options).map(opt => opt.value);
+        const existingNames = energyTypeData.map(d => d.name).filter(name => name);
+        
+        existingNames.forEach(name => {
+            if (!currentOptions.includes(name) && name !== '') {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                select.appendChild(option);
+            }
+        });
+    }
+
+    window.filterEnergyType = function() {
+        const keyword = document.getElementById('search-energy-type').value.toLowerCase();
+        const filtered = energyTypeData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            item.categoryName.toLowerCase().includes(keyword)
+        );
+        renderEnergyTypeTable(filtered);
+    };
+
+    // 能源指标相关函数
+    window.showEnergyIndicatorForm = function() {
+        currentEditingId = null;
+        document.getElementById('energy-indicator-modal-title').textContent = '新增能源指标';
+        document.getElementById('energy-indicator-form').reset();
+        document.getElementById('energy-indicator-modal').classList.add('active');
+    };
+
+    window.closeEnergyIndicatorModal = function() {
+        document.getElementById('energy-indicator-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editEnergyIndicator = function(id) {
+        const item = energyIndicatorData.find(d => d.id === id);
+        if (!item) return;
+
+        currentEditingId = id;
+        document.getElementById('energy-indicator-modal-title').textContent = '编辑能源指标';
+        document.getElementById('indicator-code').value = item.code;
+        document.getElementById('indicator-name').value = item.name;
+        document.getElementById('indicator-energy-type').value = item.energyType;
+        document.getElementById('indicator-type').value = item.indicatorType;
+        document.getElementById('indicator-unit').value = item.unit;
+        document.getElementById('indicator-source').value = item.source;
+        document.getElementById('indicator-enabled').value = item.enabled.toString();
+        
+        document.getElementById('energy-indicator-modal').classList.add('active');
+    };
+
+    window.deleteEnergyIndicator = function(id) {
+        if (confirm('确定要删除这条能源指标配置吗？')) {
+            energyIndicatorData = energyIndicatorData.filter(d => d.id !== id);
+            renderEnergyIndicatorTable();
+        }
+    };
+
+    window.saveEnergyIndicator = function(e) {
+        e.preventDefault();
+        
+        const data = {
+            code: document.getElementById('indicator-code').value,
+            name: document.getElementById('indicator-name').value,
+            energyType: document.getElementById('indicator-energy-type').value,
+            indicatorType: document.getElementById('indicator-type').value,
+            unit: document.getElementById('indicator-unit').value,
+            source: document.getElementById('indicator-source').value,
+            enabled: document.getElementById('indicator-enabled').value === 'true'
+        };
+
+        const energyTypeMap = {
+            'electricity': '电',
+            'water': '水',
+            'steam': '蒸汽',
+            'compressed-air': '压缩空气',
+            'nitrogen': '氮气',
+            'gas': '燃气',
+            'other': '其他'
+        };
+        data.energyTypeName = energyTypeMap[data.energyType] || '其他';
+
+        const indicatorTypeMap = {
+            'consumption': '能耗',
+            'power': '功率',
+            'current': '电流',
+            'voltage': '电压',
+            'flow': '流量',
+            'pressure': '压力',
+            'temperature': '温度',
+            'other': '其他'
+        };
+        data.indicatorTypeName = indicatorTypeMap[data.indicatorType] || '其他';
+
+        const sourceMap = {
+            'meter': '电表/水表',
+            'sensor': '传感器',
+            'calculation': '计算值',
+            'manual': '手工录入'
+        };
+        data.sourceName = sourceMap[data.source] || '其他';
+
+        if (currentEditingId) {
+            const index = energyIndicatorData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                energyIndicatorData[index] = { ...energyIndicatorData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...energyIndicatorData.map(d => d.id), 0) + 1;
+            energyIndicatorData.push({ id: newId, ...data });
+            paginationState['energy-indicator'].currentPage = 1; // 重置到第一页
+        }
+
+        renderEnergyIndicatorTable();
+        closeEnergyIndicatorModal();
+    };
+
+    window.filterEnergyIndicator = function() {
+        const keyword = document.getElementById('search-energy-indicator').value.toLowerCase();
+        const filtered = energyIndicatorData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            item.energyTypeName.toLowerCase().includes(keyword) ||
+            item.indicatorTypeName.toLowerCase().includes(keyword)
+        );
+        renderEnergyIndicatorTable(filtered);
+    };
+
+    // 能源成本相关函数
+    window.showEnergyCostForm = function() {
+        currentEditingId = null;
+        document.getElementById('energy-cost-modal-title').textContent = '新增成本配置';
+        document.getElementById('energy-cost-form').reset();
+        document.getElementById('energy-cost-modal').classList.add('active');
+        
+        // 更新能源名称下拉框
+        updateCostEnergyNameOptions();
+    };
+
+    window.closeEnergyCostModal = function() {
+        document.getElementById('energy-cost-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editEnergyCost = function(id) {
+        const item = energyCostData.find(d => d.id === id);
+        if (!item) return;
+
+        currentEditingId = id;
+        document.getElementById('energy-cost-modal-title').textContent = '编辑成本配置';
+        document.getElementById('cost-energy-name').value = item.energyName;
+        document.getElementById('cost-energy-type').value = item.energyType;
+        document.getElementById('cost-price').value = item.price;
+        document.getElementById('cost-start-date').value = item.startDate;
+        document.getElementById('cost-end-date').value = item.endDate || '';
+        document.getElementById('cost-remark').value = item.remark || '';
+        
+        document.getElementById('energy-cost-modal').classList.add('active');
+    };
+
+    window.deleteEnergyCost = function(id) {
+        if (confirm('确定要删除这条成本配置吗？')) {
+            energyCostData = energyCostData.filter(d => d.id !== id);
+            renderEnergyCostTable();
+        }
+    };
+
+    window.saveEnergyCost = function(e) {
+        e.preventDefault();
+        
+        const data = {
+            energyName: document.getElementById('cost-energy-name').value,
+            energyType: document.getElementById('cost-energy-type').value,
+            price: parseFloat(document.getElementById('cost-price').value),
+            startDate: document.getElementById('cost-start-date').value,
+            endDate: document.getElementById('cost-end-date').value || '',
+            remark: document.getElementById('cost-remark').value || ''
+        };
+
+        const energyTypeMap = {
+            'electricity': '电',
+            'water': '水',
+            'steam': '蒸汽',
+            'compressed-air': '压缩空气',
+            'nitrogen': '氮气',
+            'gas': '燃气',
+            'other': '其他'
+        };
+        data.energyTypeName = energyTypeMap[data.energyType] || '其他';
+
+        if (currentEditingId) {
+            const index = energyCostData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                energyCostData[index] = { ...energyCostData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...energyCostData.map(d => d.id), 0) + 1;
+            energyCostData.push({ id: newId, ...data });
+            paginationState['energy-cost'].currentPage = 1; // 重置到第一页
+        }
+
+        renderEnergyCostTable();
+        closeEnergyCostModal();
+    };
+
+    function updateCostEnergyNameOptions() {
+        const select = document.getElementById('cost-energy-name');
+        // 清空现有选项（保留第一个"请选择"选项）
+        while (select.options.length > 1) {
+            select.remove(1);
+        }
+        
+        // 从能源类型数据中获取能源名称
+        const energyNames = [...new Set(energyTypeData.map(d => d.name))];
+        energyNames.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            select.appendChild(option);
+        });
+    }
+
+    window.filterEnergyCost = function() {
+        const keyword = document.getElementById('search-energy-cost').value.toLowerCase();
+        const filtered = energyCostData.filter(item => 
+            item.energyName.toLowerCase().includes(keyword) ||
+            item.energyTypeName.toLowerCase().includes(keyword) ||
+            item.price.toString().includes(keyword) ||
+            (item.remark && item.remark.toLowerCase().includes(keyword))
+        );
+        renderEnergyCostTable(filtered);
+    };
+
+    // 导出/导入函数（占位）
+    window.exportEnergyType = function() {
+        alert('导出功能开发中...');
+    };
+
+    window.importEnergyType = function() {
+        alert('导入功能开发中...');
+    };
+
+    window.exportEnergyIndicator = function() {
+        alert('导出功能开发中...');
+    };
+
+    window.importEnergyIndicator = function() {
+        alert('导入功能开发中...');
+    };
+
+    window.exportEnergyCost = function() {
+        alert('导出功能开发中...');
+    };
+
+    window.importEnergyCost = function() {
+        alert('导入功能开发中...');
+    };
+
+    // 点击模态框外部关闭
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+    });
+
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.classList.remove('active');
+            });
+        }
+    });
+
+    // 初始化
+    function init() {
+        renderEnergyTypeTable();
+        renderEnergyIndicatorTable();
+        renderEnergyCostTable();
+    }
+
+    // 确保在iframe中也能正常初始化
+    function ensureInit() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    }
+
+    ensureInit();
+})();
+</script>

@@ -1,0 +1,1590 @@
+<div class="process-energy-consumption-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+
+        .process-energy-consumption-container {
+            padding: 24px 28px 48px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+            color: #e0e6ed;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* Tab导航 */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #24415c;
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: #8aa0bc;
+            padding: 12px 24px;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-button:hover {
+            color: #00bcd4;
+        }
+
+        .tab-button.active {
+            color: #00bcd4;
+            border-bottom-color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 筛选区域 */
+        .filter-panel {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            color: #8aa0bc;
+        }
+
+        .filter-select,
+        .filter-input {
+            background-color: #152535;
+            border: 1px solid #2f4a66;
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #e6ecf3;
+            font-size: 14px;
+            transition: border 0.2s ease;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.2);
+        }
+
+        .time-granularity-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .time-granularity-btn {
+            border: none;
+            background: #1d3247;
+            color: #c7d5e5;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .time-granularity-btn.active {
+            background: linear-gradient(120deg, #00bcd4, #5ad8ff);
+            color: #052030;
+            font-weight: 600;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #24415c;
+        }
+
+        .action-button {
+            background: linear-gradient(120deg, #00bcd4, #5ad8ff);
+            border: none;
+            color: #052030;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.4);
+        }
+
+        .action-button.secondary {
+            background: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .action-button.secondary:hover {
+            background: #4a6a8a;
+            box-shadow: 0 4px 12px rgba(60, 84, 114, 0.4);
+        }
+
+        /* 统计概览 */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.consumption {
+            background: linear-gradient(135deg, #00bcd4, #5ad8ff);
+            color: #052030;
+        }
+
+        .stat-icon.recovery {
+            background: linear-gradient(135deg, #4caf50, #81c784);
+            color: #fff;
+        }
+
+        .stat-icon.coal {
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+            color: #fff;
+        }
+
+        .stat-icon.unit {
+            background: linear-gradient(135deg, #9c27b0, #ba68c8);
+            color: #fff;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #8aa0bc;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e0e6ed;
+        }
+
+        .stat-unit {
+            font-size: 12px;
+            color: #8aa0bc;
+            margin-left: 4px;
+        }
+
+        /* 报表表格 */
+        .report-table-container {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            overflow-x: auto;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .report-table thead {
+            background: linear-gradient(135deg, #1a2f47, #24415c);
+        }
+
+        .report-table th {
+            padding: 14px 12px;
+            text-align: left;
+            color: #00bcd4;
+            font-weight: 600;
+            border-bottom: 2px solid #00bcd4;
+            white-space: nowrap;
+        }
+
+        .report-table td {
+            padding: 12px;
+            border-bottom: 1px solid #2f4a66;
+            color: #e0e6ed;
+        }
+
+        .report-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .report-table tbody tr:hover {
+            background-color: rgba(0, 188, 212, 0.1);
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background-color: rgba(26, 45, 71, 0.3);
+        }
+
+        .report-table tbody tr.total-row {
+            background-color: rgba(0, 188, 212, 0.15);
+            font-weight: 600;
+        }
+
+        .number-value {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8aa0bc;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-button {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: #2a3d54;
+            border-color: #00bcd4;
+            color: #00bcd4;
+            transform: translateY(-1px);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            color: #1a2a3a;
+            border-color: #00bcd4;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+        }
+
+        .pagination-info {
+            color: #a7bed3;
+            font-size: 14px;
+            margin: 0 12px;
+            white-space: nowrap;
+        }
+
+        .pagination-jump {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .pagination-jump input {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .pagination-jump input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .pagination-jump button {
+            background: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-jump button:hover {
+            background: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 12px;
+        }
+
+        .action-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .action-bar-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .info-text {
+            color: #8aa0bc;
+            font-size: 14px;
+        }
+    </style>
+
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-industry"></i> 工艺能耗表
+        </h2>
+        <p class="page-description">
+            对各能源类型各工序能源的消耗回收的实物量、折标煤量和单耗通过表格展现，包括工艺能耗的分析和能源加工转换报表，按日、月、年进行统计。
+        </p>
+    </div>
+
+    <!-- Tab导航 -->
+    <div class="tab-nav">
+        <button class="tab-button active" onclick="switchTab('process-consumption')">
+            <i class="fas fa-table"></i> 工艺能耗表
+        </button>
+        <button class="tab-button" onclick="switchTab('energy-conversion')">
+            <i class="fas fa-exchange-alt"></i> 能源加工转换报表
+        </button>
+    </div>
+
+    <!-- 工艺能耗表 -->
+    <div id="tab-process-consumption" class="tab-content active">
+        <!-- 筛选区域 -->
+        <div class="filter-panel">
+            <div class="filter-grid">
+                <div class="filter-field">
+                    <label class="filter-label">时间粒度</label>
+                    <div class="time-granularity-group">
+                        <button class="time-granularity-btn active" data-granularity="day">日</button>
+                        <button class="time-granularity-btn" data-granularity="month">月</button>
+                        <button class="time-granularity-btn" data-granularity="year">年</button>
+                    </div>
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">开始时间</label>
+                    <input type="date" class="filter-input" id="start-date">
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">结束时间</label>
+                    <input type="date" class="filter-input" id="end-date">
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">工序</label>
+                    <select class="filter-select" id="process-select">
+                        <option value="">全部工序</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">能源类型</label>
+                    <select class="filter-select" id="energy-type-select">
+                        <option value="">全部能源</option>
+                        <option value="electricity">电</option>
+                        <option value="water">水</option>
+                        <option value="gas">天然气</option>
+                        <option value="steam">蒸汽</option>
+                        <option value="compressed-air">压缩空气</option>
+                        <option value="nitrogen">氮气</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="action-button" onclick="queryProcessConsumption()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="action-button secondary" onclick="resetFilter()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+                <button class="action-button secondary" onclick="exportReport('process')">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+
+        <!-- 统计概览 -->
+        <div class="stats-overview" id="process-stats-overview">
+            <!-- 统计卡片将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <div class="action-bar-left">
+                <span class="info-text" id="process-data-info">请选择筛选条件并查询</span>
+            </div>
+            <div class="action-bar-right">
+                <button class="action-button secondary" onclick="exportReport('process', 'excel')">
+                    <i class="fas fa-file-excel"></i> 导出Excel
+                </button>
+                <button class="action-button secondary" onclick="exportReport('process', 'pdf')">
+                    <i class="fas fa-file-pdf"></i> 导出PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- 工艺能耗表 -->
+        <div class="report-table-container">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>工序</th>
+                        <th>能源类型</th>
+                        <th>消耗量（实物量）</th>
+                        <th>单位</th>
+                        <th>回收量（实物量）</th>
+                        <th>单位</th>
+                        <th>净消耗量</th>
+                        <th>折标煤量（kg）</th>
+                        <th>单耗</th>
+                        <th>单位</th>
+                    </tr>
+                </thead>
+                <tbody id="process-consumption-table-body">
+                    <tr>
+                        <td colspan="11" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>请选择筛选条件并查询</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- 分页控件 -->
+            <div class="pagination" id="process-pagination" style="display: none;">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 能源加工转换报表 -->
+    <div id="tab-energy-conversion" class="tab-content">
+        <!-- 筛选区域 -->
+        <div class="filter-panel">
+            <div class="filter-grid">
+                <div class="filter-field">
+                    <label class="filter-label">时间粒度</label>
+                    <div class="time-granularity-group">
+                        <button class="time-granularity-btn active" data-granularity="day">日</button>
+                        <button class="time-granularity-btn" data-granularity="month">月</button>
+                        <button class="time-granularity-btn" data-granularity="year">年</button>
+                    </div>
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">开始时间</label>
+                    <input type="date" class="filter-input" id="conversion-start-date">
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">结束时间</label>
+                    <input type="date" class="filter-input" id="conversion-end-date">
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">转换类型</label>
+                    <select class="filter-select" id="conversion-type-select">
+                        <option value="">全部类型</option>
+                        <option value="electricity-to-steam">电转蒸汽</option>
+                        <option value="gas-to-steam">天然气转蒸汽</option>
+                        <option value="electricity-to-compressed-air">电转压缩空气</option>
+                        <option value="electricity-to-nitrogen">电转氮气</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="action-button" onclick="queryEnergyConversion()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="action-button secondary" onclick="resetConversionFilter()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+                <button class="action-button secondary" onclick="exportReport('conversion')">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <div class="action-bar-left">
+                <span class="info-text" id="conversion-data-info">请选择筛选条件并查询</span>
+            </div>
+            <div class="action-bar-right">
+                <button class="action-button secondary" onclick="exportReport('conversion', 'excel')">
+                    <i class="fas fa-file-excel"></i> 导出Excel
+                </button>
+                <button class="action-button secondary" onclick="exportReport('conversion', 'pdf')">
+                    <i class="fas fa-file-pdf"></i> 导出PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- 能源加工转换报表 -->
+        <div class="report-table-container">
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>转换类型</th>
+                        <th>输入能源</th>
+                        <th>输入量</th>
+                        <th>输入单位</th>
+                        <th>输出能源</th>
+                        <th>输出量</th>
+                        <th>输出单位</th>
+                        <th>转换效率（%）</th>
+                        <th>折标煤量（kg）</th>
+                    </tr>
+                </thead>
+                <tbody id="energy-conversion-table-body">
+                    <tr>
+                        <td colspan="10" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>请选择筛选条件并查询</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- 分页控件 -->
+            <div class="pagination" id="conversion-pagination" style="display: none;">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // 防止重复加载
+        if (window.__processEnergyConsumptionModuleLoaded) {
+            return;
+        }
+        window.__processEnergyConsumptionModuleLoaded = true;
+
+        // 工序数据
+        const processes = [
+            { id: 'process-1', name: '原料干燥', code: 'PROC-001' },
+            { id: 'process-2', name: '注塑成型', code: 'PROC-002' },
+            { id: 'process-3', name: '冲压成型', code: 'PROC-003' },
+            { id: 'process-4', name: '冷却定型', code: 'PROC-004' },
+            { id: 'process-5', name: '表面处理', code: 'PROC-005' },
+            { id: 'process-6', name: '装配', code: 'PROC-006' },
+            { id: 'process-7', name: '包装', code: 'PROC-007' }
+        ];
+
+        // 能源类型配置
+        const energyTypes = {
+            electricity: { name: '电', unit: 'kWh', coalFactor: 0.1229, price: 0.65 },
+            water: { name: '水', unit: 'm³', coalFactor: 0.0857, price: 3.0 },
+            gas: { name: '天然气', unit: 'Nm³', coalFactor: 1.33, price: 3.5 },
+            steam: { name: '蒸汽', unit: 't', coalFactor: 0.1286, price: 180 },
+            'compressed-air': { name: '压缩空气', unit: 'Nm³', coalFactor: 0.04, price: 0.1 },
+            nitrogen: { name: '氮气', unit: 'Nm³', coalFactor: 0.15, price: 0.8 }
+        };
+
+        // 能源转换配置
+        const conversionTypes = {
+            'electricity-to-steam': {
+                name: '电转蒸汽',
+                inputEnergy: 'electricity',
+                outputEnergy: 'steam',
+                efficiency: 0.85, // 85%转换效率
+                conversionRate: 0.001 // 1kWh = 0.001t蒸汽
+            },
+            'gas-to-steam': {
+                name: '天然气转蒸汽',
+                inputEnergy: 'gas',
+                outputEnergy: 'steam',
+                efficiency: 0.90,
+                conversionRate: 0.08 // 1Nm³天然气 = 0.08t蒸汽
+            },
+            'electricity-to-compressed-air': {
+                name: '电转压缩空气',
+                inputEnergy: 'electricity',
+                outputEnergy: 'compressed-air',
+                efficiency: 0.75,
+                conversionRate: 6.5 // 1kWh = 6.5Nm³压缩空气
+            },
+            'electricity-to-nitrogen': {
+                name: '电转氮气',
+                inputEnergy: 'electricity',
+                outputEnergy: 'nitrogen',
+                efficiency: 0.70,
+                conversionRate: 0.5 // 1kWh = 0.5Nm³氮气
+            }
+        };
+
+        let currentGranularity = 'day';
+        let processConsumptionData = [];
+        let energyConversionData = [];
+        let processCurrentPage = 1;
+        let conversionCurrentPage = 1;
+        const pageSize = 10; // 每页显示10条数据
+
+        const processSelect = document.getElementById('process-select');
+        const energyTypeSelect = document.getElementById('energy-type-select');
+        const startDateInput = document.getElementById('start-date');
+        const endDateInput = document.getElementById('end-date');
+        const conversionStartDateInput = document.getElementById('conversion-start-date');
+        const conversionEndDateInput = document.getElementById('conversion-end-date');
+        const conversionTypeSelect = document.getElementById('conversion-type-select');
+        const processTableBody = document.getElementById('process-consumption-table-body');
+        const conversionTableBody = document.getElementById('energy-conversion-table-body');
+        const processStatsOverview = document.getElementById('process-stats-overview');
+        const processDataInfo = document.getElementById('process-data-info');
+        const conversionDataInfo = document.getElementById('conversion-data-info');
+
+        // 初始化
+        function init() {
+            // 初始化工序选择器
+            processSelect.innerHTML = '<option value="">全部工序</option>' +
+                processes.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+            // 初始化时间粒度按钮
+            initTimeGranularityButtons();
+
+            // 初始化时间（默认最近7天）
+            const now = new Date();
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            startDateInput.value = sevenDaysAgo.toISOString().slice(0, 10);
+            endDateInput.value = now.toISOString().slice(0, 10);
+            conversionStartDateInput.value = sevenDaysAgo.toISOString().slice(0, 10);
+            conversionEndDateInput.value = now.toISOString().slice(0, 10);
+        }
+
+        // 初始化时间粒度按钮
+        function initTimeGranularityButtons() {
+            document.querySelectorAll('.time-granularity-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const group = this.closest('.time-granularity-group');
+                    group.querySelectorAll('.time-granularity-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentGranularity = this.dataset.granularity;
+                });
+            });
+        }
+
+        // 切换Tab
+        window.switchTab = function(tab) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            if (tab === 'process-consumption') {
+                document.querySelector('.tab-button[onclick*="process-consumption"]').classList.add('active');
+                document.getElementById('tab-process-consumption').classList.add('active');
+            } else if (tab === 'energy-conversion') {
+                document.querySelector('.tab-button[onclick*="energy-conversion"]').classList.add('active');
+                document.getElementById('tab-energy-conversion').classList.add('active');
+            }
+        };
+
+        // 生成工艺能耗样例数据
+        function generateProcessConsumptionData() {
+            const data = [];
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            
+            // 根据时间粒度确定间隔
+            let interval, formatFunc;
+            switch (currentGranularity) {
+                case 'year':
+                    interval = 365 * 24 * 60 * 60 * 1000;
+                    formatFunc = (d) => d.getFullYear() + '年';
+                    break;
+                case 'month':
+                    interval = 30 * 24 * 60 * 60 * 1000;
+                    formatFunc = (d) => d.getFullYear() + '年' + (d.getMonth() + 1) + '月';
+                    break;
+                default: // day
+                    interval = 24 * 60 * 60 * 1000;
+                    formatFunc = (d) => d.toISOString().slice(0, 10);
+            }
+
+            for (let date = new Date(startDate); date <= endDate; date = new Date(date.getTime() + interval)) {
+                const timeLabel = formatFunc(date);
+                
+                processes.forEach(process => {
+                    Object.keys(energyTypes).forEach(energyType => {
+                        const energyConfig = energyTypes[energyType];
+                        
+                        // 生成消耗量（根据工序和能源类型设置不同的基准值）
+                        const baseConsumption = getBaseConsumption(process.id, energyType);
+                        const consumption = baseConsumption * (0.85 + Math.random() * 0.3); // 85%-115%波动
+                        
+                        // 生成回收量（部分工序有能源回收）
+                        const recoveryRate = getRecoveryRate(process.id, energyType);
+                        const recovery = consumption * recoveryRate;
+                        
+                        // 净消耗量
+                        const netConsumption = consumption - recovery;
+                        
+                        // 折标煤量
+                        const coalEquivalent = netConsumption * energyConfig.coalFactor;
+                        
+                        // 单耗（假设产量为1000单位，单耗 = 净消耗量 / 产量）
+                        const output = 1000;
+                        const unitConsumption = netConsumption / output;
+
+                        data.push({
+                            timeLabel: timeLabel,
+                            timestamp: date.toISOString(),
+                            processId: process.id,
+                            processName: process.name,
+                            energyType: energyType,
+                            energyName: energyConfig.name,
+                            consumption: parseFloat(consumption.toFixed(2)),
+                            consumptionUnit: energyConfig.unit,
+                            recovery: parseFloat(recovery.toFixed(2)),
+                            recoveryUnit: energyConfig.unit,
+                            netConsumption: parseFloat(netConsumption.toFixed(2)),
+                            coalEquivalent: parseFloat(coalEquivalent.toFixed(2)),
+                            unitConsumption: parseFloat(unitConsumption.toFixed(4)),
+                            unitConsumptionUnit: energyConfig.unit + '/单位'
+                        });
+                    });
+                });
+            }
+
+            return data;
+        }
+
+        // 获取基准消耗量
+        function getBaseConsumption(processId, energyType) {
+            const baseMap = {
+                'process-1': { electricity: 500, water: 20, gas: 0, steam: 0, 'compressed-air': 0, nitrogen: 0 },
+                'process-2': { electricity: 1200, water: 50, gas: 30, steam: 1.5, 'compressed-air': 200, nitrogen: 0 },
+                'process-3': { electricity: 800, water: 30, gas: 20, steam: 0, 'compressed-air': 150, nitrogen: 100 },
+                'process-4': { electricity: 300, water: 80, gas: 0, steam: 0, 'compressed-air': 0, nitrogen: 0 },
+                'process-5': { electricity: 400, water: 15, gas: 10, steam: 0.5, 'compressed-air': 50, nitrogen: 0 },
+                'process-6': { electricity: 200, water: 5, gas: 0, steam: 0, 'compressed-air': 30, nitrogen: 0 },
+                'process-7': { electricity: 150, water: 3, gas: 0, steam: 0, 'compressed-air': 20, nitrogen: 0 }
+            };
+            return baseMap[processId]?.[energyType] || 0;
+        }
+
+        // 获取回收率
+        function getRecoveryRate(processId, energyType) {
+            // 部分工序有能源回收（如冷却工序回收热量）
+            if (processId === 'process-4' && energyType === 'steam') {
+                return 0.15; // 冷却工序回收15%的蒸汽
+            }
+            if (energyType === 'compressed-air') {
+                return 0.05; // 压缩空气有5%回收
+            }
+            return 0;
+        }
+
+        // 生成能源转换样例数据
+        function generateEnergyConversionData() {
+            const data = [];
+            const startDate = new Date(conversionStartDateInput.value);
+            const endDate = new Date(conversionEndDateInput.value);
+            
+            // 根据时间粒度确定间隔
+            let interval, formatFunc;
+            switch (currentGranularity) {
+                case 'year':
+                    interval = 365 * 24 * 60 * 60 * 1000;
+                    formatFunc = (d) => d.getFullYear() + '年';
+                    break;
+                case 'month':
+                    interval = 30 * 24 * 60 * 60 * 1000;
+                    formatFunc = (d) => d.getFullYear() + '年' + (d.getMonth() + 1) + '月';
+                    break;
+                default: // day
+                    interval = 24 * 60 * 60 * 1000;
+                    formatFunc = (d) => d.toISOString().slice(0, 10);
+            }
+
+            for (let date = new Date(startDate); date <= endDate; date = new Date(date.getTime() + interval)) {
+                const timeLabel = formatFunc(date);
+                
+                Object.keys(conversionTypes).forEach(conversionType => {
+                    const conversion = conversionTypes[conversionType];
+                    const inputEnergy = energyTypes[conversion.inputEnergy];
+                    const outputEnergy = energyTypes[conversion.outputEnergy];
+                    
+                    // 生成输入量
+                    const baseInput = 1000;
+                    const input = baseInput * (0.9 + Math.random() * 0.2); // 90%-110%波动
+                    
+                    // 计算输出量（考虑转换效率和转换率）
+                    const output = input * conversion.conversionRate * conversion.efficiency;
+                    
+                    // 折标煤量（使用输出能源的折标煤系数）
+                    const coalEquivalent = output * outputEnergy.coalFactor;
+
+                    data.push({
+                        timeLabel: timeLabel,
+                        timestamp: date.toISOString(),
+                        conversionType: conversionType,
+                        conversionName: conversion.name,
+                        inputEnergy: conversion.inputEnergy,
+                        inputEnergyName: inputEnergy.name,
+                        input: parseFloat(input.toFixed(2)),
+                        inputUnit: inputEnergy.unit,
+                        outputEnergy: conversion.outputEnergy,
+                        outputEnergyName: outputEnergy.name,
+                        output: parseFloat(output.toFixed(2)),
+                        outputUnit: outputEnergy.unit,
+                        efficiency: parseFloat((conversion.efficiency * 100).toFixed(2)),
+                        coalEquivalent: parseFloat(coalEquivalent.toFixed(2))
+                    });
+                });
+            }
+
+            return data;
+        }
+
+        // 查询工艺能耗
+        window.queryProcessConsumption = function() {
+            processCurrentPage = 1; // 重置到第一页
+            processConsumptionData = generateProcessConsumptionData();
+            
+            // 应用筛选
+            let filtered = processConsumptionData;
+            if (processSelect.value) {
+                filtered = filtered.filter(d => d.processId === processSelect.value);
+            }
+            if (energyTypeSelect.value) {
+                filtered = filtered.filter(d => d.energyType === energyTypeSelect.value);
+            }
+
+            // 渲染统计概览
+            renderProcessStats(filtered);
+
+            // 渲染表格
+            renderProcessTable(filtered);
+
+            processDataInfo.textContent = `共 ${filtered.length} 条记录`;
+        };
+
+        // 查询能源转换
+        window.queryEnergyConversion = function() {
+            conversionCurrentPage = 1; // 重置到第一页
+            energyConversionData = generateEnergyConversionData();
+            
+            // 应用筛选
+            let filtered = energyConversionData;
+            if (conversionTypeSelect.value) {
+                filtered = filtered.filter(d => d.conversionType === conversionTypeSelect.value);
+            }
+
+            // 渲染表格
+            renderConversionTable(filtered);
+
+            conversionDataInfo.textContent = `共 ${filtered.length} 条记录`;
+        };
+
+        // 渲染工艺能耗统计概览
+        function renderProcessStats(data) {
+            if (data.length === 0) {
+                processStatsOverview.innerHTML = '';
+                return;
+            }
+
+            const totalConsumption = data.reduce((sum, d) => sum + d.consumption, 0);
+            const totalRecovery = data.reduce((sum, d) => sum + d.recovery, 0);
+            const totalCoal = data.reduce((sum, d) => sum + d.coalEquivalent, 0);
+            const avgUnitConsumption = data.reduce((sum, d) => sum + d.unitConsumption, 0) / data.length;
+
+            processStatsOverview.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon consumption">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">总消耗量</div>
+                        <div class="stat-value">${totalConsumption.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">（各能源单位）</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon recovery">
+                        <i class="fas fa-recycle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">总回收量</div>
+                        <div class="stat-value">${totalRecovery.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">（各能源单位）</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon coal">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">总折标煤</div>
+                        <div class="stat-value">${totalCoal.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">kg</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon unit">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">平均单耗</div>
+                        <div class="stat-value">${avgUnitConsumption.toLocaleString('zh-CN', { maximumFractionDigits: 4 })}<span class="stat-unit">（各能源单位/单位）</span></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染工艺能耗表（带分页）
+        function renderProcessTable(data) {
+            const pagination = document.getElementById('process-pagination');
+            
+            if (data.length === 0) {
+                processTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="11" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>暂无数据</p>
+                        </td>
+                    </tr>
+                `;
+                if (pagination) pagination.style.display = 'none';
+                return;
+            }
+
+            // 计算分页
+            const totalRecords = data.length;
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            
+            // 如果当前页超出范围，重置到第一页
+            if (processCurrentPage > totalPages && totalPages > 0) {
+                processCurrentPage = 1;
+            }
+
+            // 计算当前页的数据范围
+            const startIndex = (processCurrentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalRecords);
+            const currentPageData = data.slice(startIndex, endIndex);
+
+            if (pagination) pagination.style.display = 'flex';
+
+            // 按时间、工序、能源类型分组计算合计
+            const grouped = {};
+            data.forEach(d => {
+                const key = `${d.timeLabel}_${d.processId}_${d.energyType}`;
+                if (!grouped[key]) {
+                    grouped[key] = { ...d };
+                }
+            });
+
+            // 只对当前页数据进行分组
+            const currentPageGrouped = {};
+            currentPageData.forEach(d => {
+                const key = `${d.timeLabel}_${d.processId}_${d.energyType}`;
+                if (!currentPageGrouped[key]) {
+                    currentPageGrouped[key] = { ...d };
+                }
+            });
+
+            const rows = Object.values(currentPageGrouped).map((d, index) => {
+                const globalIndex = startIndex + index;
+                return `
+                <tr>
+                    <td>${d.timeLabel}</td>
+                    <td>${d.processName}</td>
+                    <td>${d.energyName}</td>
+                    <td class="number-value">${d.consumption.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td>${d.consumptionUnit}</td>
+                    <td class="number-value">${d.recovery.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td>${d.recoveryUnit}</td>
+                    <td class="number-value">${d.netConsumption.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td class="number-value">${d.coalEquivalent.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td class="number-value">${d.unitConsumption.toLocaleString('zh-CN', { maximumFractionDigits: 4 })}</td>
+                    <td>${d.unitConsumptionUnit}</td>
+                </tr>
+            `;
+            }).join('');
+
+            // 计算合计行
+            const totalConsumption = data.reduce((sum, d) => sum + d.consumption, 0);
+            const totalRecovery = data.reduce((sum, d) => sum + d.recovery, 0);
+            const totalNet = data.reduce((sum, d) => sum + d.netConsumption, 0);
+            const totalCoal = data.reduce((sum, d) => sum + d.coalEquivalent, 0);
+
+            processTableBody.innerHTML = rows + `
+                <tr class="total-row">
+                    <td colspan="3"><strong>合计</strong></td>
+                    <td class="number-value"><strong>${totalConsumption.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td>-</td>
+                    <td class="number-value"><strong>${totalRecovery.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td>-</td>
+                    <td class="number-value"><strong>${totalNet.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td class="number-value"><strong>${totalCoal.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td colspan="2">-</td>
+                </tr>
+            `;
+
+            renderProcessPagination(totalPages, totalRecords, startIndex + 1, endIndex);
+        }
+
+        // 渲染工艺能耗表分页控件
+        function renderProcessPagination(totalPages, totalRecords, startRecord, endRecord) {
+            const pagination = document.getElementById('process-pagination');
+            if (!pagination) return;
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            let html = '';
+
+            // 上一页按钮
+            html += `<button class="pagination-button" onclick="goToProcessPage(${processCurrentPage - 1})" ${processCurrentPage === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i> 上一页
+            </button>`;
+
+            // 页码按钮
+            const maxVisiblePages = 7;
+            let startPage = Math.max(1, processCurrentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            // 第一页
+            if (startPage > 1) {
+                html += `<button class="pagination-button" onclick="goToProcessPage(1)">1</button>`;
+                if (startPage > 2) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+            }
+
+            // 中间页码
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-button ${i === processCurrentPage ? 'active' : ''}" onclick="goToProcessPage(${i})">${i}</button>`;
+            }
+
+            // 最后一页
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+                html += `<button class="pagination-button" onclick="goToProcessPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            // 下一页按钮
+            html += `<button class="pagination-button" onclick="goToProcessPage(${processCurrentPage + 1})" ${processCurrentPage === totalPages ? 'disabled' : ''}>
+                下一页 <i class="fas fa-chevron-right"></i>
+            </button>`;
+
+            // 分页信息
+            html += `<span class="pagination-info">共 ${totalRecords} 条，第 ${startRecord}-${endRecord} 条</span>`;
+
+            // 跳转输入
+            html += `<div class="pagination-jump">
+                <span style="color: #a7bed3; font-size: 13px;">跳至</span>
+                <input type="number" id="process-page-jump-input" min="1" max="${totalPages}" value="${processCurrentPage}" onkeypress="handleProcessPageJump(event)">
+                <span style="color: #a7bed3; font-size: 13px;">页</span>
+                <button onclick="jumpToProcessPage()">确定</button>
+            </div>`;
+
+            pagination.innerHTML = html;
+        }
+
+        // 跳转到指定页（工艺能耗表）
+        window.goToProcessPage = function(page) {
+            let filtered = processConsumptionData;
+            if (processSelect.value) {
+                filtered = filtered.filter(d => d.processId === processSelect.value);
+            }
+            if (energyTypeSelect.value) {
+                filtered = filtered.filter(d => d.energyType === energyTypeSelect.value);
+            }
+            
+            const totalPages = Math.ceil(filtered.length / pageSize);
+            
+            if (page < 1 || page > totalPages) return;
+            
+            processCurrentPage = page;
+            renderProcessTable(filtered);
+            
+            // 滚动到表格顶部
+            const tableContainer = document.querySelector('#process-consumption-tab .report-table-container');
+            if (tableContainer) {
+                tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        };
+
+        // 处理跳转输入框的Enter键（工艺能耗表）
+        window.handleProcessPageJump = function(event) {
+            if (event.key === 'Enter') {
+                jumpToProcessPage();
+            }
+        };
+
+        // 跳转到指定页（通过输入框，工艺能耗表）
+        window.jumpToProcessPage = function() {
+            const input = document.getElementById('process-page-jump-input');
+            if (!input) return;
+            
+            const targetPage = parseInt(input.value);
+            if (isNaN(targetPage) || targetPage < 1) {
+                alert('请输入有效的页码');
+                return;
+            }
+
+            let filtered = processConsumptionData;
+            if (processSelect.value) {
+                filtered = filtered.filter(d => d.processId === processSelect.value);
+            }
+            if (energyTypeSelect.value) {
+                filtered = filtered.filter(d => d.energyType === energyTypeSelect.value);
+            }
+            
+            const totalPages = Math.ceil(filtered.length / pageSize);
+            
+            if (targetPage > totalPages) {
+                alert(`页码不能超过 ${totalPages}`);
+                input.value = processCurrentPage;
+                return;
+            }
+
+            goToProcessPage(targetPage);
+        };
+
+        // 渲染能源转换表（带分页）
+        function renderConversionTable(data) {
+            const pagination = document.getElementById('conversion-pagination');
+            
+            if (data.length === 0) {
+                conversionTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>暂无数据</p>
+                        </td>
+                    </tr>
+                `;
+                if (pagination) pagination.style.display = 'none';
+                return;
+            }
+
+            // 计算分页
+            const totalRecords = data.length;
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            
+            // 如果当前页超出范围，重置到第一页
+            if (conversionCurrentPage > totalPages && totalPages > 0) {
+                conversionCurrentPage = 1;
+            }
+
+            // 计算当前页的数据范围
+            const startIndex = (conversionCurrentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalRecords);
+            const currentPageData = data.slice(startIndex, endIndex);
+
+            if (pagination) pagination.style.display = 'flex';
+
+            const rows = currentPageData.map((d, index) => {
+                const globalIndex = startIndex + index;
+                return `
+                <tr>
+                    <td>${d.timeLabel}</td>
+                    <td>${d.conversionName}</td>
+                    <td>${d.inputEnergyName}</td>
+                    <td class="number-value">${d.input.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td>${d.inputUnit}</td>
+                    <td>${d.outputEnergyName}</td>
+                    <td class="number-value">${d.output.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td>${d.outputUnit}</td>
+                    <td class="number-value">${d.efficiency.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td class="number-value">${d.coalEquivalent.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                </tr>
+            `;
+            }).join('');
+
+            // 计算合计行（使用全部数据，不只是当前页）
+            const totalInput = data.reduce((sum, d) => sum + d.input, 0);
+            const totalOutput = data.reduce((sum, d) => sum + d.output, 0);
+            const totalCoal = data.reduce((sum, d) => sum + d.coalEquivalent, 0);
+            const avgEfficiency = data.length > 0 ? data.reduce((sum, d) => sum + d.efficiency, 0) / data.length : 0;
+
+            conversionTableBody.innerHTML = rows + `
+                <tr class="total-row">
+                    <td colspan="2"><strong>合计</strong></td>
+                    <td>-</td>
+                    <td class="number-value"><strong>${totalInput.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td class="number-value"><strong>${totalOutput.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td>-</td>
+                    <td class="number-value"><strong>${avgEfficiency.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td class="number-value"><strong>${totalCoal.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                </tr>
+            `;
+
+            renderConversionPagination(totalPages, totalRecords, startIndex + 1, endIndex);
+        }
+
+        // 渲染能源转换表分页控件
+        function renderConversionPagination(totalPages, totalRecords, startRecord, endRecord) {
+            const pagination = document.getElementById('conversion-pagination');
+            if (!pagination) return;
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            let html = '';
+
+            // 上一页按钮
+            html += `<button class="pagination-button" onclick="goToConversionPage(${conversionCurrentPage - 1})" ${conversionCurrentPage === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i> 上一页
+            </button>`;
+
+            // 页码按钮
+            const maxVisiblePages = 7;
+            let startPage = Math.max(1, conversionCurrentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            // 第一页
+            if (startPage > 1) {
+                html += `<button class="pagination-button" onclick="goToConversionPage(1)">1</button>`;
+                if (startPage > 2) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+            }
+
+            // 中间页码
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-button ${i === conversionCurrentPage ? 'active' : ''}" onclick="goToConversionPage(${i})">${i}</button>`;
+            }
+
+            // 最后一页
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+                html += `<button class="pagination-button" onclick="goToConversionPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            // 下一页按钮
+            html += `<button class="pagination-button" onclick="goToConversionPage(${conversionCurrentPage + 1})" ${conversionCurrentPage === totalPages ? 'disabled' : ''}>
+                下一页 <i class="fas fa-chevron-right"></i>
+            </button>`;
+
+            // 分页信息
+            html += `<span class="pagination-info">共 ${totalRecords} 条，第 ${startRecord}-${endRecord} 条</span>`;
+
+            // 跳转输入
+            html += `<div class="pagination-jump">
+                <span style="color: #a7bed3; font-size: 13px;">跳至</span>
+                <input type="number" id="conversion-page-jump-input" min="1" max="${totalPages}" value="${conversionCurrentPage}" onkeypress="handleConversionPageJump(event)">
+                <span style="color: #a7bed3; font-size: 13px;">页</span>
+                <button onclick="jumpToConversionPage()">确定</button>
+            </div>`;
+
+            pagination.innerHTML = html;
+        }
+
+        // 跳转到指定页（能源转换表）
+        window.goToConversionPage = function(page) {
+            let filtered = energyConversionData;
+            if (conversionTypeSelect.value) {
+                filtered = filtered.filter(d => d.conversionType === conversionTypeSelect.value);
+            }
+            
+            const totalPages = Math.ceil(filtered.length / pageSize);
+            
+            if (page < 1 || page > totalPages) return;
+            
+            conversionCurrentPage = page;
+            renderConversionTable(filtered);
+            
+            // 滚动到表格顶部
+            const tableContainer = document.querySelector('#energy-conversion-tab .report-table-container');
+            if (tableContainer) {
+                tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        };
+
+        // 处理跳转输入框的Enter键（能源转换表）
+        window.handleConversionPageJump = function(event) {
+            if (event.key === 'Enter') {
+                jumpToConversionPage();
+            }
+        };
+
+        // 跳转到指定页（通过输入框，能源转换表）
+        window.jumpToConversionPage = function() {
+            const input = document.getElementById('conversion-page-jump-input');
+            if (!input) return;
+            
+            const targetPage = parseInt(input.value);
+            if (isNaN(targetPage) || targetPage < 1) {
+                alert('请输入有效的页码');
+                return;
+            }
+
+            let filtered = energyConversionData;
+            if (conversionTypeSelect.value) {
+                filtered = filtered.filter(d => d.conversionType === conversionTypeSelect.value);
+            }
+            
+            const totalPages = Math.ceil(filtered.length / pageSize);
+            
+            if (targetPage > totalPages) {
+                alert(`页码不能超过 ${totalPages}`);
+                input.value = conversionCurrentPage;
+                return;
+            }
+
+            goToConversionPage(targetPage);
+        };
+
+        // 重置筛选
+        window.resetFilter = function() {
+            processSelect.value = '';
+            energyTypeSelect.value = '';
+            const now = new Date();
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            startDateInput.value = sevenDaysAgo.toISOString().slice(0, 10);
+            endDateInput.value = now.toISOString().slice(0, 10);
+            document.querySelectorAll('.time-granularity-btn').forEach(btn => {
+                if (btn.dataset.granularity === 'day') {
+                    btn.classList.add('active');
+                    currentGranularity = 'day';
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        };
+
+        window.resetConversionFilter = function() {
+            conversionTypeSelect.value = '';
+            const now = new Date();
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            conversionStartDateInput.value = sevenDaysAgo.toISOString().slice(0, 10);
+            conversionEndDateInput.value = now.toISOString().slice(0, 10);
+        };
+
+        // 导出报表
+        window.exportReport = function(type, format = 'excel') {
+            let data, headers, filename;
+            
+            if (type === 'process') {
+                data = processConsumptionData;
+                headers = ['时间', '工序', '能源类型', '消耗量（实物量）', '单位', '回收量（实物量）', '单位', '净消耗量', '折标煤量（kg）', '单耗', '单位'];
+                filename = '工艺能耗表';
+            } else {
+                data = energyConversionData;
+                headers = ['时间', '转换类型', '输入能源', '输入量', '输入单位', '输出能源', '输出量', '输出单位', '转换效率（%）', '折标煤量（kg）'];
+                filename = '能源加工转换报表';
+            }
+
+            if (data.length === 0) {
+                alert('暂无数据可导出');
+                return;
+            }
+
+            if (format === 'excel') {
+                // 生成CSV格式
+                const rows = data.map(record => {
+                    if (type === 'process') {
+                        return [
+                            record.timeLabel,
+                            record.processName,
+                            record.energyName,
+                            record.consumption,
+                            record.consumptionUnit,
+                            record.recovery,
+                            record.recoveryUnit,
+                            record.netConsumption,
+                            record.coalEquivalent,
+                            record.unitConsumption,
+                            record.unitConsumptionUnit
+                        ];
+                    } else {
+                        return [
+                            record.timeLabel,
+                            record.conversionName,
+                            record.inputEnergyName,
+                            record.input,
+                            record.inputUnit,
+                            record.outputEnergyName,
+                            record.output,
+                            record.outputUnit,
+                            record.efficiency,
+                            record.coalEquivalent
+                        ];
+                    }
+                });
+
+                const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `${filename}_${new Date().toISOString().slice(0, 10)}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('PDF导出功能开发中...');
+            }
+        };
+
+        // 确保初始化
+        function ensureInit() {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        }
+
+        ensureInit();
+    })();
+</script>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>设备状态监测</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #0f1e2d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans', Arial, sans-serif;
+            color: #e0e6ed;
+        }
+        .iframe-page-wrapper {
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="iframe-page-wrapper">
+<div class="sub-menu-content-container">
+    <div class="page-header">
+        <h2 class="page-title"><i class="fas fa-server"></i> 设备状态监测</h2>
+        <p class="page-description">实时监控工厂内通讯设备（仪表与采集器）的运行状态，快速发现并定位数据丢失问题。</p>
+    </div>
+
+    <!-- 仪表监测模块 -->
+    <div class="card">
+        <div class="card-title"><i class="fas fa-tachometer-alt"></i>仪表监测</div>
+        <p>对工厂内的通讯仪表进行运行状态的监测，用来判断数据丢失问题。</p>
+        <div class="filter-bar">
+            <label for="meter-search">仪表名称/ID:</label>
+            <input type="text" id="meter-search" placeholder="输入仪表名称或ID">
+            <button class="action-button">查询</button>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>设备ID</th>
+                    <th>设备名称</th>
+                    <th>类型</th>
+                    <th>状态</th>
+                    <th>最后通讯时间</th>
+                    <th>数据丢失率</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>METER-001</td>
+                    <td>电表A</td>
+                    <td>电表</td>
+                    <td style="color: #2ecc71;">在线</td>
+                    <td>2023-10-26 15:30:00</td>
+                    <td>0%</td>
+                </tr>
+                <tr>
+                    <td>METER-002</td>
+                    <td>水表B</td>
+                    <td>水表</td>
+                    <td style="color: #f39c12;">异常</td>
+                    <td>2023-10-26 15:25:00</td>
+                    <td>5%</td>
+                </tr>
+                <tr>
+                    <td>METER-003</td>
+                    <td>蒸汽表C</td>
+                    <td>流量计</td>
+                    <td style="color: #2ecc71;">在线</td>
+                    <td>2023-10-26 15:29:00</td>
+                    <td>0%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 采集器监测模块 -->
+    <div class="card" style="margin-top: 30px;">
+        <div class="card-title"><i class="fas fa-server"></i>采集器监测</div>
+        <p>对工厂内的通讯管理机进行运行状态的监测，用来判断数据丢失问题。</p>
+        <div class="filter-bar">
+            <label for="collector-search">采集器名称/ID:</label>
+            <input type="text" id="collector-search" placeholder="输入采集器名称或ID">
+            <button class="action-button">查询</button>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>设备ID</th>
+                    <th>设备名称</th>
+                    <th>IP地址</th>
+                    <th>状态</th>
+                    <th>最后通讯时间</th>
+                    <th>数据丢失率</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>COLLECTOR-001</td>
+                    <td>数据采集器1</td>
+                    <td>192.168.1.100</td>
+                    <td style="color: #2ecc71;">运行中</td>
+                    <td>2023-10-26 15:30:10</td>
+                    <td>0%</td>
+                </tr>
+                <tr>
+                    <td>COLLECTOR-002</td>
+                    <td>数据采集器2</td>
+                    <td>192.168.1.101</td>
+                    <td style="color: #e74c3c;">故障</td>
+                    <td>2023-10-26 15:15:00</td>
+                    <td>10%</td>
+                </tr>
+                <tr>
+                    <td>COLLECTOR-003</td>
+                    <td>数据采集器3</td>
+                    <td>192.168.1.102</td>
+                    <td style="color: #2ecc71;">运行中</td>
+                    <td>2023-10-26 15:28:45</td>
+                    <td>0%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+<script src="iframe-common.js"></script>
+</body>
+</html>

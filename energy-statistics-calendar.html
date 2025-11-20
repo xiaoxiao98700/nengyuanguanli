@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>能耗日历</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #0f1e2d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+<div class="energy-calendar-container">
+    <div class="calendar-header">
+        <h2 class="page-title"><i class="fas fa-calendar-alt"></i> 能耗日历</h2>
+        <div class="calendar-controls">
+            <button class="control-button" id="prev-month"><i class="fas fa-chevron-left"></i></button>
+            <div class="month-year-display">
+                <select id="year-select" class="year-select"></select>
+                <span class="month-year-text" id="month-year-text">2025年11月</span>
+            </div>
+            <button class="control-button" id="next-month"><i class="fas fa-chevron-right"></i></button>
+            <button class="control-button today-button" id="today-button"><i class="fas fa-calendar-day"></i> 今天</button>
+        </div>
+    </div>
+
+    <div class="calendar-filters">
+        <div class="filter-group">
+            <label>能源类型:</label>
+            <select id="energy-type-filter" class="filter-select">
+                <option value="all">全部</option>
+                <option value="electricity">电</option>
+                <option value="water">水</option>
+                <option value="steam">蒸汽</option>
+                <option value="compressed-air">压缩空气</option>
+                <option value="nitrogen">氮气</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>站点:</label>
+            <select id="site-filter" class="filter-select">
+                <option value="all">全部站点</option>
+                <option value="site1">生产车间1</option>
+                <option value="site2">生产车间2</option>
+                <option value="site3">办公楼</option>
+                <option value="site4">辅助设施</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>显示方式:</label>
+            <select id="display-mode" class="filter-select">
+                <option value="total">总能耗</option>
+                <option value="detail">详细能耗</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="calendar-legend">
+        <div class="legend-item">
+            <div class="legend-color low"></div>
+            <span>低能耗</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color medium"></div>
+            <span>中能耗</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color high"></div>
+            <span>高能耗</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color no-data"></div>
+            <span>无数据</span>
+        </div>
+    </div>
+
+    <div class="calendar-wrapper">
+        <div class="calendar-weekdays">
+            <div class="weekday">日</div>
+            <div class="weekday">一</div>
+            <div class="weekday">二</div>
+            <div class="weekday">三</div>
+            <div class="weekday">四</div>
+            <div class="weekday">五</div>
+            <div class="weekday">六</div>
+        </div>
+        <div class="calendar-grid" id="calendar-grid">
+            <!-- 日历日期将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <!-- 日期详情面板 -->
+    <div class="day-detail-panel" id="day-detail-panel">
+        <div class="detail-header">
+            <h3 class="detail-title" id="detail-date">2025年11月14日</h3>
+            <button class="close-button" id="close-detail"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="detail-content">
+            <div class="detail-summary">
+                <div class="summary-card">
+                    <div class="summary-label">总能耗</div>
+                    <div class="summary-value" id="detail-total">0</div>
+                    <div class="summary-unit">kWh</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">电耗</div>
+                    <div class="summary-value" id="detail-electricity">0</div>
+                    <div class="summary-unit">kWh</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">水耗</div>
+                    <div class="summary-value" id="detail-water">0</div>
+                    <div class="summary-unit">m³</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">蒸汽</div>
+                    <div class="summary-value" id="detail-steam">0</div>
+                    <div class="summary-unit">t</div>
+                </div>
+            </div>
+            <div class="detail-chart">
+                <h4 class="chart-title">24小时能耗趋势</h4>
+                <div class="chart-container" id="detail-chart">
+                    <!-- 图表将通过JavaScript动态生成 -->
+                </div>
+            </div>
+            <div class="detail-table">
+                <h4 class="table-title">分时段能耗明细</h4>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>时段</th>
+                            <th>电耗 (kWh)</th>
+                            <th>水耗 (m³)</th>
+                            <th>蒸汽 (t)</th>
+                            <th>压缩空气 (m³)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detail-table-body">
+                        <!-- 表格数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 能耗日历页面样式 */
+.energy-calendar-container {
+    padding: 20px;
+    background-color: #1a2a3a;
+    min-height: 100vh;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.page-title {
+    font-size: 24px;
+    color: #e0e6ed;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.calendar-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.control-button {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    color: #e0e6ed;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.control-button:hover {
+    background-color: #3c5472;
+    border-color: #00bcd4;
+    color: #00bcd4;
+}
+
+.month-year-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.year-select {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    color: #e0e6ed;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.month-year-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #00bcd4;
+    min-width: 120px;
+    text-align: center;
+}
+
+.today-button {
+    background-color: #00bcd4;
+    border-color: #00bcd4;
+    color: #1a2a3a;
+    font-weight: bold;
+}
+
+.today-button:hover {
+    background-color: #00acc1;
+    border-color: #00acc1;
+}
+
+.calendar-filters {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #2a3d54;
+    border-radius: 8px;
+    border: 1px solid #3c5472;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group label {
+    color: #a7bed3;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.filter-select {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    color: #e0e6ed;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #00bcd4;
+}
+
+.calendar-legend {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+    background-color: #2a3d54;
+    border-radius: 6px;
+    border: 1px solid #3c5472;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid #3c5472;
+}
+
+.legend-color.low {
+    background-color: #4caf50;
+}
+
+.legend-color.medium {
+    background-color: #ff9800;
+}
+
+.legend-color.high {
+    background-color: #f44336;
+}
+
+.legend-color.no-data {
+    background-color: #5d7d9a;
+}
+
+.legend-item span {
+    color: #a7bed3;
+    font-size: 14px;
+}
+
+.calendar-wrapper {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.weekday {
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    color: #00bcd4;
+    background-color: #1a2a3a;
+    border-radius: 6px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.calendar-day {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 10px;
+    min-height: 120px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.calendar-day:hover {
+    border-color: #00bcd4;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+}
+
+.calendar-day.other-month {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.calendar-day.today {
+    border: 2px solid #00bcd4;
+    background-color: #1a3a4a;
+}
+
+.calendar-day.selected {
+    border-color: #00bcd4;
+    background-color: #1a3a4a;
+    box-shadow: 0 0 15px rgba(0, 188, 212, 0.5);
+}
+
+.day-number {
+    font-size: 16px;
+    font-weight: bold;
+    color: #e0e6ed;
+    margin-bottom: 8px;
+}
+
+.day-energy {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+}
+
+.energy-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 5px;
+    border-radius: 3px;
+    background-color: rgba(60, 84, 114, 0.3);
+}
+
+.energy-label {
+    color: #a7bed3;
+}
+
+.energy-value {
+    color: #e0e6ed;
+    font-weight: bold;
+}
+
+.day-total {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #3c5472;
+    text-align: center;
+}
+
+.total-label {
+    font-size: 10px;
+    color: #a7bed3;
+    margin-bottom: 3px;
+}
+
+.total-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #00bcd4;
+}
+
+/* 能耗等级颜色 */
+.calendar-day.energy-low {
+    border-left: 4px solid #4caf50;
+}
+
+.calendar-day.energy-medium {
+    border-left: 4px solid #ff9800;
+}
+
+.calendar-day.energy-high {
+    border-left: 4px solid #f44336;
+}
+
+.calendar-day.energy-no-data {
+    border-left: 4px solid #5d7d9a;
+}
+
+/* 日期详情面板 */
+.day-detail-panel {
+    display: none;
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.day-detail-panel.active {
+    display: block;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.detail-title {
+    font-size: 20px;
+    color: #e0e6ed;
+    margin: 0;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: #a7bed3;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: color 0.3s ease;
+}
+
+.close-button:hover {
+    color: #e74c3c;
+}
+
+.detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.detail-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.summary-card {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+}
+
+.summary-label {
+    font-size: 12px;
+    color: #a7bed3;
+    margin-bottom: 8px;
+}
+
+.summary-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00bcd4;
+    margin-bottom: 5px;
+}
+
+.summary-unit {
+    font-size: 11px;
+    color: #5d7d9a;
+}
+
+.detail-chart {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.chart-title {
+    font-size: 16px;
+    color: #e0e6ed;
+    margin-bottom: 15px;
+}
+
+.chart-container {
+    height: 200px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    padding: 10px;
+    border-top: 1px solid #3c5472;
+    border-bottom: 1px solid #3c5472;
+}
+
+.chart-bar {
+    flex: 1;
+    margin: 0 2px;
+    background: linear-gradient(to top, #00bcd4, #00acc1);
+    border-radius: 4px 4px 0 0;
+    min-width: 20px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.chart-bar:hover {
+    opacity: 0.8;
+    transform: scaleY(1.05);
+}
+
+.chart-bar-label {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #a7bed3;
+    white-space: nowrap;
+}
+
+.chart-bar-value {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #00bcd4;
+    font-weight: bold;
+}
+
+.detail-table {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.table-title {
+    font-size: 16px;
+    color: #e0e6ed;
+    margin-bottom: 15px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background-color: #2a3d54;
+    color: #e0e6ed;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #3c5472;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #3c5472;
+    color: #a7bed3;
+    font-size: 12px;
+}
+
+.data-table tbody tr:hover {
+    background-color: #2a3d54;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+</style>
+
+<script>
+(function() {
+// 防止重复加载检查
+if (window.__energyStatisticsCalendarModuleLoaded) {
+    // 如果已加载，直接调用初始化函数重新渲染
+    if (typeof window.initEnergyStatisticsCalendar === 'function') {
+        window.initEnergyStatisticsCalendar();
+    }
+    return;
+}
+window.__energyStatisticsCalendarModuleLoaded = true;
+
+// 日历数据生成和交互逻辑
+let currentDate = new Date();
+let selectedDate = null;
+
+// 初始化日历
+function initCalendar() {
+    updateMonthYearDisplay();
+    generateYearOptions();
+    renderCalendar();
+    setupEventListeners();
+}
+
+// 更新月份年份显示
+function updateMonthYearDisplay() {
+    const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', 
+                       '七月', '八月', '九月', '十月', '十一月', '十二月'];
+    const monthYearText = document.getElementById('month-year-text');
+    monthYearText.textContent = `${currentDate.getFullYear()}年${monthNames[currentDate.getMonth()]}`;
+    
+    const yearSelect = document.getElementById('year-select');
+    yearSelect.value = currentDate.getFullYear();
+}
+
+// 生成年份选项
+function generateYearOptions() {
+    const yearSelect = document.getElementById('year-select');
+    const currentYear = new Date().getFullYear();
+    yearSelect.innerHTML = '';
+    
+    for (let year = currentYear - 5; year <= currentYear + 5; year++) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        if (year === currentDate.getFullYear()) {
+            option.selected = true;
+        }
+        yearSelect.appendChild(option);
+    }
+}
+
+// 渲染日历
+function renderCalendar() {
+    const calendarGrid = document.getElementById('calendar-grid');
+    calendarGrid.innerHTML = '';
+    
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    
+    // 获取当月第一天和最后一天
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const firstDayOfWeek = firstDay.getDay();
+    const daysInMonth = lastDay.getDate();
+    
+    // 获取上个月的最后几天
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    
+    // 渲染上个月的日期
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+        const day = prevMonthLastDay - i;
+        const dayElement = createDayElement(year, month - 1, day, true);
+        calendarGrid.appendChild(dayElement);
+    }
+    
+    // 渲染当月的日期
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dayElement = createDayElement(year, month, day, false);
+        calendarGrid.appendChild(dayElement);
+    }
+    
+    // 渲染下个月的日期（填满42个格子）
+    const totalCells = calendarGrid.children.length;
+    const remainingCells = 42 - totalCells;
+    for (let day = 1; day <= remainingCells; day++) {
+        const dayElement = createDayElement(year, month + 1, day, true);
+        calendarGrid.appendChild(dayElement);
+    }
+}
+
+// 创建日期元素
+function createDayElement(year, month, day, isOtherMonth) {
+    const dayElement = document.createElement('div');
+    dayElement.className = 'calendar-day';
+    
+    if (isOtherMonth) {
+        dayElement.classList.add('other-month');
+    }
+    
+    const date = new Date(year, month, day);
+    const today = new Date();
+    if (!isOtherMonth && 
+        date.getDate() === today.getDate() && 
+        date.getMonth() === today.getMonth() && 
+        date.getFullYear() === today.getFullYear()) {
+        dayElement.classList.add('today');
+    }
+    
+    // 生成模拟能耗数据
+    const energyData = generateEnergyData(year, month, day, isOtherMonth);
+    
+    // 日期数字
+    const dayNumber = document.createElement('div');
+    dayNumber.className = 'day-number';
+    dayNumber.textContent = day;
+    dayElement.appendChild(dayNumber);
+    
+    // 能耗数据
+    if (!isOtherMonth && energyData) {
+        const dayEnergy = document.createElement('div');
+        dayEnergy.className = 'day-energy';
+        
+        if (energyData.electricity > 0) {
+            const elecItem = document.createElement('div');
+            elecItem.className = 'energy-item';
+            elecItem.innerHTML = `<span class="energy-label">电</span><span class="energy-value">${energyData.electricity.toFixed(1)}</span>`;
+            dayEnergy.appendChild(elecItem);
+        }
+        
+        if (energyData.water > 0) {
+            const waterItem = document.createElement('div');
+            waterItem.className = 'energy-item';
+            waterItem.innerHTML = `<span class="energy-label">水</span><span class="energy-value">${energyData.water.toFixed(1)}</span>`;
+            dayEnergy.appendChild(waterItem);
+        }
+        
+        if (energyData.steam > 0) {
+            const steamItem = document.createElement('div');
+            steamItem.className = 'energy-item';
+            steamItem.innerHTML = `<span class="energy-label">蒸汽</span><span class="energy-value">${energyData.steam.toFixed(1)}</span>`;
+            dayEnergy.appendChild(steamItem);
+        }
+        
+        dayElement.appendChild(dayEnergy);
+        
+        // 总能耗
+        const dayTotal = document.createElement('div');
+        dayTotal.className = 'day-total';
+        dayTotal.innerHTML = `
+            <div class="total-label">总能耗</div>
+            <div class="total-value">${energyData.total.toFixed(0)} kWh</div>
+        `;
+        dayElement.appendChild(dayTotal);
+        
+        // 根据总能耗设置颜色等级
+        const avgDaily = 500; // 假设平均日能耗为500kWh
+        if (energyData.total < avgDaily * 0.7) {
+            dayElement.classList.add('energy-low');
+        } else if (energyData.total < avgDaily * 1.3) {
+            dayElement.classList.add('energy-medium');
+        } else {
+            dayElement.classList.add('energy-high');
+        }
+        
+        // 点击事件
+        dayElement.addEventListener('click', () => {
+            selectDay(date, energyData, dayElement);
+        });
+    } else {
+        dayElement.classList.add('energy-no-data');
+    }
+    
+    return dayElement;
+}
+
+// 生成模拟能耗数据
+function generateEnergyData(year, month, day, isOtherMonth) {
+    if (isOtherMonth) return null;
+    
+    // 模拟数据：工作日能耗较高，周末较低
+    const date = new Date(year, month, day);
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    
+    // 基础能耗（周末降低30%）
+    const baseFactor = isWeekend ? 0.7 : 1.0;
+    
+    // 添加一些随机波动
+    const randomFactor = 0.8 + Math.random() * 0.4;
+    
+    const electricity = (200 + Math.random() * 150) * baseFactor * randomFactor;
+    const water = (50 + Math.random() * 30) * baseFactor * randomFactor;
+    const steam = (10 + Math.random() * 8) * baseFactor * randomFactor;
+    const compressedAir = (100 + Math.random() * 50) * baseFactor * randomFactor;
+    
+    // 总能耗（转换为kWh，假设1m³水=0.5kWh，1t蒸汽=100kWh，1m³压缩空气=0.1kWh）
+    const total = electricity + water * 0.5 + steam * 100 + compressedAir * 0.1;
+    
+    return {
+        electricity,
+        water,
+        steam,
+        compressedAir,
+        total
+    };
+}
+
+// 选择日期
+function selectDay(date, energyData, dayElement) {
+    selectedDate = date;
+    
+    // 更新选中状态
+    document.querySelectorAll('.calendar-day').forEach(day => {
+        day.classList.remove('selected');
+    });
+    
+    if (dayElement) {
+        dayElement.classList.add('selected');
+    }
+    
+    // 显示详情面板
+    showDayDetail(date, energyData);
+}
+
+// 显示日期详情
+function showDayDetail(date, energyData) {
+    const panel = document.getElementById('day-detail-panel');
+    panel.classList.add('active');
+    
+    const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', 
+                       '七月', '八月', '九月', '十月', '十一月', '十二月'];
+    const detailDate = document.getElementById('detail-date');
+    detailDate.textContent = `${date.getFullYear()}年${monthNames[date.getMonth()]}${date.getDate()}日`;
+    
+    // 更新汇总数据
+    document.getElementById('detail-total').textContent = energyData.total.toFixed(1);
+    document.getElementById('detail-electricity').textContent = energyData.electricity.toFixed(1);
+    document.getElementById('detail-water').textContent = energyData.water.toFixed(1);
+    document.getElementById('detail-steam').textContent = energyData.steam.toFixed(1);
+    
+    // 生成24小时趋势图
+    generateHourlyChart(energyData);
+    
+    // 生成分时段明细表
+    generateHourlyTable(energyData);
+}
+
+// 生成24小时趋势图
+function generateHourlyChart(energyData) {
+    const chartContainer = document.getElementById('detail-chart');
+    chartContainer.innerHTML = '';
+    
+    // 生成24小时数据
+    const hourlyData = [];
+    for (let hour = 0; hour < 24; hour++) {
+        const factor = getHourlyFactor(hour);
+        hourlyData.push({
+            hour: hour,
+            value: energyData.electricity * factor / 24
+        });
+    }
+    
+    const maxValue = Math.max(...hourlyData.map(d => d.value));
+    
+    hourlyData.forEach(data => {
+        const bar = document.createElement('div');
+        bar.className = 'chart-bar';
+        const height = (data.value / maxValue) * 100;
+        bar.style.height = `${height}%`;
+        
+        const label = document.createElement('div');
+        label.className = 'chart-bar-label';
+        label.textContent = `${data.hour}:00`;
+        bar.appendChild(label);
+        
+        const value = document.createElement('div');
+        value.className = 'chart-bar-value';
+        value.textContent = data.value.toFixed(1);
+        bar.appendChild(value);
+        
+        chartContainer.appendChild(bar);
+    });
+}
+
+// 获取小时因子（模拟一天中的能耗分布）
+function getHourlyFactor(hour) {
+    if (hour >= 8 && hour <= 18) {
+        // 工作时间：较高
+        return 1.2 + Math.random() * 0.3;
+    } else if (hour >= 6 && hour <= 22) {
+        // 正常时间：中等
+        return 0.8 + Math.random() * 0.4;
+    } else {
+        // 夜间：较低
+        return 0.3 + Math.random() * 0.3;
+    }
+}
+
+// 生成分时段明细表
+function generateHourlyTable(energyData) {
+    const tableBody = document.getElementById('detail-table-body');
+    tableBody.innerHTML = '';
+    
+    const periods = [
+        { label: '00:00-06:00', factor: 0.15 },
+        { label: '06:00-12:00', factor: 0.30 },
+        { label: '12:00-18:00', factor: 0.35 },
+        { label: '18:00-24:00', factor: 0.20 }
+    ];
+    
+    periods.forEach(period => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${period.label}</td>
+            <td>${(energyData.electricity * period.factor).toFixed(1)}</td>
+            <td>${(energyData.water * period.factor).toFixed(1)}</td>
+            <td>${(energyData.steam * period.factor).toFixed(2)}</td>
+            <td>${(energyData.compressedAir * period.factor).toFixed(1)}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+// 设置事件监听器
+function setupEventListeners() {
+    // 防止重复绑定
+    if (window.__calendarEventsInitialized) {
+        return;
+    }
+    window.__calendarEventsInitialized = true;
+    
+    // 上一个月
+    document.getElementById('prev-month').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        updateMonthYearDisplay();
+        renderCalendar();
+        hideDayDetail();
+    });
+    
+    // 下一个月
+    document.getElementById('next-month').addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        updateMonthYearDisplay();
+        renderCalendar();
+        hideDayDetail();
+    });
+    
+    // 今天
+    document.getElementById('today-button').addEventListener('click', () => {
+        currentDate = new Date();
+        updateMonthYearDisplay();
+        renderCalendar();
+        hideDayDetail();
+    });
+    
+    // 年份选择
+    document.getElementById('year-select').addEventListener('change', (e) => {
+        currentDate.setFullYear(parseInt(e.target.value));
+        updateMonthYearDisplay();
+        renderCalendar();
+        hideDayDetail();
+    });
+    
+    // 关闭详情面板
+    document.getElementById('close-detail').addEventListener('click', () => {
+        hideDayDetail();
+    });
+}
+
+// 隐藏日期详情
+function hideDayDetail() {
+    const panel = document.getElementById('day-detail-panel');
+    panel.classList.remove('active');
+    selectedDate = null;
+    
+    document.querySelectorAll('.calendar-day').forEach(day => {
+        day.classList.remove('selected');
+    });
+}
+
+function initEnergyStatisticsCalendar() {
+    if (!document.getElementById('calendar-grid')) {
+        setTimeout(initEnergyStatisticsCalendar, 50);
+        return;
+    }
+    initCalendar();
+}
+
+window.initEnergyStatisticsCalendar = initEnergyStatisticsCalendar;
+
+// 自动初始化
+initEnergyStatisticsCalendar();
+})();
+</script>
+</body>
+</html>

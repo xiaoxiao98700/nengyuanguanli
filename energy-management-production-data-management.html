@@ -1,0 +1,1780 @@
+<div class="production-data-management-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+        
+        .production-data-management-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        
+        .page-description {
+            color: #a7bed3;
+            font-size: 14px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background-color: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            background-color: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .action-button.secondary {
+            background-color: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .action-button.secondary:hover {
+            background-color: #4a6a8a;
+        }
+
+        .action-button.danger {
+            background-color: #f44336;
+            color: #fff;
+        }
+
+        .action-button.danger:hover {
+            background-color: #e53935;
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            color: #a7bed3;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .filter-select, .filter-input {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .filter-input {
+            cursor: text;
+        }
+
+        .filter-select:hover, .filter-input:hover {
+            border-color: #00bcd4;
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        /* 数据录入表单 */
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #3c5472;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            color: #e0e6ed;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #a7bed3;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background-color: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .entry-form-section {
+            display: none;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #e0e6ed;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            color: #a7bed3;
+            font-size: 14px;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #f44336;
+        }
+
+        .form-input, .form-select {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
+        /* 数据表格 */
+        .data-table-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table thead {
+            background-color: #1a2a3a;
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            color: #00bcd4;
+            font-weight: 600;
+            border-bottom: 2px solid #3c5472;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px;
+            color: #e0e6ed;
+            border-bottom: 1px solid #3c5472;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #1e2d3f;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-cell {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+        }
+
+        .action-link {
+            color: #00bcd4;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            background-color: rgba(0, 188, 212, 0.1);
+            border: 1px solid rgba(0, 188, 212, 0.3);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .action-link:hover {
+            color: #00acc1;
+            background-color: rgba(0, 188, 212, 0.2);
+            border-color: #00bcd4;
+            transform: translateY(-1px);
+        }
+
+        .action-link i {
+            font-size: 12px;
+        }
+
+        .action-link.danger {
+            color: #f44336;
+            background-color: rgba(244, 67, 54, 0.1);
+            border-color: rgba(244, 67, 54, 0.3);
+        }
+
+        .action-link.danger:hover {
+            color: #e53935;
+            background-color: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #a7bed3;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #3c5472;
+            margin-bottom: 15px;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-button {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: #2a3d54;
+            border-color: #00bcd4;
+            color: #00bcd4;
+            transform: translateY(-1px);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            color: #1a2a3a;
+            border-color: #00bcd4;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+        }
+
+        .pagination-info {
+            color: #a7bed3;
+            font-size: 14px;
+            margin: 0 12px;
+            white-space: nowrap;
+        }
+
+        .pagination-jump {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .pagination-jump input {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .pagination-jump input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .pagination-jump button {
+            background: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-jump button:hover {
+            background: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        /* 批量操作栏 */
+        .batch-actions {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background-color: #1a2a3a;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .batch-actions.active {
+            display: flex;
+        }
+
+        .batch-count {
+            color: #a7bed3;
+            font-size: 14px;
+        }
+    </style>
+
+    <!-- 页面头部 -->
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-database"></i> 产量数据管理
+        </h2>
+        <p class="page-description">支持多种产品和多班组的产量数据录入、查询和管理</p>
+    </div>
+
+    <!-- 操作栏 -->
+    <div class="action-bar">
+        <button class="action-button" onclick="showEntryForm()">
+            <i class="fas fa-plus"></i> 新增录入
+        </button>
+        <button class="action-button secondary" onclick="exportData()">
+            <i class="fas fa-download"></i> 导出数据
+        </button>
+        <button class="action-button secondary" onclick="importData()">
+            <i class="fas fa-upload"></i> 导入数据
+        </button>
+        <button class="action-button danger" onclick="batchDelete()" id="batch-delete-btn" style="display: none;">
+            <i class="fas fa-trash"></i> 批量删除
+        </button>
+    </div>
+
+    <!-- 批量操作栏 -->
+    <div class="batch-actions" id="batch-actions">
+        <span class="batch-count" id="batch-count">已选择 0 项</span>
+        <button class="action-button danger" onclick="confirmBatchDelete()">
+            <i class="fas fa-trash"></i> 确认删除
+        </button>
+        <button class="action-button secondary" onclick="cancelBatchSelect()">
+            <i class="fas fa-times"></i> 取消
+        </button>
+    </div>
+
+    <!-- 筛选区域 -->
+    <div class="filter-section">
+        <div class="filter-row">
+            <div class="filter-item">
+                <label>日期范围：</label>
+                <input type="date" class="filter-input" id="start-date" value="2024-01-01">
+            </div>
+            <div class="filter-item">
+                <label>至</label>
+                <input type="date" class="filter-input" id="end-date" value="2024-12-31">
+            </div>
+            <div class="filter-item">
+                <label>产品：</label>
+                <select class="filter-select" id="filter-product">
+                    <option value="">全部产品</option>
+                    <option value="product-a">产品A</option>
+                    <option value="product-b">产品B</option>
+                    <option value="product-c">产品C</option>
+                    <option value="product-d">产品D</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>班组：</label>
+                <select class="filter-select" id="filter-team">
+                    <option value="">全部班组</option>
+                    <option value="team-1">早班</option>
+                    <option value="team-2">中班</option>
+                    <option value="team-3">晚班</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>ECC：</label>
+                <select class="filter-select" id="filter-ecc">
+                    <option value="">全部ECC</option>
+                    <option value="ecc-1">生产车间1</option>
+                    <option value="ecc-2">生产车间2</option>
+                    <option value="ecc-3">生产车间3</option>
+                </select>
+            </div>
+            <button class="action-button" onclick="queryData()">
+                <i class="fas fa-search"></i> 查询
+            </button>
+            <button class="action-button secondary" onclick="resetFilter()">
+                <i class="fas fa-redo"></i> 重置
+            </button>
+        </div>
+    </div>
+
+    <!-- 数据录入模态框 -->
+    <div class="modal-overlay" id="entry-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-edit"></i> <span id="modal-title-text">产量数据录入</span>
+                </h3>
+                <button class="modal-close" onclick="closeEntryModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="entry-form" onsubmit="saveEntry(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">录入日期</label>
+                            <input type="date" class="form-input" id="entry-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">产品</label>
+                            <select class="form-select" id="entry-product" required>
+                                <option value="">请选择产品</option>
+                                <option value="product-a">产品A</option>
+                                <option value="product-b">产品B</option>
+                                <option value="product-c">产品C</option>
+                                <option value="product-d">产品D</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">班组</label>
+                            <select class="form-select" id="entry-team" required>
+                                <option value="">请选择班组</option>
+                                <option value="team-1">早班 (08:00-16:00)</option>
+                                <option value="team-2">中班 (16:00-00:00)</option>
+                                <option value="team-3">晚班 (00:00-08:00)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">ECC</label>
+                            <select class="form-select" id="entry-ecc" required>
+                                <option value="">请选择ECC</option>
+                                <option value="ecc-1">生产车间1</option>
+                                <option value="ecc-2">生产车间2</option>
+                                <option value="ecc-3">生产车间3</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">产量（件/吨/台）</label>
+                            <input type="number" class="form-input" id="entry-quantity" required step="0.01" min="0" placeholder="请输入产量">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">单位</label>
+                            <select class="form-select" id="entry-unit">
+                                <option value="件">件</option>
+                                <option value="吨">吨</option>
+                                <option value="台">台</option>
+                                <option value="套">套</option>
+                                <option value="m²">m²</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">备注</label>
+                            <input type="text" class="form-input" id="entry-remark" placeholder="请输入备注信息（可选）">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">录入人</label>
+                            <input type="text" class="form-input" id="entry-operator" value="调度员 Tang" readonly>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeEntryModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据表格 -->
+    <div class="data-table-section">
+        <div class="section-title">
+            <i class="fas fa-table"></i> 产量数据列表
+        </div>
+        <table class="data-table" id="data-table">
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)">
+                    </th>
+                    <th>序号</th>
+                    <th>录入日期</th>
+                    <th>产品</th>
+                    <th>班组</th>
+                    <th>ECC</th>
+                    <th>产量</th>
+                    <th>单位</th>
+                    <th>录入人</th>
+                    <th>录入时间</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="data-table-body">
+                <!-- 数据将通过JavaScript动态生成 -->
+            </tbody>
+        </table>
+        <div class="empty-state" id="empty-state" style="display: none;">
+            <i class="fas fa-inbox"></i>
+            <p>暂无数据</p>
+        </div>
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination" style="display: none;">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // 产量数据（示例数据）
+    let productionData = [
+        // 2024-12-15 数据
+        {
+            id: 1,
+            date: '2024-12-15',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1250.5,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-15 09:30:00',
+            remark: '正常生产'
+        },
+        {
+            id: 2,
+            date: '2024-12-15',
+            product: 'product-b',
+            productName: '产品B',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 980.3,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-15 10:15:00',
+            remark: ''
+        },
+        {
+            id: 3,
+            date: '2024-12-15',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1180.2,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-15 17:20:00',
+            remark: ''
+        },
+        {
+            id: 4,
+            date: '2024-12-15',
+            product: 'product-c',
+            productName: '产品C',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-2',
+            eccName: '生产车间2',
+            quantity: 750.8,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-15 18:45:00',
+            remark: ''
+        },
+        {
+            id: 5,
+            date: '2024-12-15',
+            product: 'product-c',
+            productName: '产品C',
+            team: 'team-3',
+            teamName: '晚班',
+            ecc: 'ecc-2',
+            eccName: '生产车间2',
+            quantity: 650.8,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-16 01:15:00',
+            remark: '设备维护后恢复生产'
+        },
+        {
+            id: 6,
+            date: '2024-12-15',
+            product: 'product-d',
+            productName: '产品D',
+            team: 'team-3',
+            teamName: '晚班',
+            ecc: 'ecc-3',
+            eccName: '生产车间3',
+            quantity: 320.5,
+            unit: '吨',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-16 02:30:00',
+            remark: ''
+        },
+        // 2024-12-14 数据
+        {
+            id: 7,
+            date: '2024-12-14',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1200.0,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-14 09:25:00',
+            remark: ''
+        },
+        {
+            id: 8,
+            date: '2024-12-14',
+            product: 'product-b',
+            productName: '产品B',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 950.6,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-14 10:10:00',
+            remark: ''
+        },
+        {
+            id: 9,
+            date: '2024-12-14',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1150.8,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-14 17:15:00',
+            remark: ''
+        },
+        {
+            id: 10,
+            date: '2024-12-14',
+            product: 'product-d',
+            productName: '产品D',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-3',
+            eccName: '生产车间3',
+            quantity: 450.2,
+            unit: '吨',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-14 16:45:00',
+            remark: '新产品试产'
+        },
+        {
+            id: 11,
+            date: '2024-12-14',
+            product: 'product-c',
+            productName: '产品C',
+            team: 'team-3',
+            teamName: '晚班',
+            ecc: 'ecc-2',
+            eccName: '生产车间2',
+            quantity: 680.3,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-15 01:20:00',
+            remark: ''
+        },
+        // 2024-12-13 数据
+        {
+            id: 12,
+            date: '2024-12-13',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1280.5,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-13 09:20:00',
+            remark: ''
+        },
+        {
+            id: 13,
+            date: '2024-12-13',
+            product: 'product-b',
+            productName: '产品B',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1000.2,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-13 10:05:00',
+            remark: ''
+        },
+        {
+            id: 14,
+            date: '2024-12-13',
+            product: 'product-c',
+            productName: '产品C',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-2',
+            eccName: '生产车间2',
+            quantity: 720.8,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-13 11:30:00',
+            remark: ''
+        },
+        {
+            id: 15,
+            date: '2024-12-13',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1220.3,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-13 17:10:00',
+            remark: ''
+        },
+        {
+            id: 16,
+            date: '2024-12-13',
+            product: 'product-b',
+            productName: '产品B',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 965.5,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-13 18:20:00',
+            remark: ''
+        },
+        {
+            id: 17,
+            date: '2024-12-13',
+            product: 'product-d',
+            productName: '产品D',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-3',
+            eccName: '生产车间3',
+            quantity: 420.8,
+            unit: '吨',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-13 19:15:00',
+            remark: ''
+        },
+        {
+            id: 18,
+            date: '2024-12-13',
+            product: 'product-c',
+            productName: '产品C',
+            team: 'team-3',
+            teamName: '晚班',
+            ecc: 'ecc-2',
+            eccName: '生产车间2',
+            quantity: 690.2,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-14 01:10:00',
+            remark: ''
+        },
+        // 2024-12-12 数据
+        {
+            id: 19,
+            date: '2024-12-12',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1230.8,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-12 09:15:00',
+            remark: ''
+        },
+        {
+            id: 20,
+            date: '2024-12-12',
+            product: 'product-b',
+            productName: '产品B',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 975.3,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-12 10:00:00',
+            remark: ''
+        },
+        {
+            id: 21,
+            date: '2024-12-12',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1190.5,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-12 17:05:00',
+            remark: ''
+        },
+        {
+            id: 22,
+            date: '2024-12-12',
+            product: 'product-c',
+            productName: '产品C',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-2',
+            eccName: '生产车间2',
+            quantity: 740.6,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-12 18:30:00',
+            remark: ''
+        },
+        {
+            id: 23,
+            date: '2024-12-12',
+            product: 'product-d',
+            productName: '产品D',
+            team: 'team-3',
+            teamName: '晚班',
+            ecc: 'ecc-3',
+            eccName: '生产车间3',
+            quantity: 380.5,
+            unit: '吨',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-13 02:20:00',
+            remark: ''
+        },
+        // 2024-12-11 数据
+        {
+            id: 24,
+            date: '2024-12-11',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1245.2,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-11 09:18:00',
+            remark: ''
+        },
+        {
+            id: 25,
+            date: '2024-12-11',
+            product: 'product-b',
+            productName: '产品B',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 990.8,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-11 09:55:00',
+            remark: ''
+        },
+        {
+            id: 26,
+            date: '2024-12-11',
+            product: 'product-c',
+            productName: '产品C',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-2',
+            eccName: '生产车间2',
+            quantity: 710.5,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-11 11:25:00',
+            remark: ''
+        },
+        {
+            id: 27,
+            date: '2024-12-11',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1210.6,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-11 17:12:00',
+            remark: ''
+        },
+        {
+            id: 28,
+            date: '2024-12-11',
+            product: 'product-b',
+            productName: '产品B',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 960.2,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-11 18:18:00',
+            remark: ''
+        },
+        {
+            id: 29,
+            date: '2024-12-11',
+            product: 'product-d',
+            productName: '产品D',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-3',
+            eccName: '生产车间3',
+            quantity: 410.3,
+            unit: '吨',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-11 19:10:00',
+            remark: ''
+        },
+        {
+            id: 30,
+            date: '2024-12-11',
+            product: 'product-c',
+            productName: '产品C',
+            team: 'team-3',
+            teamName: '晚班',
+            ecc: 'ecc-2',
+            eccName: '生产车间2',
+            quantity: 670.8,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-12 01:05:00',
+            remark: ''
+        },
+        // 2024-12-10 数据
+        {
+            id: 31,
+            date: '2024-12-10',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1265.5,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-10 09:22:00',
+            remark: ''
+        },
+        {
+            id: 32,
+            date: '2024-12-10',
+            product: 'product-b',
+            productName: '产品B',
+            team: 'team-1',
+            teamName: '早班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1005.6,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-10 10:08:00',
+            remark: ''
+        },
+        {
+            id: 33,
+            date: '2024-12-10',
+            product: 'product-a',
+            productName: '产品A',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-1',
+            eccName: '生产车间1',
+            quantity: 1235.8,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-10 17:18:00',
+            remark: ''
+        },
+        {
+            id: 34,
+            date: '2024-12-10',
+            product: 'product-c',
+            productName: '产品C',
+            team: 'team-2',
+            teamName: '中班',
+            ecc: 'ecc-2',
+            eccName: '生产车间2',
+            quantity: 730.2,
+            unit: '件',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-10 18:35:00',
+            remark: ''
+        },
+        {
+            id: 35,
+            date: '2024-12-10',
+            product: 'product-d',
+            productName: '产品D',
+            team: 'team-3',
+            teamName: '晚班',
+            ecc: 'ecc-3',
+            eccName: '生产车间3',
+            quantity: 395.8,
+            unit: '吨',
+            operator: '调度员 Tang',
+            entryTime: '2024-12-11 02:15:00',
+            remark: ''
+        }
+    ];
+
+    let selectedIds = new Set();
+    let editingId = null;
+    let currentPage = 1;
+    const pageSize = 10; // 每页显示10条数据
+
+    // 产品映射
+    const productMap = {
+        'product-a': '产品A',
+        'product-b': '产品B',
+        'product-c': '产品C',
+        'product-d': '产品D'
+    };
+
+    // 班组映射
+    const teamMap = {
+        'team-1': '早班',
+        'team-2': '中班',
+        'team-3': '晚班'
+    };
+
+    // ECC映射
+    const eccMap = {
+        'ecc-1': '生产车间1',
+        'ecc-2': '生产车间2',
+        'ecc-3': '生产车间3'
+    };
+
+    // 显示录入表单（模态框）
+    window.showEntryForm = function() {
+        const modal = document.getElementById('entry-modal');
+        const titleText = document.getElementById('modal-title-text');
+        titleText.textContent = '产量数据录入';
+        document.getElementById('entry-form').reset();
+        editingId = null;
+        // 设置默认日期为今天
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('entry-date').value = today;
+        modal.classList.add('active');
+    };
+
+    // 关闭模态框
+    window.closeEntryModal = function() {
+        const modal = document.getElementById('entry-modal');
+        modal.classList.remove('active');
+        document.getElementById('entry-form').reset();
+        editingId = null;
+    };
+
+    // 取消录入（兼容旧代码）
+    window.cancelEntry = function() {
+        closeEntryModal();
+    };
+
+    // 保存录入
+    window.saveEntry = function(event) {
+        event.preventDefault();
+        
+        const formData = {
+            date: document.getElementById('entry-date').value,
+            product: document.getElementById('entry-product').value,
+            team: document.getElementById('entry-team').value,
+            ecc: document.getElementById('entry-ecc').value,
+            quantity: parseFloat(document.getElementById('entry-quantity').value),
+            unit: document.getElementById('entry-unit').value,
+            remark: document.getElementById('entry-remark').value,
+            operator: document.getElementById('entry-operator').value
+        };
+
+        if (editingId) {
+            // 编辑模式
+            const index = productionData.findIndex(item => item.id === editingId);
+            if (index !== -1) {
+                productionData[index] = {
+                    ...productionData[index],
+                    ...formData,
+                    productName: productMap[formData.product],
+                    teamName: teamMap[formData.team],
+                    eccName: eccMap[formData.ecc],
+                    entryTime: new Date().toLocaleString('zh-CN', {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'}).replace(/\//g, '-')
+                };
+            }
+        } else {
+            // 新增模式
+            const newId = productionData.length > 0 ? Math.max(...productionData.map(item => item.id)) + 1 : 1;
+            productionData.push({
+                id: newId,
+                ...formData,
+                productName: productMap[formData.product],
+                teamName: teamMap[formData.team],
+                eccName: eccMap[formData.ecc],
+                entryTime: new Date().toLocaleString('zh-CN', {year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit'}).replace(/\//g, '-')
+            });
+        }
+
+        renderTable();
+        closeEntryModal();
+        alert(editingId ? '数据更新成功！' : '数据录入成功！');
+    };
+
+    // 编辑数据
+    window.editEntry = function(id) {
+        const item = productionData.find(d => d.id === id);
+        if (!item) return;
+
+        editingId = id;
+        const modal = document.getElementById('entry-modal');
+        const titleText = document.getElementById('modal-title-text');
+        titleText.textContent = '编辑产量数据';
+        
+        // 填充表单数据
+        document.getElementById('entry-date').value = item.date;
+        document.getElementById('entry-product').value = item.product;
+        document.getElementById('entry-team').value = item.team;
+        document.getElementById('entry-ecc').value = item.ecc;
+        document.getElementById('entry-quantity').value = item.quantity;
+        document.getElementById('entry-unit').value = item.unit;
+        document.getElementById('entry-remark').value = item.remark || '';
+        document.getElementById('entry-operator').value = item.operator;
+
+        // 显示模态框
+        modal.classList.add('active');
+    };
+
+    // 删除数据
+    window.deleteEntry = function(id) {
+        if (confirm('确定要删除这条数据吗？')) {
+            productionData = productionData.filter(item => item.id !== id);
+            renderTable();
+            alert('删除成功！');
+        }
+    };
+
+    // 全选/取消全选
+    window.toggleSelectAll = function(checkbox) {
+        const checkboxes = document.querySelectorAll('#data-table-body input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            cb.checked = checkbox.checked;
+            if (checkbox.checked) {
+                selectedIds.add(parseInt(cb.value));
+            } else {
+                selectedIds.delete(parseInt(cb.value));
+            }
+        });
+        updateBatchActions();
+    };
+
+    // 单个选择
+    window.toggleSelect = function(id) {
+        if (selectedIds.has(id)) {
+            selectedIds.delete(id);
+        } else {
+            selectedIds.add(id);
+        }
+        updateSelectAllState();
+        updateBatchActions();
+    };
+
+    // 更新全选状态
+    function updateSelectAllState() {
+        const checkboxes = document.querySelectorAll('#data-table-body input[type="checkbox"]');
+        const allChecked = checkboxes.length > 0 && Array.from(checkboxes).every(cb => cb.checked);
+        document.getElementById('select-all').checked = allChecked;
+    }
+
+    // 更新批量操作栏
+    function updateBatchActions() {
+        const count = selectedIds.size;
+        document.getElementById('batch-count').textContent = `已选择 ${count} 项`;
+        document.getElementById('batch-actions').classList.toggle('active', count > 0);
+        document.getElementById('batch-delete-btn').style.display = count > 0 ? 'flex' : 'none';
+    }
+
+    // 确认批量删除
+    window.confirmBatchDelete = function() {
+        if (selectedIds.size === 0) return;
+        if (confirm(`确定要删除选中的 ${selectedIds.size} 条数据吗？`)) {
+            productionData = productionData.filter(item => !selectedIds.has(item.id));
+            selectedIds.clear();
+            renderTable();
+            updateBatchActions();
+            alert('删除成功！');
+        }
+    };
+
+    // 取消批量选择
+    window.cancelBatchSelect = function() {
+        selectedIds.clear();
+        const checkboxes = document.querySelectorAll('#data-table-body input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+        document.getElementById('select-all').checked = false;
+        updateBatchActions();
+    };
+
+    // 批量删除
+    window.batchDelete = function() {
+        if (selectedIds.size === 0) {
+            alert('请先选择要删除的数据');
+            return;
+        }
+        confirmBatchDelete();
+    };
+
+    // 查询数据
+    window.queryData = function() {
+        currentPage = 1; // 重置到第一页
+        renderTable();
+    };
+
+    // 重置筛选
+    window.resetFilter = function() {
+        document.getElementById('start-date').value = '2024-01-01';
+        document.getElementById('end-date').value = '2024-12-31';
+        document.getElementById('filter-product').value = '';
+        document.getElementById('filter-team').value = '';
+        document.getElementById('filter-ecc').value = '';
+        currentPage = 1; // 重置到第一页
+        renderTable();
+    };
+
+    // 导出数据
+    window.exportData = function() {
+        alert('导出功能待实现');
+    };
+
+    // 导入数据
+    window.importData = function() {
+        alert('导入功能待实现');
+    };
+
+    // 渲染表格（带分页）
+    function renderTable() {
+        const tbody = document.getElementById('data-table-body');
+        const emptyState = document.getElementById('empty-state');
+        const pagination = document.getElementById('pagination');
+        
+        // 获取筛选条件
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        const filterProduct = document.getElementById('filter-product').value;
+        const filterTeam = document.getElementById('filter-team').value;
+        const filterEcc = document.getElementById('filter-ecc').value;
+
+        // 筛选数据
+        let filteredData = productionData.filter(item => {
+            if (startDate && item.date < startDate) return false;
+            if (endDate && item.date > endDate) return false;
+            if (filterProduct && item.product !== filterProduct) return false;
+            if (filterTeam && item.team !== filterTeam) return false;
+            if (filterEcc && item.ecc !== filterEcc) return false;
+            return true;
+        });
+        
+        // 调试：如果筛选后没有数据，检查是否是日期范围问题
+        if (filteredData.length === 0 && productionData.length > 0) {
+            console.log('筛选条件:', { startDate, endDate, filterProduct, filterTeam, filterEcc });
+            console.log('总数据量:', productionData.length);
+        }
+
+        // 按日期倒序排列
+        filteredData.sort((a, b) => {
+            if (a.date !== b.date) {
+                return b.date.localeCompare(a.date);
+            }
+            return b.entryTime.localeCompare(a.entryTime);
+        });
+
+        // 计算分页
+        const totalRecords = filteredData.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        // 如果当前页超出范围，重置到第一页
+        if (currentPage > totalPages && totalPages > 0) {
+            currentPage = 1;
+        }
+
+        if (filteredData.length === 0) {
+            tbody.innerHTML = '';
+            emptyState.style.display = 'block';
+            pagination.style.display = 'none';
+            return;
+        }
+
+        emptyState.style.display = 'none';
+        pagination.style.display = 'flex';
+
+        // 计算当前页的数据范围
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = filteredData.slice(startIndex, endIndex);
+
+        // 渲染当前页数据
+        tbody.innerHTML = currentPageData.map((item, index) => {
+            const globalIndex = startIndex + index;
+            return `
+            <tr>
+                <td>
+                    <input type="checkbox" value="${item.id}" onchange="toggleSelect(${item.id})" ${selectedIds.has(item.id) ? 'checked' : ''}>
+                </td>
+                <td>${globalIndex + 1}</td>
+                <td>${item.date}</td>
+                <td>${item.productName}</td>
+                <td>${item.teamName}</td>
+                <td>${item.eccName}</td>
+                <td>${item.quantity.toLocaleString()}</td>
+                <td>${item.unit}</td>
+                <td>${item.operator}</td>
+                <td>${item.entryTime}</td>
+                <td>${item.remark || '-'}</td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="window.editEntry(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="window.deleteEntry(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        updateSelectAllState();
+        renderPagination(totalPages, totalRecords, startIndex + 1, endIndex);
+    }
+
+    // 渲染分页控件
+    function renderPagination(totalPages, totalRecords, startRecord, endRecord) {
+        const pagination = document.getElementById('pagination');
+        if (!pagination) return;
+
+        if (totalPages <= 1) {
+            pagination.style.display = 'none';
+            return;
+        }
+
+        let html = '';
+
+        // 上一页按钮
+        html += `<button class="pagination-button" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i> 上一页
+        </button>`;
+
+        // 页码按钮
+        const maxVisiblePages = 7;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // 第一页
+        if (startPage > 1) {
+            html += `<button class="pagination-button" onclick="goToPage(1)">1</button>`;
+            if (startPage > 2) {
+                html += `<span class="pagination-info">...</span>`;
+            }
+        }
+
+        // 中间页码
+        for (let i = startPage; i <= endPage; i++) {
+            html += `<button class="pagination-button ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+        }
+
+        // 最后一页
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<span class="pagination-info">...</span>`;
+            }
+            html += `<button class="pagination-button" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+        }
+
+        // 下一页按钮
+        html += `<button class="pagination-button" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+            下一页 <i class="fas fa-chevron-right"></i>
+        </button>`;
+
+        // 分页信息
+        html += `<span class="pagination-info">共 ${totalRecords} 条，第 ${startRecord}-${endRecord} 条</span>`;
+
+        // 跳转输入
+        html += `<div class="pagination-jump">
+            <span style="color: #a7bed3; font-size: 13px;">跳至</span>
+            <input type="number" id="page-jump-input" min="1" max="${totalPages}" value="${currentPage}" onkeypress="handlePageJump(event)">
+            <span style="color: #a7bed3; font-size: 13px;">页</span>
+            <button onclick="jumpToPage()">确定</button>
+        </div>`;
+
+        pagination.innerHTML = html;
+    }
+
+    // 跳转到指定页
+    window.goToPage = function(page) {
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        const filterProduct = document.getElementById('filter-product').value;
+        const filterTeam = document.getElementById('filter-team').value;
+        const filterEcc = document.getElementById('filter-ecc').value;
+
+        let filteredData = productionData.filter(item => {
+            if (startDate && item.date < startDate) return false;
+            if (endDate && item.date > endDate) return false;
+            if (filterProduct && item.product !== filterProduct) return false;
+            if (filterTeam && item.team !== filterTeam) return false;
+            if (filterEcc && item.ecc !== filterEcc) return false;
+            return true;
+        });
+
+        const totalPages = Math.ceil(filteredData.length / pageSize);
+        
+        if (page < 1 || page > totalPages) return;
+        
+        currentPage = page;
+        renderTable();
+        
+        // 滚动到表格顶部
+        const tableSection = document.querySelector('.data-table-section');
+        if (tableSection) {
+            tableSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
+    // 处理跳转输入框的Enter键
+    window.handlePageJump = function(event) {
+        if (event.key === 'Enter') {
+            jumpToPage();
+        }
+    };
+
+    // 跳转到指定页（通过输入框）
+    window.jumpToPage = function() {
+        const input = document.getElementById('page-jump-input');
+        if (!input) return;
+        
+        const targetPage = parseInt(input.value);
+        if (isNaN(targetPage) || targetPage < 1) {
+            alert('请输入有效的页码');
+            return;
+        }
+
+        const startDate = document.getElementById('start-date').value;
+        const endDate = document.getElementById('end-date').value;
+        const filterProduct = document.getElementById('filter-product').value;
+        const filterTeam = document.getElementById('filter-team').value;
+        const filterEcc = document.getElementById('filter-ecc').value;
+
+        let filteredData = productionData.filter(item => {
+            if (startDate && item.date < startDate) return false;
+            if (endDate && item.date > endDate) return false;
+            if (filterProduct && item.product !== filterProduct) return false;
+            if (filterTeam && item.team !== filterTeam) return false;
+            if (filterEcc && item.ecc !== filterEcc) return false;
+            return true;
+        });
+
+        const totalPages = Math.ceil(filteredData.length / pageSize);
+        
+        if (targetPage > totalPages) {
+            alert(`页码不能超过 ${totalPages}`);
+            input.value = currentPage;
+            return;
+        }
+
+        goToPage(targetPage);
+    };
+
+    // 初始化
+    function init() {
+        // 设置默认日期范围，确保包含所有样例数据
+        // 样例数据日期范围：2024-12-10 到 2024-12-15
+        const startDateEl = document.getElementById('start-date');
+        const endDateEl = document.getElementById('end-date');
+        
+        if (startDateEl && endDateEl) {
+            // 设置开始日期为2024-12-01，结束日期为2024-12-31，确保包含所有样例数据
+            startDateEl.value = '2024-12-01';
+            endDateEl.value = '2024-12-31';
+        }
+        
+        // 延迟渲染，确保DOM已完全加载
+        setTimeout(() => {
+            renderTable();
+        }, 100);
+    }
+
+    // 确保在iframe中也能正确初始化
+    function ensureInit() {
+        const tbody = document.getElementById('data-table-body');
+        if (!tbody) {
+            setTimeout(ensureInit, 100);
+            return;
+        }
+        init();
+    }
+
+    // 页面加载时初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ensureInit);
+    } else {
+        ensureInit();
+    }
+
+    // 点击遮罩层关闭模态框
+    const entryModal = document.getElementById('entry-modal');
+    if (entryModal) {
+        entryModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEntryModal();
+            }
+        });
+    }
+
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('entry-modal');
+            if (modal && modal.classList.contains('active')) {
+                closeEntryModal();
+            }
+        }
+    });
+
+    // 导出函数到全局
+    window.editEntry = editEntry;
+    window.deleteEntry = deleteEntry;
+    window.toggleSelect = toggleSelect;
+})();
+</script>

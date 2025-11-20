@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧能源管理系统</title>
+    <link rel="stylesheet" href="styles.css"> <!-- 引入样式文件，请确保 styles.css 在同一目录下 -->
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部栏 -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo">EMS</div>
+                <div class="system-title">智慧能源管理系统</div>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <i class="fas fa-user-circle"></i> <span>调度员 Tang</span>
+                </div>
+                <button class="icon-button"><i class="fas fa-bell"></i><span class="badge">3</span></button>
+                <button class="icon-button"><i class="fas fa-cog"></i></button>
+            </div>
+        </header>
+
+        <!-- 主体区域 -->
+        <div class="main-wrapper">
+            <!-- 侧边栏导航 -->
+            <aside class="app-sidebar">
+                <nav class="main-nav">
+                    <ul>
+                        <li class="nav-item">
+                            <a href="#home-section" class="nav-link"><i class="fas fa-home"></i> <span>首页</span></a>
+                        </li>
+                        <li class="nav-item active">
+                            <a href="#online-monitoring-section" class="nav-link"><i class="fas fa-eye"></i> <span>在线监测</span></a>
+                            <ul class="submenu active">
+                                <li class="nav-item-sub"><a href="#online-monitoring-energy-usage" class="nav-link-sub">用能监测</a></li>
+                                <li class="nav-item-sub"><a href="#online-monitoring-equipment-status" class="nav-link-sub">设备状态监测</a></li>
+                                <li class="nav-item-sub"><a href="#online-monitoring-energy-topology" class="nav-link-sub">能源拓扑图</a></li>
+                                <li class="nav-item-sub"><a href="#online-monitoring-scada-diagram" class="nav-link-sub">组态图</a></li>
+                                <li class="nav-item-sub"><a href="#online-monitoring-harmonic-analysis" class="nav-link-sub">谐波分析</a></li>
+                                <li class="nav-item-sub"><a href="#online-monitoring-map-display" class="nav-link-sub">地图展示</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#energy-statistics-section" class="nav-link"><i class="fas fa-chart-pie"></i> <span>能源统计</span></a>
+                            <ul class="submenu">
+                                <li class="nav-item-sub"><a href="#energy-statistics-calendar" class="nav-link-sub">能耗日历</a></li>
+                                <li class="nav-item-sub"><a href="#energy-statistics-categorized" class="nav-link-sub">分类能耗</a></li>
+                                <li class="nav-item-sub"><a href="#energy-statistics-itemized" class="nav-link-sub">分项能耗</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#energy-analysis-section" class="nav-link"><i class="fas fa-chart-line"></i> <span>能效分析</span></a>
+                            <ul class="submenu">
+                                <li class="nav-item-sub"><a href="#energy-analysis-equipment-load" class="nav-link-sub">设备负荷分析</a></li>
+                                <li class="nav-item-sub"><a href="#energy-analysis-transformer-load" class="nav-link-sub">变压器负载率分析</a></li>
+                                <li class="nav-item-sub"><a href="#energy-analysis-production-equipment-working-time" class="nav-link-sub">生产设备作业时间分析</a></li>
+                                <li class="nav-item-sub"><a href="#energy-analysis-energy-loss" class="nav-link-sub">能流损失分析</a></li>
+                                <li class="nav-item-sub"><a href="#energy-analysis-capacity-demand" class="nav-link-sub">容需量分析</a></li>
+                                <li class="nav-item-sub"><a href="#energy-analysis-production-equipment-efficiency" class="nav-link-sub">产能设备能效</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#energy-management-section" class="nav-link"><i class="fas fa-cogs"></i> <span>能源管理</span></a>
+                            <ul class="submenu">
+                                <li class="nav-item-sub"><a href="#energy-management-new-ecc" class="nav-link-sub">新建ECC</a></li>
+                                <li class="nav-item-sub"><a href="#energy-management-ecc-energy-statistics-analysis" class="nav-link-sub">ECC能源统计分析</a></li>
+                                <li class="nav-item-sub"><a href="#energy-management-ecc-carbon-asset-statistics-analysis" class="nav-link-sub">ECC碳资产统计分析</a></li>
+                                <li class="nav-item-sub"><a href="#energy-management-energy-performance-management" class="nav-link-sub">能源性能管理</a></li>
+                                <li class="nav-item-sub"><a href="#energy-management-product-unit-consumption-management" class="nav-link-sub">产品单耗管理</a></li>
+                                <li class="nav-item-sub"><a href="#energy-management-energy-plan-performance-management" class="nav-link-sub">能源计划实绩管理</a></li>
+                                <li class="nav-item-sub"><a href="#energy-management-energy-correlation-analysis" class="nav-link-sub">能源相关性分析</a></li>
+                                <li class="nav-item-sub"><a href="#energy-management-production-data-management" class="nav-link-sub">产量数据管理</a></li>
+                                <li class="nav-item-sub"><a href="#energy-management-capacity-ratio-analysis" class="nav-link-sub">产能比分析</a></li>
+                                <li class="nav-item-sub"><a href="#energy-management-hierarchy-energy-monitoring" class="nav-link-sub">层级能耗监测</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#alarm-management-section" class="nav-link"><i class="fas fa-bell"></i> <span>告警管理</span></a>
+                            <ul class="submenu">
+                                <li class="nav-item-sub"><a href="#alarm-management-query" class="nav-link-sub">告警查询</a></li>
+                                <li class="nav-item-sub"><a href="#alarm-management-settings" class="nav-link-sub">告警设置</a></li>
+                                <li class="nav-item-sub"><a href="#alarm-management-analysis" class="nav-link-sub">告警分析</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#report-management-section" class="nav-link"><i class="fas fa-file-alt"></i> <span>报表管理</span></a>
+                            <ul class="submenu">
+                                <li class="nav-item-sub"><a href="#report-management-operation-report" class="nav-link-sub">运行报表</a></li>
+                                <li class="nav-item-sub"><a href="#report-management-statistical-report" class="nav-link-sub">统计报表</a></li>
+                                <li class="nav-item-sub"><a href="#report-management-process-energy-consumption-report" class="nav-link-sub">工艺能耗表</a></li>
+                                <li class="nav-item-sub"><a href="#report-management-energy-balance-report" class="nav-link-sub">能源平衡报表</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#configuration-management-section" class="nav-link"><i class="fas fa-sliders-h"></i> <span>配置管理</span></a>
+                            <ul class="submenu">
+                                <li class="nav-item-sub"><a href="#configuration-management-energy-network" class="nav-link-sub">能源网络配置</a></li>
+                                <li class="nav-item-sub"><a href="#configuration-management-kpi-model" class="nav-link-sub">KPI模型配置</a></li>
+                                <li class="nav-item-sub"><a href="#configuration-management-alarm" class="nav-link-sub">告警配置</a></li>
+                                <li class="nav-item-sub"><a href="#configuration-management-system" class="nav-link-sub">系统配置</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- 主内容区域 -->
+            <main class="app-content">
+                <!-- 首页模块 -->
+                <iframe 
+                    id="home-section"
+                    src="home-overview.html"
+                    title="系统概览"
+                    class="embedded-page-frame active"
+                    loading="lazy">
+                </iframe>
+
+                <!-- 智能优化调度 (占位) -->
+                <div id="optimization-scheduling-section" style="display: none;">
+                    <h2><i class="fas fa-robot"></i> 智能优化调度</h2>
+                    <p>（此处将包含负荷预测、需量管理辅助、经济运行调度等内容）</p>
+                    <p>例如：</p>
+                    <h3 class="card-title"><i class="fas fa-chart-line"></i> 负荷预测</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <p>（未来 24h / 15min 负荷预测曲线，与实际负荷同屏展示，并显示置信区间和 MAPE 值）</p>
+                    </div>
+                    <h3 class="card-title"><i class="fas fa-power-off"></i> 需量管理辅助</h3>
+                    <p>预测当日最大需量: <span class="kpi-value color-warning">10.5 <span class="kpi-unit">MW</span></span> (合同上限: 10 MW <span class="color-danger">削峰预警</span>)</p>
+                    <button class="action-button">推荐削峰策略</button>
+                </div>
+
+                <!-- 资产与运维服务 (占位) -->
+                <div id="asset-maintenance-section" style="display: none;">
+                    <h2><i class="fas fa-cogs"></i> 资产与运维服务</h2>
+                    <p>（此处将包含设备健康度与预测性维护、电能质量治理等内容）</p>
+                    <h3 class="card-title"><i class="fas fa-heartbeat"></i> 设备健康度</h3>
+                    <div class="card-grid">
+                        <div class="card">
+                            <div class="card-title">风机 A 健康指数</div>
+                            <div class="kpi-value">75 <span class="kpi-unit">分</span></div>
+                            <div class="kpi-trend">良好</div>
+                        </div>
+                        <div class="card alert-card">
+                            <div class="card-title">水泵 B 健康指数</div>
+                            <div class="kpi-value">55 <span class="kpi-unit">分</span></div>
+                            <div class="kpi-trend negative"><i class="fas fa-arrow-down"></i> 预测性维护预警</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 基础数据配置 (占位) -->
+                <div id="basic-config-section" style="display: none;">
+                    <h2><i class="fas fa-sliders-h"></i> 基础数据配置</h2>
+                    <p>（此处将包含计量点管理与分类分项管理、协议与网关、能源类型配置、能源成本配置等内容）</p>
+                    <h3 class="card-title"><i class="fas fa-map-marker-alt"></i> 计量点管理</h3>
+                    <p>（支持 Excel 导入/导出，拖拽绑定点位）</p>
+                    <h3 class="card-title"><i class="fas fa-ethernet"></i> 协议与网关</h3>
+                    <p>（提供预设协议模板，网关状态监控，通信拓扑图展示）</p>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // 简单的 Tab 切换逻辑 (仅限静态页面的切换效果)
+        function showTab(tabId, element) {
+            // 找到当前父级 content-container 下的所有 .tab-content
+            const parentContentContainer = element.closest('.content-container') || element.closest('.tab-content');
+            if (parentContentContainer) {
+                parentContentContainer.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                // 移除当前父级 content-container 下的所有 .tab-button 或 .tab-button-inner 的 active 状态
+                parentContentContainer.querySelectorAll('.tab-button, .tab-button-inner').forEach(button => {
+                    button.classList.remove('active');
+                });
+            }
+
+            // 显示当前点击的 tab-content 或 tab-content-inner
+            const targetTabContent = document.getElementById(tabId);
+            if (targetTabContent) {
+                targetTabContent.classList.add('active');
+            }
+            // 激活当前点击的 tab-button 或 tab-button-inner
+            if (element) {
+                element.classList.add('active');
+            }
+        }
+
+        const iframeAssetsConfig = {
+            styles: [
+                { id: 'iframe-shared-style', href: 'styles.css' },
+                { id: 'iframe-fontawesome', href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css' }
+            ],
+            scripts: [
+                { id: 'iframe-common-script', src: 'iframe-common.js' }
+            ],
+            inlineStyleId: 'iframe-inline-style',
+            inlineStyleContent: `
+                /* 统一滚动条样式 */
+                * {
+                    scrollbar-width: thin;
+                    scrollbar-color: #3c5472 #1a2a3a;
+                }
+                ::-webkit-scrollbar {
+                    width: 10px;
+                    height: 10px;
+                }
+                ::-webkit-scrollbar-track {
+                    background: #1a2a3a;
+                    border-radius: 5px;
+                }
+                ::-webkit-scrollbar-thumb {
+                    background: #3c5472;
+                    border-radius: 5px;
+                    border: 2px solid #1a2a3a;
+                }
+                ::-webkit-scrollbar-thumb:hover {
+                    background: #4a6a8a;
+                }
+                ::-webkit-scrollbar-thumb:active {
+                    background: #00bcd4;
+                }
+                ::-webkit-scrollbar-corner {
+                    background: #1a2a3a;
+                }
+                body {
+                    margin: 0;
+                    padding: 24px 28px 48px;
+                    background-color: #0f1e2d;
+                    font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+                    color: #e0e6ed;
+                }
+                body .sub-menu-content-container {
+                    background-color: transparent;
+                    padding: 0;
+                }
+                body .tab-content {
+                    background-color: transparent;
+                }
+                body .tab-content:not(.active) {
+                    display: none;
+                }
+                body .card {
+                    background-color: #1a2a3a;
+                }
+                /* 统一页面头部样式 */
+                body .page-header {
+                    margin-bottom: 25px;
+                }
+                body .page-title, body h2.page-title {
+                    font-size: 24px;
+                    color: #00bcd4;
+                    margin: 0 0 10px 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-weight: 600;
+                }
+                body .page-title i, body h2.page-title i {
+                    color: #00bcd4;
+                }
+                body .page-description, body h2 + p {
+                    color: #a7bed3;
+                    font-size: 14px;
+                    margin-top: 8px;
+                    margin-bottom: 20px;
+                    line-height: 1.6;
+                }
+                /* 统一 h2 样式（用于兼容旧页面） */
+                body h2:not(.page-title) {
+                    font-size: 24px;
+                    color: #00bcd4;
+                    margin: 0 0 10px 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    font-weight: 600;
+                    border-bottom: none;
+                    padding-bottom: 0;
+                }
+                body h2:not(.page-title) + p {
+                    color: #a7bed3;
+                    font-size: 14px;
+                    margin-top: 8px;
+                    margin-bottom: 20px;
+                    line-height: 1.6;
+                }
+            `
+        };
+
+        function getIframeDocument(iframe) {
+            try {
+                return iframe.contentDocument || iframe.contentWindow?.document || null;
+            } catch (error) {
+                return null;
+            }
+        }
+
+        function ensureIframeHead(doc) {
+            if (doc.head) return doc.head;
+            const head = doc.createElement('head');
+            const html = doc.documentElement || doc;
+            if (html.firstChild) {
+                html.insertBefore(head, html.firstChild);
+            } else {
+                html.appendChild(head);
+            }
+            return head;
+        }
+
+        function adjustIframeHeight(iframe) {
+            try {
+                const doc = getIframeDocument(iframe);
+                if (!doc || !doc.body) return;
+
+                // 获取内容实际高度
+                const body = doc.body;
+                const html = doc.documentElement;
+                
+                // 计算内容高度（取body和html的最大值，确保包含所有内容）
+                const height = Math.max(
+                    body.scrollHeight,
+                    body.offsetHeight,
+                    html.clientHeight,
+                    html.scrollHeight,
+                    html.offsetHeight
+                );
+
+                // 设置iframe高度，添加一些边距以确保内容完整显示
+                iframe.style.height = (height + 20) + 'px';
+                iframe.style.minHeight = 'auto';
+            } catch (error) {
+                // 如果无法访问iframe内容（跨域等情况），使用默认最小高度
+                console.warn('无法调整iframe高度:', error);
+                iframe.style.minHeight = '800px';
+            }
+        }
+
+        function injectAssetsIntoIframe(iframe) {
+            const doc = getIframeDocument(iframe);
+            if (!doc) return;
+
+            const head = ensureIframeHead(doc);
+
+            iframeAssetsConfig.styles.forEach(({ id, href }) => {
+                if (doc.getElementById(id)) return;
+                const linkEl = doc.createElement('link');
+                linkEl.id = id;
+                linkEl.rel = 'stylesheet';
+                linkEl.href = href;
+                linkEl.onload = () => adjustIframeHeight(iframe);
+                head.appendChild(linkEl);
+            });
+
+            if (!doc.getElementById(iframeAssetsConfig.inlineStyleId)) {
+                const styleEl = doc.createElement('style');
+                styleEl.id = iframeAssetsConfig.inlineStyleId;
+                styleEl.textContent = iframeAssetsConfig.inlineStyleContent;
+                head.appendChild(styleEl);
+            }
+
+            iframeAssetsConfig.scripts.forEach(({ id, src }) => {
+                if (doc.getElementById(id)) return;
+                const scriptEl = doc.createElement('script');
+                scriptEl.id = id;
+                scriptEl.src = src;
+                scriptEl.defer = true;
+                scriptEl.onload = () => adjustIframeHeight(iframe);
+                head.appendChild(scriptEl);
+            });
+
+            if (doc.body) {
+                doc.body.classList.add('iframe-body');
+            }
+
+            // 延迟调整高度，确保内容已渲染
+            setTimeout(() => adjustIframeHeight(iframe), 100);
+            setTimeout(() => adjustIframeHeight(iframe), 500);
+            setTimeout(() => adjustIframeHeight(iframe), 1000);
+        }
+
+        // 侧边栏导航逻辑
+        document.querySelectorAll('.main-nav .nav-item > .nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const parentItem = this.closest('.nav-item');
+                const submenu = parentItem.querySelector('.submenu');
+                const targetId = this.getAttribute('href').substring(1);
+
+                // 阻止默认跳转，由JS控制
+                e.preventDefault();
+
+                // 如果有子菜单，只切换子菜单显示状态，不显示内容区
+                if (submenu) {
+                    // 先关闭所有其他一级菜单
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        if (item !== parentItem) {
+                            const otherSubmenu = item.querySelector('.submenu');
+                            if (otherSubmenu) {
+                                otherSubmenu.classList.remove('active');
+                                item.classList.remove('active');
+                            }
+                        }
+                    });
+                    
+                    // 然后切换当前菜单的展开状态
+                    submenu.classList.toggle('active');
+                    parentItem.classList.toggle('active');
+                    
+                    // 强制隐藏所有 iframe（确保不显示空页面）
+                    document.querySelectorAll('.app-content > iframe').forEach(el => {
+                        el.style.display = 'none';
+                        el.classList.remove('active');
+                    });
+                    
+                    // 确保不会显示任何内容区，直接返回
+                    return;
+                } else {
+                    // 没有子菜单的一级菜单（如首页），先关闭所有其他一级菜单
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        if (item !== parentItem) {
+                            const otherSubmenu = item.querySelector('.submenu');
+                            if (otherSubmenu) {
+                                otherSubmenu.classList.remove('active');
+                                item.classList.remove('active');
+                            }
+                        }
+                    });
+                    
+                    // 激活当前菜单项
+                    document.querySelectorAll('.nav-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    parentItem.classList.add('active');
+                    
+                    // 隐藏所有 iframe
+                    document.querySelectorAll('.app-content > iframe').forEach(el => {
+                        el.style.display = 'none';
+                        el.classList.remove('active');
+                    });
+                    
+                    // 显示当前点击的一级菜单对应的内容区
+                    const contentEl = document.getElementById(targetId);
+                    if (contentEl) {
+                        contentEl.style.display = 'block';
+                        contentEl.classList.add('active');
+                        document.querySelector('.app-content').scrollTo(0, 0);
+                    }
+                }
+            });
+        });
+
+        // 二级菜单的点击逻辑
+        document.querySelectorAll('.submenu .nav-link-sub').forEach(link => {
+            link.addEventListener('click', async function(e) {
+                e.preventDefault(); // 阻止默认跳转
+                const parentSubItem = this.closest('.nav-item-sub');
+                const innerSubmenu = parentSubItem.querySelector('.submenu-inner');
+                const targetUrl = this.getAttribute('href').substring(1) + '.html'; // 获取目标HTML文件路径
+                const parentSectionId = this.closest('.nav-item').querySelector('.nav-link').getAttribute('href').substring(1); // 获取所属一级菜单的ID
+
+                // 隐藏所有 iframe
+                document.querySelectorAll('.app-content > iframe').forEach(el => {
+                    el.style.display = 'none';
+                    el.classList.remove('active');
+                });
+
+                // 创建或获取对应的 iframe
+                const iframeId = 'iframe-' + parentSectionId + '-' + targetUrl.replace(/[^a-zA-Z0-9]/g, '-');
+                let iframe = document.getElementById(iframeId);
+                
+                if (!iframe) {
+                    // 创建新的 iframe
+                    iframe = document.createElement('iframe');
+                    iframe.id = iframeId;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.style.border = 'none';
+                    iframe.style.minHeight = '800px';
+                    iframe.setAttribute('loading', 'lazy');
+                    iframe.addEventListener('load', () => {
+                        injectAssetsIntoIframe(iframe);
+                        // 监听iframe内容变化，动态调整高度
+                        try {
+                            const doc = getIframeDocument(iframe);
+                            if (doc) {
+                                // 使用MutationObserver监听DOM变化
+                                const observer = new MutationObserver(() => {
+                                    adjustIframeHeight(iframe);
+                                });
+                                observer.observe(doc.body || doc.documentElement, {
+                                    childList: true,
+                                    subtree: true,
+                                    attributes: true,
+                                    attributeFilter: ['style', 'class']
+                                });
+                                iframe._heightObserver = observer;
+                            }
+                        } catch (error) {
+                            console.warn('无法设置iframe高度监听:', error);
+                        }
+                    });
+                    iframe._hasAssetListener = true;
+                    document.querySelector('.app-content').appendChild(iframe);
+                } else if (!iframe._hasAssetListener) {
+                    iframe.addEventListener('load', () => injectAssetsIntoIframe(iframe));
+                    iframe._hasAssetListener = true;
+                }
+
+                // 如果切换到新的页面，则更新 src；相同页面则只需确保可见
+                if (iframe.dataset.currentSrc !== targetUrl) {
+                    iframe.dataset.currentSrc = targetUrl;
+                    iframe.src = targetUrl;
+                } else {
+                    // 如果 src 未变化但 iframe 已加载，确保资源已注入
+                    injectAssetsIntoIframe(iframe);
+                }
+                iframe.style.display = 'block';
+                iframe.classList.add('active');
+                
+                document.querySelector('.app-content').scrollTo(0, 0);
+
+                // 切换三级菜单的显示状态和父级active状态（如果存在）
+                if (innerSubmenu) {
+                    innerSubmenu.classList.toggle('active');
+                }
+                parentSubItem.classList.toggle('active'); // 激活父级二级菜单项
+
+                // 移除所有同级二级菜单的active状态
+                parentSubItem.parentNode.querySelectorAll('.nav-item-sub').forEach(item => {
+                    if (item !== parentSubItem) {
+                        item.classList.remove('active');
+                        const innerSubmenuToClose = item.querySelector('.submenu-inner');
+                        if (innerSubmenuToClose) {
+                            innerSubmenuToClose.classList.remove('active');
+                        }
+                    }
+                });
+            });
+        });
+
+        // 用于二级页面内部 Tab 切换的全局函数
+        function openEnergyMonitorTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            // 获取当前父级容器下的所有 Tab 内容
+            const currentContainer = evt.currentTarget.closest('[id$="-section"]');
+            if (!currentContainer) return; // 如果找不到父级容器，则退出
+
+            tabcontent = currentContainer.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = currentContainer.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // 用于能源拓扑图页面内部 Tab 切换的全局函数
+        function openEnergyTopologyTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            const currentContainer = evt.currentTarget.closest('[id$="-section"]');
+            if (!currentContainer) return;
+
+            tabcontent = currentContainer.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = currentContainer.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+    </script>
+</body>
+</html>

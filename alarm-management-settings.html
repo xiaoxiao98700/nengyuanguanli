@@ -1,0 +1,1695 @@
+<div class="sub-menu-content-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+        
+        .alarm-settings-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 统计卡片 */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%);
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .stat-label {
+            color: #a7bed3;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            color: #e0e6ed;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .stat-card.electricity .stat-value { color: #ffd700; }
+        .stat-card.water .stat-value { color: #2196f3; }
+        .stat-card.steam .stat-value { color: #ff9800; }
+        .stat-card.compressed-air .stat-value { color: #9c27b0; }
+        .stat-card.nitrogen .stat-value { color: #00bcd4; }
+
+        /* Tab导航 */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #3c5472;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            gap: 5px;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            font-size: 15px;
+            cursor: pointer;
+            color: #a7bed3;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            color: #00bcd4;
+            background-color: rgba(0, 188, 212, 0.1);
+        }
+
+        .tab-button.active {
+            color: #00bcd4;
+            border-bottom-color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .tab-badge {
+            background-color: #3c5472;
+            color: #e0e6ed;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        .tab-button.active .tab-badge {
+            background-color: #00bcd4;
+            color: #1a2a3a;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background-color: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            background-color: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .action-button.secondary {
+            background-color: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .action-button.secondary:hover {
+            background-color: #4a6a8a;
+        }
+
+        /* Tab内容区域 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 告警规则卡片网格 */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .rule-card {
+            background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%);
+            border: 1px solid #3c5472;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .rule-card:hover {
+            border-color: #00bcd4;
+            box-shadow: 0 4px 20px rgba(0, 188, 212, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .rule-card.disabled {
+            opacity: 0.6;
+        }
+
+        .rule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .rule-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e0e6ed;
+            flex: 1;
+        }
+
+        .rule-status-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .rule-status-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .rule-status-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #3c5472;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .rule-status-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #e0e6ed;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .rule-status-switch input:checked + .rule-status-slider {
+            background-color: #4caf50;
+        }
+
+        .rule-status-switch input:checked + .rule-status-slider:before {
+            transform: translateX(20px);
+        }
+
+        .rule-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .rule-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .rule-info-label {
+            color: #a7bed3;
+            font-size: 12px;
+        }
+
+        .rule-info-value {
+            color: #e0e6ed;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .rule-limits {
+            background-color: rgba(0, 188, 212, 0.1);
+            border: 1px solid rgba(0, 188, 212, 0.3);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .rule-limits-title {
+            color: #00bcd4;
+            font-size: 12px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .rule-limits-content {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .limit-item {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .limit-label {
+            color: #a7bed3;
+            font-size: 11px;
+            margin-bottom: 4px;
+        }
+
+        .limit-value {
+            color: #e0e6ed;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .rule-actions {
+            display: flex;
+            gap: 8px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .rule-action-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .rule-action-btn.edit {
+            background-color: rgba(0, 188, 212, 0.2);
+            color: #00bcd4;
+            border: 1px solid rgba(0, 188, 212, 0.4);
+        }
+
+        .rule-action-btn.edit:hover {
+            background-color: rgba(0, 188, 212, 0.3);
+        }
+
+        .rule-action-btn.delete {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.4);
+        }
+
+        .rule-action-btn.delete:hover {
+            background-color: rgba(244, 67, 54, 0.3);
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .level-badge.critical {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.4);
+        }
+
+        .level-badge.warning {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid rgba(255, 152, 0, 0.4);
+        }
+
+        .level-badge.info {
+            background-color: rgba(0, 188, 212, 0.2);
+            color: #00bcd4;
+            border: 1px solid rgba(0, 188, 212, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #a7bed3;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%);
+            border: 1px solid #3c5472;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 16px 64px rgba(0, 0, 0, 0.6);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.15) 0%, rgba(0, 188, 212, 0.05) 100%);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e0e6ed;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #e0e6ed;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .modal-close i {
+            font-size: 18px;
+            color: #e0e6ed;
+            display: inline-block !important;
+            visibility: visible !important;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            color: #a7bed3;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #f44336;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .limit-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .limit-input-group input {
+            flex: 1;
+        }
+
+        .limit-separator {
+            color: #a7bed3;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+        }
+
+        /* 搜索框 */
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 12px 8px 40px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a7bed3;
+        }
+    </style>
+
+    <div class="alarm-settings-container">
+        <div class="page-header">
+            <h2 class="page-title">
+                <i class="fas fa-cog"></i> 告警设置
+            </h2>
+            <p class="page-description">
+                按能源类型分类管理告警规则，系统将根据设置的规则自动触发告警。不同能源类型支持不同的监测参数。
+            </p>
+        </div>
+
+        <!-- 统计概览 -->
+        <div class="stats-overview" id="stats-overview">
+            <!-- 统计卡片将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- Tab导航 -->
+        <div class="tab-nav">
+            <button class="tab-button active" data-energy="all" onclick="switchEnergyTab('all', this)">
+                <i class="fas fa-th"></i> 全部
+                <span class="tab-badge" id="badge-all">0</span>
+            </button>
+            <button class="tab-button" data-energy="electricity" onclick="switchEnergyTab('electricity', this)">
+                <i class="fas fa-bolt"></i> 电
+                <span class="tab-badge" id="badge-electricity">0</span>
+            </button>
+            <button class="tab-button" data-energy="water" onclick="switchEnergyTab('water', this)">
+                <i class="fas fa-tint"></i> 水
+                <span class="tab-badge" id="badge-water">0</span>
+            </button>
+            <button class="tab-button" data-energy="steam" onclick="switchEnergyTab('steam', this)">
+                <i class="fas fa-cloud"></i> 蒸汽
+                <span class="tab-badge" id="badge-steam">0</span>
+            </button>
+            <button class="tab-button" data-energy="compressed-air" onclick="switchEnergyTab('compressed-air', this)">
+                <i class="fas fa-wind"></i> 压缩空气
+                <span class="tab-badge" id="badge-compressed-air">0</span>
+            </button>
+            <button class="tab-button" data-energy="nitrogen" onclick="switchEnergyTab('nitrogen', this)">
+                <i class="fas fa-flask"></i> 氮气
+                <span class="tab-badge" id="badge-nitrogen">0</span>
+            </button>
+            <button class="tab-button" data-energy="other" onclick="switchEnergyTab('other', this)">
+                <i class="fas fa-ellipsis-h"></i> 其他
+                <span class="tab-badge" id="badge-other">0</span>
+            </button>
+        </div>
+
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <div class="action-group">
+                <button class="action-button" onclick="showAlarmRuleForm()">
+                    <i class="fas fa-plus"></i> 新增告警规则
+                </button>
+                <button class="action-button secondary" onclick="exportSettings()">
+                    <i class="fas fa-download"></i> 导出配置
+                </button>
+                <button class="action-button secondary" onclick="importSettings()">
+                    <i class="fas fa-upload"></i> 导入配置
+                </button>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="search-input" placeholder="搜索规则名称、对象名称..." oninput="searchRules()">
+            </div>
+        </div>
+
+        <!-- Tab内容区域 -->
+        <div class="tab-content active" id="tab-all">
+            <div class="rules-grid" id="rules-grid-all"></div>
+        </div>
+        <div class="tab-content" id="tab-electricity">
+            <div class="rules-grid" id="rules-grid-electricity"></div>
+        </div>
+        <div class="tab-content" id="tab-water">
+            <div class="rules-grid" id="rules-grid-water"></div>
+        </div>
+        <div class="tab-content" id="tab-steam">
+            <div class="rules-grid" id="rules-grid-steam"></div>
+        </div>
+        <div class="tab-content" id="tab-compressed-air">
+            <div class="rules-grid" id="rules-grid-compressed-air"></div>
+        </div>
+        <div class="tab-content" id="tab-nitrogen">
+            <div class="rules-grid" id="rules-grid-nitrogen"></div>
+        </div>
+        <div class="tab-content" id="tab-other">
+            <div class="rules-grid" id="rules-grid-other"></div>
+        </div>
+    </div>
+
+    <!-- 告警规则编辑模态框 -->
+    <div class="modal-overlay" id="alarm-rule-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-cog"></i> <span id="modal-title-text">新增告警规则</span>
+                </h3>
+                <button class="modal-close" onclick="closeAlarmRuleModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                    <span class="fallback-close" style="display: none;">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="alarm-rule-form" onsubmit="saveAlarmRule(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">规则名称</label>
+                            <input type="text" class="form-input" id="rule-name" required placeholder="请输入规则名称">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">能源类型</label>
+                            <select class="form-select" id="rule-energy-type" required onchange="updateMonitorTypeOptions()">
+                                <option value="">请选择能源类型</option>
+                                <option value="electricity">电</option>
+                                <option value="water">水</option>
+                                <option value="steam">蒸汽</option>
+                                <option value="compressed-air">压缩空气</option>
+                                <option value="nitrogen">氮气</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">告警类型</label>
+                            <select class="form-select" id="rule-type" required>
+                                <option value="">请先选择能源类型</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">告警对象</label>
+                            <select class="form-select" id="rule-object" required>
+                                <option value="">请选择告警对象</option>
+                                <option value="equipment">设备</option>
+                                <option value="station">厂站</option>
+                                <option value="ecc">ECC</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">对象名称</label>
+                            <input type="text" class="form-input" id="rule-object-name" required placeholder="请输入对象名称">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">告警级别</label>
+                            <select class="form-select" id="rule-level" required>
+                                <option value="">请选择告警级别</option>
+                                <option value="critical">严重</option>
+                                <option value="warning">警告</option>
+                                <option value="info">提示</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">单位</label>
+                            <input type="text" class="form-input" id="rule-unit" placeholder="如：℃、kPa、A、V、kW等">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">上限值</label>
+                            <div class="limit-input-group">
+                                <input type="number" class="form-input" id="rule-upper-limit" step="0.01" placeholder="上限值（可选）">
+                                <span class="limit-separator">或</span>
+                                <input type="number" class="form-input" id="rule-upper-percent" step="0.01" placeholder="上限百分比（可选）">
+                                <span style="color: #a7bed3; font-size: 12px;">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">下限值</label>
+                            <div class="limit-input-group">
+                                <input type="number" class="form-input" id="rule-lower-limit" step="0.01" placeholder="下限值（可选）">
+                                <span class="limit-separator">或</span>
+                                <input type="number" class="form-input" id="rule-lower-percent" step="0.01" placeholder="下限百分比（可选）">
+                                <span style="color: #a7bed3; font-size: 12px;">%</span>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-textarea" id="rule-remark" placeholder="请输入备注信息（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeAlarmRuleModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // 告警规则数据（示例数据）- 按能源类型分类
+    let alarmRules = [
+        // ========== 电能源监测告警规则 ==========
+        {
+            id: 1,
+            name: '生产车间1电能超标',
+            energyType: 'electricity',
+            type: 'energy',
+            typeName: '电能',
+            object: 'ecc',
+            objectName: '生产车间1',
+            upperLimit: null,
+            lowerLimit: null,
+            upperPercent: 130,
+            lowerPercent: null,
+            unit: 'kWh',
+            level: 'critical',
+            levelName: '严重',
+            enabled: true,
+            remark: '生产车间1电能超过历史平均值130%时触发严重告警'
+        },
+        {
+            id: 2,
+            name: '主电机功率超限',
+            energyType: 'electricity',
+            type: 'power',
+            typeName: '功率',
+            object: 'equipment',
+            objectName: '主电机',
+            upperLimit: 100,
+            lowerLimit: null,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'kW',
+            level: 'critical',
+            levelName: '严重',
+            enabled: true,
+            remark: '主电机功率超过100kW时触发严重告警'
+        },
+        {
+            id: 3,
+            name: '主电机电流过载',
+            energyType: 'electricity',
+            type: 'current',
+            typeName: '电流',
+            object: 'equipment',
+            objectName: '主电机',
+            upperLimit: 120,
+            lowerLimit: null,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'A',
+            level: 'critical',
+            levelName: '严重',
+            enabled: true,
+            remark: '主电机电流超过120A时触发严重告警'
+        },
+        {
+            id: 4,
+            name: '生产车间1电压波动异常',
+            energyType: 'electricity',
+            type: 'voltage',
+            typeName: '电压',
+            object: 'station',
+            objectName: '生产车间1',
+            upperLimit: 400,
+            lowerLimit: 360,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'V',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '生产车间1电压超出360-400V范围时触发警告'
+        },
+        {
+            id: 5,
+            name: '变压器功率因数异常',
+            energyType: 'electricity',
+            type: 'power-factor',
+            typeName: '功率因数',
+            object: 'equipment',
+            objectName: '变压器',
+            upperLimit: 1.0,
+            lowerLimit: 0.85,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: '',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '变压器功率因数超出0.85-1.0范围时触发警告'
+        },
+        // ========== 水能源监测告警规则 ==========
+        {
+            id: 6,
+            name: '生产用水流量不足',
+            energyType: 'water',
+            type: 'flow',
+            typeName: '流量',
+            object: 'equipment',
+            objectName: '生产用水系统',
+            upperLimit: null,
+            lowerLimit: 50,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'm³/h',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '生产用水流量低于50m³/h时触发警告'
+        },
+        {
+            id: 7,
+            name: '冷却水流量不足',
+            energyType: 'water',
+            type: 'flow',
+            typeName: '流量',
+            object: 'equipment',
+            objectName: '冷却水系统',
+            upperLimit: null,
+            lowerLimit: 30,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'm³/h',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '冷却水流量低于30m³/h时触发警告'
+        },
+        {
+            id: 8,
+            name: '供水管道流速异常',
+            energyType: 'water',
+            type: 'flow-rate',
+            typeName: '流速',
+            object: 'equipment',
+            objectName: '供水管道',
+            upperLimit: 3.0,
+            lowerLimit: 0.5,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'm/s',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '供水管道流速超出0.5-3.0m/s范围时触发警告'
+        },
+        {
+            id: 9,
+            name: '供水压力不足',
+            energyType: 'water',
+            type: 'pressure',
+            typeName: '压力',
+            object: 'equipment',
+            objectName: '供水系统',
+            upperLimit: null,
+            lowerLimit: 0.3,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'MPa',
+            level: 'critical',
+            levelName: '严重',
+            enabled: true,
+            remark: '供水压力低于0.3MPa时触发严重告警'
+        },
+        // ========== 蒸汽能源监测告警规则 ==========
+        {
+            id: 10,
+            name: '蒸汽压力异常',
+            energyType: 'steam',
+            type: 'pressure',
+            typeName: '压力',
+            object: 'equipment',
+            objectName: '蒸汽系统',
+            upperLimit: 1.2,
+            lowerLimit: 0.8,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'MPa',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '蒸汽压力超出0.8-1.2MPa范围时触发警告'
+        },
+        {
+            id: 11,
+            name: '蒸汽温度过高',
+            energyType: 'steam',
+            type: 'temperature',
+            typeName: '温度',
+            object: 'equipment',
+            objectName: '蒸汽系统',
+            upperLimit: 200,
+            lowerLimit: null,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: '℃',
+            level: 'critical',
+            levelName: '严重',
+            enabled: true,
+            remark: '蒸汽温度超过200℃时触发严重告警'
+        },
+        {
+            id: 12,
+            name: '蒸汽流量异常',
+            energyType: 'steam',
+            type: 'flow',
+            typeName: '流量',
+            object: 'equipment',
+            objectName: '蒸汽系统',
+            upperLimit: 50,
+            lowerLimit: 10,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 't/h',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '蒸汽流量超出10-50t/h范围时触发警告'
+        },
+        // ========== 压缩空气能源监测告警规则 ==========
+        {
+            id: 13,
+            name: '压缩空气压力不足',
+            energyType: 'compressed-air',
+            type: 'pressure',
+            typeName: '压力',
+            object: 'equipment',
+            objectName: '压缩空气系统',
+            upperLimit: null,
+            lowerLimit: 0.6,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'MPa',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '压缩空气压力低于0.6MPa时触发警告'
+        },
+        {
+            id: 14,
+            name: '压缩空气流量不足',
+            energyType: 'compressed-air',
+            type: 'flow',
+            typeName: '流量',
+            object: 'equipment',
+            objectName: '压缩空气系统',
+            upperLimit: null,
+            lowerLimit: 20,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'm³/min',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '压缩空气流量低于20m³/min时触发警告'
+        },
+        {
+            id: 15,
+            name: '压缩空气露点异常',
+            energyType: 'compressed-air',
+            type: 'dew-point',
+            typeName: '露点',
+            object: 'equipment',
+            objectName: '压缩空气系统',
+            upperLimit: -10,
+            lowerLimit: null,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: '℃',
+            level: 'info',
+            levelName: '提示',
+            enabled: true,
+            remark: '压缩空气露点高于-10℃时触发提示'
+        },
+        // ========== 氮气能源监测告警规则 ==========
+        {
+            id: 16,
+            name: '氮气压力异常',
+            energyType: 'nitrogen',
+            type: 'pressure',
+            typeName: '压力',
+            object: 'equipment',
+            objectName: '氮气系统',
+            upperLimit: 0.8,
+            lowerLimit: 0.4,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'MPa',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '氮气压力超出0.4-0.8MPa范围时触发警告'
+        },
+        {
+            id: 17,
+            name: '氮气流量不足',
+            energyType: 'nitrogen',
+            type: 'flow',
+            typeName: '流量',
+            object: 'equipment',
+            objectName: '氮气系统',
+            upperLimit: null,
+            lowerLimit: 15,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: 'm³/h',
+            level: 'warning',
+            levelName: '警告',
+            enabled: true,
+            remark: '氮气流量低于15m³/h时触发警告'
+        },
+        {
+            id: 18,
+            name: '氮气纯度不足',
+            energyType: 'nitrogen',
+            type: 'purity',
+            typeName: '纯度',
+            object: 'equipment',
+            objectName: '氮气系统',
+            upperLimit: null,
+            lowerLimit: 99.5,
+            upperPercent: null,
+            lowerPercent: null,
+            unit: '%',
+            level: 'critical',
+            levelName: '严重',
+            enabled: true,
+            remark: '氮气纯度低于99.5%时触发严重告警'
+        }
+    ];
+
+    let editingRuleId = null;
+    let currentEnergyTab = 'all';
+    let searchKeyword = '';
+
+    // 能源类型映射
+    const energyTypeMap = {
+        'electricity': '电',
+        'water': '水',
+        'steam': '蒸汽',
+        'compressed-air': '压缩空气',
+        'nitrogen': '氮气',
+        'other': '其他'
+    };
+
+    // 监测参数配置（根据能源类型）
+    const monitorTypeConfig = {
+        'electricity': [
+            { value: 'current', label: '电流', unit: 'A' },
+            { value: 'voltage', label: '电压', unit: 'V' },
+            { value: 'power', label: '功率', unit: 'kW' },
+            { value: 'energy', label: '电能', unit: 'kWh' },
+            { value: 'power-factor', label: '功率因数', unit: '' },
+            { value: 'frequency', label: '频率', unit: 'Hz' }
+        ],
+        'water': [
+            { value: 'flow', label: '流量', unit: 'm³/h' },
+            { value: 'flow-rate', label: '流速', unit: 'm/s' },
+            { value: 'pressure', label: '压力', unit: 'MPa' },
+            { value: 'temperature', label: '温度', unit: '℃' }
+        ],
+        'steam': [
+            { value: 'pressure', label: '压力', unit: 'MPa' },
+            { value: 'temperature', label: '温度', unit: '℃' },
+            { value: 'flow', label: '流量', unit: 't/h' },
+            { value: 'enthalpy', label: '焓值', unit: 'kJ/kg' }
+        ],
+        'compressed-air': [
+            { value: 'pressure', label: '压力', unit: 'MPa' },
+            { value: 'flow', label: '流量', unit: 'm³/min' },
+            { value: 'temperature', label: '温度', unit: '℃' },
+            { value: 'dew-point', label: '露点', unit: '℃' }
+        ],
+        'nitrogen': [
+            { value: 'pressure', label: '压力', unit: 'MPa' },
+            { value: 'flow', label: '流量', unit: 'm³/h' },
+            { value: 'purity', label: '纯度', unit: '%' },
+            { value: 'temperature', label: '温度', unit: '℃' }
+        ],
+        'other': [
+            { value: 'flow', label: '流量', unit: '' },
+            { value: 'pressure', label: '压力', unit: '' },
+            { value: 'temperature', label: '温度', unit: '℃' },
+            { value: 'energy', label: '能耗', unit: '' }
+        ]
+    };
+
+    // 类型映射
+    const typeMap = {
+        'temperature': '温度',
+        'pressure': '压力',
+        'current': '电流',
+        'voltage': '电压',
+        'power': '功率',
+        'flow': '流量',
+        'flow-rate': '流速',
+        'vibration': '振动',
+        'energy': '能耗',
+        'power-factor': '功率因数',
+        'frequency': '频率',
+        'enthalpy': '焓值',
+        'dew-point': '露点',
+        'purity': '纯度'
+    };
+
+    // 对象映射
+    const objectMap = {
+        'equipment': '设备',
+        'station': '厂站',
+        'ecc': 'ECC'
+    };
+
+    // 级别映射
+    const levelMap = {
+        'critical': '严重',
+        'warning': '警告',
+        'info': '提示'
+    };
+
+    // 计算统计数据
+    function calculateStats() {
+        const stats = {
+            total: alarmRules.length,
+            enabled: alarmRules.filter(r => r.enabled).length,
+            disabled: alarmRules.filter(r => !r.enabled).length,
+            byEnergy: {}
+        };
+
+        Object.keys(energyTypeMap).forEach(energyType => {
+            const rules = alarmRules.filter(r => r.energyType === energyType);
+            stats.byEnergy[energyType] = {
+                total: rules.length,
+                enabled: rules.filter(r => r.enabled).length
+            };
+        });
+
+        return stats;
+    }
+
+    // 渲染统计概览
+    function renderStats() {
+        const stats = calculateStats();
+        const container = document.getElementById('stats-overview');
+        
+        container.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-label">
+                    <i class="fas fa-list"></i> 总规则数
+                </div>
+                <div class="stat-value">${stats.total}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">
+                    <i class="fas fa-check-circle"></i> 已启用
+                </div>
+                <div class="stat-value" style="color: #4caf50;">${stats.enabled}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">
+                    <i class="fas fa-times-circle"></i> 已禁用
+                </div>
+                <div class="stat-value" style="color: #f44336;">${stats.disabled}</div>
+            </div>
+            <div class="stat-card electricity">
+                <div class="stat-label">
+                    <i class="fas fa-bolt"></i> 电能源规则
+                </div>
+                <div class="stat-value">${stats.byEnergy.electricity?.total || 0}</div>
+            </div>
+            <div class="stat-card water">
+                <div class="stat-label">
+                    <i class="fas fa-tint"></i> 水能源规则
+                </div>
+                <div class="stat-value">${stats.byEnergy.water?.total || 0}</div>
+            </div>
+            <div class="stat-card steam">
+                <div class="stat-label">
+                    <i class="fas fa-cloud"></i> 蒸汽规则
+                </div>
+                <div class="stat-value">${stats.byEnergy.steam?.total || 0}</div>
+            </div>
+        `;
+    }
+
+    // 更新Tab徽章
+    function updateTabBadges() {
+        const stats = calculateStats();
+        document.getElementById('badge-all').textContent = stats.total;
+        Object.keys(energyTypeMap).forEach(energyType => {
+            const badge = document.getElementById(`badge-${energyType}`);
+            if (badge) {
+                badge.textContent = stats.byEnergy[energyType]?.total || 0;
+            }
+        });
+    }
+
+    // 切换能源类型Tab
+    window.switchEnergyTab = function(energyType, button) {
+        currentEnergyTab = energyType;
+        
+        // 更新Tab按钮状态
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        button.classList.add('active');
+        
+        // 更新Tab内容显示
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`tab-${energyType}`).classList.add('active');
+        
+        // 渲染规则
+        renderRules();
+    };
+
+    // 获取筛选后的数据
+    function getFilteredData() {
+        let filtered = [...alarmRules];
+        
+        // 按能源类型筛选
+        if (currentEnergyTab !== 'all') {
+            filtered = filtered.filter(item => item.energyType === currentEnergyTab);
+        }
+        
+        // 按搜索关键词筛选
+        if (searchKeyword) {
+            const keyword = searchKeyword.toLowerCase();
+            filtered = filtered.filter(item => 
+                item.name.toLowerCase().includes(keyword) ||
+                item.objectName.toLowerCase().includes(keyword) ||
+                item.typeName.toLowerCase().includes(keyword)
+            );
+        }
+        
+        return filtered;
+    }
+
+    // 渲染告警规则卡片
+    function renderRules() {
+        const data = getFilteredData();
+        const container = document.getElementById(`rules-grid-${currentEnergyTab}`);
+        
+        if (data.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <i class="fas fa-inbox"></i>
+                    <p>暂无告警规则数据</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = data.map(item => {
+            const upperLimitText = item.upperLimit !== null ? item.upperLimit : 
+                                 (item.upperPercent !== null ? item.upperPercent + '%' : '-');
+            const lowerLimitText = item.lowerLimit !== null ? item.lowerLimit : 
+                                 (item.lowerPercent !== null ? item.lowerPercent + '%' : '-');
+            
+            return `
+                <div class="rule-card ${!item.enabled ? 'disabled' : ''}">
+                    <div class="rule-header">
+                        <div class="rule-title">${item.name}</div>
+                        <label class="rule-status-switch">
+                            <input type="checkbox" ${item.enabled ? 'checked' : ''} 
+                                   onchange="toggleRuleStatus(${item.id})">
+                            <span class="rule-status-slider"></span>
+                        </label>
+                    </div>
+                    <div class="rule-info">
+                        <div class="rule-info-item">
+                            <span class="rule-info-label">能源类型</span>
+                            <span class="rule-info-value">${energyTypeMap[item.energyType]}</span>
+                        </div>
+                        <div class="rule-info-item">
+                            <span class="rule-info-label">监测参数</span>
+                            <span class="rule-info-value">${item.typeName}</span>
+                        </div>
+                        <div class="rule-info-item">
+                            <span class="rule-info-label">告警对象</span>
+                            <span class="rule-info-value">${objectMap[item.object]}</span>
+                        </div>
+                        <div class="rule-info-item">
+                            <span class="rule-info-label">对象名称</span>
+                            <span class="rule-info-value">${item.objectName}</span>
+                        </div>
+                        <div class="rule-info-item">
+                            <span class="rule-info-label">告警级别</span>
+                            <span class="rule-info-value">
+                                <span class="level-badge ${item.level}">${item.levelName}</span>
+                            </span>
+                        </div>
+                        <div class="rule-info-item">
+                            <span class="rule-info-label">单位</span>
+                            <span class="rule-info-value">${item.unit || '-'}</span>
+                        </div>
+                    </div>
+                    <div class="rule-limits">
+                        <div class="rule-limits-title">告警阈值</div>
+                        <div class="rule-limits-content">
+                            <div class="limit-item">
+                                <div class="limit-label">上限</div>
+                                <div class="limit-value">${upperLimitText}</div>
+                            </div>
+                            <div class="limit-item">
+                                <div class="limit-label">下限</div>
+                                <div class="limit-value">${lowerLimitText}</div>
+                            </div>
+                        </div>
+                    </div>
+                    ${item.remark ? `<div style="color: #a7bed3; font-size: 12px; margin-bottom: 15px;">${item.remark}</div>` : ''}
+                    <div class="rule-actions">
+                        <button class="rule-action-btn edit" onclick="editRule(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="rule-action-btn delete" onclick="deleteRule(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 搜索规则
+    window.searchRules = function() {
+        searchKeyword = document.getElementById('search-input').value;
+        renderRules();
+    };
+
+    // 根据能源类型更新监测参数选项
+    window.updateMonitorTypeOptions = function() {
+        const energyType = document.getElementById('rule-energy-type').value;
+        const typeSelect = document.getElementById('rule-type');
+        
+        typeSelect.innerHTML = '<option value="">请选择告警类型</option>';
+        
+        if (energyType && monitorTypeConfig[energyType]) {
+            monitorTypeConfig[energyType].forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option.value;
+                opt.textContent = option.label;
+                typeSelect.appendChild(opt);
+            });
+        }
+        
+        // 同时更新单位提示
+        const unitInput = document.getElementById('rule-unit');
+        if (energyType && monitorTypeConfig[energyType] && monitorTypeConfig[energyType].length > 0) {
+            const defaultUnit = monitorTypeConfig[energyType][0].unit;
+            unitInput.placeholder = `如：${defaultUnit || '根据监测参数填写'}`;
+        } else {
+            unitInput.placeholder = '如：℃、kPa、A、V、kW等';
+        }
+    };
+
+    // 显示告警规则表单
+    window.showAlarmRuleForm = function() {
+        const modal = document.getElementById('alarm-rule-modal');
+        const titleText = document.getElementById('modal-title-text');
+        titleText.textContent = '新增告警规则';
+        document.getElementById('alarm-rule-form').reset();
+        document.getElementById('rule-type').innerHTML = '<option value="">请先选择能源类型</option>';
+        editingRuleId = null;
+        modal.classList.add('active');
+    };
+
+    // 关闭模态框
+    window.closeAlarmRuleModal = function() {
+        const modal = document.getElementById('alarm-rule-modal');
+        modal.classList.remove('active');
+        document.getElementById('alarm-rule-form').reset();
+        editingRuleId = null;
+    };
+
+    // 保存告警规则
+    window.saveAlarmRule = function(event) {
+        event.preventDefault();
+        
+        const formData = {
+            name: document.getElementById('rule-name').value,
+            energyType: document.getElementById('rule-energy-type').value,
+            type: document.getElementById('rule-type').value,
+            object: document.getElementById('rule-object').value,
+            objectName: document.getElementById('rule-object-name').value,
+            level: document.getElementById('rule-level').value,
+            unit: document.getElementById('rule-unit').value || '',
+            upperLimit: document.getElementById('rule-upper-limit').value ? 
+                       parseFloat(document.getElementById('rule-upper-limit').value) : null,
+            lowerLimit: document.getElementById('rule-lower-limit').value ? 
+                       parseFloat(document.getElementById('rule-lower-limit').value) : null,
+            upperPercent: document.getElementById('rule-upper-percent').value ? 
+                         parseFloat(document.getElementById('rule-upper-percent').value) : null,
+            lowerPercent: document.getElementById('rule-lower-percent').value ? 
+                         parseFloat(document.getElementById('rule-lower-percent').value) : null,
+            remark: document.getElementById('rule-remark').value || ''
+        };
+
+        if (editingRuleId) {
+            // 编辑模式
+            const index = alarmRules.findIndex(item => item.id === editingRuleId);
+            if (index !== -1) {
+                alarmRules[index] = {
+                    ...alarmRules[index],
+                    ...formData,
+                    typeName: typeMap[formData.type],
+                    levelName: levelMap[formData.level]
+                };
+            }
+        } else {
+            // 新增模式
+            const newId = alarmRules.length > 0 ? Math.max(...alarmRules.map(item => item.id)) + 1 : 1;
+            alarmRules.push({
+                id: newId,
+                ...formData,
+                typeName: typeMap[formData.type],
+                levelName: levelMap[formData.level],
+                enabled: true
+            });
+        }
+
+        renderStats();
+        updateTabBadges();
+        renderRules();
+        closeAlarmRuleModal();
+        alert(editingRuleId ? '告警规则更新成功！' : '告警规则创建成功！');
+    };
+
+    // 编辑告警规则
+    window.editRule = function(id) {
+        const rule = alarmRules.find(item => item.id === id);
+        if (!rule) return;
+
+        editingRuleId = id;
+        const modal = document.getElementById('alarm-rule-modal');
+        const titleText = document.getElementById('modal-title-text');
+        titleText.textContent = '编辑告警规则';
+        
+        // 填充表单数据
+        document.getElementById('rule-name').value = rule.name;
+        document.getElementById('rule-energy-type').value = rule.energyType || '';
+        updateMonitorTypeOptions(); // 更新监测参数选项
+        setTimeout(() => {
+            document.getElementById('rule-type').value = rule.type;
+        }, 100);
+        document.getElementById('rule-object').value = rule.object;
+        document.getElementById('rule-object-name').value = rule.objectName;
+        document.getElementById('rule-level').value = rule.level;
+        document.getElementById('rule-unit').value = rule.unit || '';
+        document.getElementById('rule-upper-limit').value = rule.upperLimit || '';
+        document.getElementById('rule-lower-limit').value = rule.lowerLimit || '';
+        document.getElementById('rule-upper-percent').value = rule.upperPercent || '';
+        document.getElementById('rule-lower-percent').value = rule.lowerPercent || '';
+        document.getElementById('rule-remark').value = rule.remark || '';
+
+        modal.classList.add('active');
+    };
+
+    // 删除告警规则
+    window.deleteRule = function(id) {
+        if (confirm('确定要删除这条告警规则吗？')) {
+            alarmRules = alarmRules.filter(item => item.id !== id);
+            renderStats();
+            updateTabBadges();
+            renderRules();
+            alert('删除成功！');
+        }
+    };
+
+    // 切换规则启用状态
+    window.toggleRuleStatus = function(id) {
+        const rule = alarmRules.find(item => item.id === id);
+        if (rule) {
+            rule.enabled = !rule.enabled;
+            renderStats();
+            updateTabBadges();
+            renderRules();
+        }
+    };
+
+    // 导出配置
+    window.exportSettings = function() {
+        const dataStr = JSON.stringify(alarmRules, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'alarm-settings-' + new Date().toISOString().split('T')[0] + '.json';
+        link.click();
+        URL.revokeObjectURL(url);
+        alert('配置导出成功！');
+    };
+
+    // 导入配置
+    window.importSettings = function() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    if (Array.isArray(imported)) {
+                        alarmRules = imported;
+                        renderStats();
+                        updateTabBadges();
+                        renderRules();
+                        alert('配置导入成功！');
+                    } else {
+                        alert('导入的文件格式不正确！');
+                    }
+                } catch (error) {
+                    alert('导入失败：' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        };
+        input.click();
+    };
+
+    // 点击遮罩层关闭模态框
+    const alarmRuleModal = document.getElementById('alarm-rule-modal');
+    if (alarmRuleModal) {
+        alarmRuleModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAlarmRuleModal();
+            }
+        });
+    }
+
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('alarm-rule-modal');
+            if (modal && modal.classList.contains('active')) {
+                closeAlarmRuleModal();
+            }
+        }
+    });
+
+    // 初始化
+    function init() {
+        renderStats();
+        updateTabBadges();
+        renderRules();
+    }
+
+    // 确保在iframe中也能正确初始化
+    function ensureInit() {
+        const container = document.getElementById('stats-overview');
+        if (!container) {
+            setTimeout(ensureInit, 100);
+            return;
+        }
+        init();
+    }
+
+    // 页面加载时初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', ensureInit);
+    } else {
+        ensureInit();
+    }
+})();
+</script>

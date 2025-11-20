@@ -1,0 +1,919 @@
+<div class="operation-report-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+
+        .operation-report-container {
+            padding: 24px 28px 48px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+            color: #e0e6ed;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* 筛选区域 */
+        .filter-panel {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            color: #8aa0bc;
+        }
+
+        .filter-select,
+        .filter-input {
+            background-color: #152535;
+            border: 1px solid #2f4a66;
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #e6ecf3;
+            font-size: 14px;
+            transition: border 0.2s ease;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.2);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .action-button {
+            background: linear-gradient(120deg, #00bcd4, #5ad8ff);
+            border: none;
+            color: #052030;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.4);
+        }
+
+        .action-button.secondary {
+            background: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .action-button.secondary:hover {
+            background: #4a6a8a;
+            box-shadow: 0 4px 12px rgba(60, 84, 114, 0.4);
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 12px;
+        }
+
+        .action-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .action-bar-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .info-text {
+            color: #8aa0bc;
+            font-size: 14px;
+        }
+
+        /* 报表表格 */
+        .report-table-container {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            overflow-x: auto;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .report-table thead {
+            background: linear-gradient(135deg, #1a2f47, #24415c);
+        }
+
+        .report-table th {
+            padding: 14px 12px;
+            text-align: left;
+            color: #00bcd4;
+            font-weight: 600;
+            border-bottom: 2px solid #00bcd4;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .report-table td {
+            padding: 12px;
+            border-bottom: 1px solid #2f4a66;
+            color: #e0e6ed;
+        }
+
+        .report-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .report-table tbody tr:hover {
+            background-color: rgba(0, 188, 212, 0.1);
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background-color: rgba(26, 45, 71, 0.3);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.normal {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .status-badge.warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+
+        .status-badge.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .status-badge.offline {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+            border: 1px solid #9e9e9e;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 15px;
+        }
+
+        .pagination-button {
+            background: #1d3247;
+            border: 1px solid #2f4a66;
+            color: #c7d5e5;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: #24415c;
+            border-color: #00bcd4;
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: linear-gradient(120deg, #00bcd4, #5ad8ff);
+            color: #052030;
+            border-color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .pagination-info {
+            color: #8aa0bc;
+            font-size: 14px;
+            margin: 0 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8aa0bc;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* 数值高亮 */
+        .value-high {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        .value-low {
+            color: #4caf50;
+        }
+
+        .value-normal {
+            color: #e0e6ed;
+        }
+    </style>
+
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-file-alt"></i> 运行报表
+        </h2>
+        <p class="page-description">
+            以报表形式展示各个监测点分钟级的运行参数，详细记录各个监测点的运行状态，为工厂日常运维提供保障。
+        </p>
+    </div>
+
+    <!-- 筛选区域 -->
+    <div class="filter-panel">
+        <div class="filter-grid">
+            <div class="filter-field">
+                <label class="filter-label">厂区</label>
+                <select class="filter-select" id="factory-select">
+                    <option value="">全部厂区</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">车间</label>
+                <select class="filter-select" id="workshop-select">
+                    <option value="">全部车间</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">产线</label>
+                <select class="filter-select" id="production-line-select">
+                    <option value="">全部产线</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">设备</label>
+                <select class="filter-select" id="equipment-select">
+                    <option value="">全部设备</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">监测点</label>
+                <select class="filter-select" id="monitoring-point-select">
+                    <option value="">全部监测点</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">开始时间</label>
+                <input type="datetime-local" class="filter-input" id="start-time">
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">结束时间</label>
+                <input type="datetime-local" class="filter-input" id="end-time">
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">运行状态</label>
+                <select class="filter-select" id="status-select">
+                    <option value="">全部状态</option>
+                    <option value="normal">正常</option>
+                    <option value="warning">警告</option>
+                    <option value="error">异常</option>
+                    <option value="offline">离线</option>
+                </select>
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button class="action-button" onclick="queryReport()">
+                <i class="fas fa-search"></i> 查询
+            </button>
+            <button class="action-button secondary" onclick="resetFilter()">
+                <i class="fas fa-redo"></i> 重置
+            </button>
+            <button class="action-button secondary" onclick="exportReport()">
+                <i class="fas fa-download"></i> 导出
+            </button>
+        </div>
+    </div>
+
+    <!-- 操作栏 -->
+    <div class="action-bar">
+        <div class="action-bar-left">
+            <span class="info-text" id="data-info">共 0 条记录</span>
+        </div>
+        <div class="action-bar-right">
+            <button class="action-button secondary" onclick="exportReport()">
+                <i class="fas fa-file-excel"></i> 导出Excel
+            </button>
+            <button class="action-button secondary" onclick="exportReport('pdf')">
+                <i class="fas fa-file-pdf"></i> 导出PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- 报表表格 -->
+    <div class="report-table-container">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>厂区</th>
+                    <th>车间</th>
+                    <th>产线</th>
+                    <th>设备名称</th>
+                    <th>设备编码</th>
+                    <th>监测点名称</th>
+                    <th>监测点编码</th>
+                    <th>参数名称</th>
+                    <th>参数值</th>
+                    <th>单位</th>
+                    <th>运行状态</th>
+                    <th>备注</th>
+                </tr>
+            </thead>
+            <tbody id="report-table-body">
+                <!-- 数据将通过JavaScript动态填充 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 分页 -->
+    <div class="pagination" id="pagination">
+        <!-- 分页按钮将通过JavaScript动态生成 -->
+    </div>
+</div>
+
+<script>
+    (function() {
+        // 防止重复加载
+        if (window.__operationReportModuleLoaded) {
+            return;
+        }
+        window.__operationReportModuleLoaded = true;
+
+        // 层级结构数据
+        const hierarchy = {
+            factories: [
+                { id: 'factory-1', name: '制造一厂' },
+                { id: 'factory-2', name: '制造二厂' }
+            ],
+            workshops: [
+                { id: 'workshop-1', name: '注塑车间', factoryId: 'factory-1' },
+                { id: 'workshop-2', name: '冲压车间', factoryId: 'factory-1' },
+                { id: 'workshop-3', name: '装配车间', factoryId: 'factory-1' },
+                { id: 'workshop-4', name: '包装车间', factoryId: 'factory-2' }
+            ],
+            productionLines: [
+                { id: 'line-1', name: '注塑产线A', workshopId: 'workshop-1' },
+                { id: 'line-2', name: '注塑产线B', workshopId: 'workshop-1' },
+                { id: 'line-3', name: '冲压产线A', workshopId: 'workshop-2' },
+                { id: 'line-4', name: '装配产线A', workshopId: 'workshop-3' }
+            ],
+            equipments: [
+                { id: 'eq-1', name: '1#主变', code: 'EQ-TR-01', lineId: 'line-1' },
+                { id: 'eq-2', name: '注塑机群A', code: 'EQ-INJ-12', lineId: 'line-1' },
+                { id: 'eq-3', name: '冲压机组', code: 'EQ-PRS-04', lineId: 'line-3' },
+                { id: 'eq-4', name: '空压站', code: 'EQ-CMP-01', lineId: 'line-1' },
+                { id: 'eq-5', name: '循环水泵组', code: 'EQ-PUMP-02', lineId: 'line-1' },
+                { id: 'eq-6', name: '干燥机组', code: 'EQ-DRY-01', lineId: 'line-1' },
+                { id: 'eq-7', name: '冷却塔', code: 'EQ-CLT-02', lineId: 'line-2' },
+                { id: 'eq-8', name: '氮气站', code: 'EQ-N2-01', lineId: 'line-3' }
+            ],
+            monitoringPoints: [
+                { id: 'mp-1', name: '主变电流', code: 'MP-TR-001', equipmentId: 'eq-1', parameter: '电流', unit: 'A' },
+                { id: 'mp-2', name: '主变电压', code: 'MP-TR-002', equipmentId: 'eq-1', parameter: '电压', unit: 'V' },
+                { id: 'mp-3', name: '主变功率', code: 'MP-TR-003', equipmentId: 'eq-1', parameter: '功率', unit: 'kW' },
+                { id: 'mp-4', name: '注塑机温度', code: 'MP-INJ-001', equipmentId: 'eq-2', parameter: '温度', unit: '℃' },
+                { id: 'mp-5', name: '注塑机压力', code: 'MP-INJ-002', equipmentId: 'eq-2', parameter: '压力', unit: 'MPa' },
+                { id: 'mp-6', name: '空压机压力', code: 'MP-CMP-001', equipmentId: 'eq-4', parameter: '压力', unit: 'MPa' },
+                { id: 'mp-7', name: '空压机流量', code: 'MP-CMP-002', equipmentId: 'eq-4', parameter: '流量', unit: 'm³/min' },
+                { id: 'mp-8', name: '水泵流量', code: 'MP-PUMP-001', equipmentId: 'eq-5', parameter: '流量', unit: 'L/min' },
+                { id: 'mp-9', name: '水泵压力', code: 'MP-PUMP-002', equipmentId: 'eq-5', parameter: '压力', unit: 'kPa' },
+                { id: 'mp-10', name: '干燥机温度', code: 'MP-DRY-001', equipmentId: 'eq-6', parameter: '温度', unit: '℃' },
+                { id: 'mp-11', name: '冷却塔温度', code: 'MP-CLT-001', equipmentId: 'eq-7', parameter: '温度', unit: '℃' },
+                { id: 'mp-12', name: '氮气站压力', code: 'MP-N2-001', equipmentId: 'eq-8', parameter: '压力', unit: 'MPa' }
+            ]
+        };
+
+        // 生成分钟级样例数据（最近2小时，每分钟一条记录）
+        function generateSampleData() {
+            const data = [];
+            const now = new Date();
+            const startTime = new Date(now.getTime() - 2 * 60 * 60 * 1000); // 2小时前
+            
+            hierarchy.monitoringPoints.forEach(mp => {
+                const equipment = hierarchy.equipments.find(eq => eq.id === mp.equipmentId);
+                const line = hierarchy.productionLines.find(l => l.id === equipment?.lineId);
+                const workshop = hierarchy.workshops.find(w => w.id === line?.workshopId);
+                const factory = hierarchy.factories.find(f => f.id === workshop?.factoryId);
+
+                // 为每个监测点生成120条分钟级数据（2小时）
+                for (let i = 0; i < 120; i++) {
+                    const timestamp = new Date(startTime.getTime() + i * 60 * 1000);
+                    const hour = timestamp.getHours();
+                    const minute = timestamp.getMinutes();
+                    
+                    // 根据监测点类型生成不同的参数值
+                    let value, status;
+                    if (mp.parameter === '电流') {
+                        value = (800 + Math.sin(i / 20) * 100 + Math.random() * 50).toFixed(2);
+                        status = value > 900 ? 'warning' : value > 950 ? 'error' : 'normal';
+                    } else if (mp.parameter === '电压') {
+                        value = (380 + Math.random() * 10 - 5).toFixed(2);
+                        status = value < 360 || value > 400 ? 'warning' : 'normal';
+                    } else if (mp.parameter === '功率') {
+                        value = (500 + Math.sin(i / 15) * 80 + Math.random() * 40).toFixed(2);
+                        status = value > 600 ? 'warning' : 'normal';
+                    } else if (mp.parameter === '温度') {
+                        value = (65 + Math.sin(i / 25) * 10 + Math.random() * 5).toFixed(1);
+                        status = value > 80 ? 'warning' : value > 85 ? 'error' : 'normal';
+                    } else if (mp.parameter === '压力') {
+                        value = (0.6 + Math.random() * 0.2 - 0.1).toFixed(3);
+                        status = value > 0.8 || value < 0.4 ? 'warning' : 'normal';
+                    } else if (mp.parameter === '流量') {
+                        value = (50 + Math.sin(i / 18) * 15 + Math.random() * 10).toFixed(2);
+                        status = value > 70 || value < 30 ? 'warning' : 'normal';
+                    }
+
+                    // 偶尔生成离线状态
+                    if (Math.random() < 0.02) {
+                        status = 'offline';
+                        value = '--';
+                    }
+
+                    data.push({
+                        id: `record-${mp.id}-${i}`,
+                        timestamp: timestamp.toISOString(),
+                        factoryId: factory?.id || '',
+                        factoryName: factory?.name || '',
+                        workshopId: workshop?.id || '',
+                        workshopName: workshop?.name || '',
+                        productionLineId: line?.id || '',
+                        productionLineName: line?.name || '',
+                        equipmentId: equipment?.id || '',
+                        equipmentName: equipment?.name || '',
+                        equipmentCode: equipment?.code || '',
+                        monitoringPointId: mp.id,
+                        monitoringPointName: mp.name,
+                        monitoringPointCode: mp.code,
+                        parameterName: mp.parameter,
+                        value: value,
+                        unit: mp.unit,
+                        status: status,
+                        remark: status === 'error' ? '参数异常，请检查设备' : status === 'warning' ? '参数偏高，建议关注' : ''
+                    });
+                }
+            });
+
+            return data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        }
+
+        let allReportData = generateSampleData();
+        let filteredData = [];
+        let currentPage = 1;
+        const pageSize = 50;
+
+        const factorySelect = document.getElementById('factory-select');
+        const workshopSelect = document.getElementById('workshop-select');
+        const productionLineSelect = document.getElementById('production-line-select');
+        const equipmentSelect = document.getElementById('equipment-select');
+        const monitoringPointSelect = document.getElementById('monitoring-point-select');
+        const startTimeInput = document.getElementById('start-time');
+        const endTimeInput = document.getElementById('end-time');
+        const statusSelect = document.getElementById('status-select');
+        const reportTableBody = document.getElementById('report-table-body');
+        const pagination = document.getElementById('pagination');
+        const dataInfo = document.getElementById('data-info');
+
+        // 初始化选择器
+        function initSelectors() {
+            // 初始化厂区
+            factorySelect.innerHTML = '<option value="">全部厂区</option>' +
+                hierarchy.factories.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
+
+            // 初始化时间（默认最近2小时）
+            const now = new Date();
+            const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+            endTimeInput.value = now.toISOString().slice(0, 16);
+            startTimeInput.value = twoHoursAgo.toISOString().slice(0, 16);
+
+            // 绑定事件
+            factorySelect.addEventListener('change', updateWorkshopOptions);
+            workshopSelect.addEventListener('change', updateProductionLineOptions);
+            productionLineSelect.addEventListener('change', updateEquipmentOptions);
+            equipmentSelect.addEventListener('change', updateMonitoringPointOptions);
+        }
+
+        // 更新车间选项
+        function updateWorkshopOptions() {
+            const factoryId = factorySelect.value;
+            const workshops = factoryId 
+                ? hierarchy.workshops.filter(w => w.factoryId === factoryId)
+                : hierarchy.workshops;
+            
+            workshopSelect.innerHTML = '<option value="">全部车间</option>' +
+                workshops.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+            
+            workshopSelect.value = '';
+            updateProductionLineOptions();
+        }
+
+        // 更新产线选项
+        function updateProductionLineOptions() {
+            const workshopId = workshopSelect.value;
+            const lines = workshopId
+                ? hierarchy.productionLines.filter(l => l.workshopId === workshopId)
+                : factorySelect.value
+                    ? hierarchy.productionLines.filter(l => {
+                        const workshop = hierarchy.workshops.find(w => w.id === l.workshopId);
+                        return workshop && workshop.factoryId === factorySelect.value;
+                    })
+                    : hierarchy.productionLines;
+            
+            productionLineSelect.innerHTML = '<option value="">全部产线</option>' +
+                lines.map(l => `<option value="${l.id}">${l.name}</option>`).join('');
+            
+            productionLineSelect.value = '';
+            updateEquipmentOptions();
+        }
+
+        // 更新设备选项
+        function updateEquipmentOptions() {
+            const lineId = productionLineSelect.value;
+            const equipments = lineId
+                ? hierarchy.equipments.filter(eq => eq.lineId === lineId)
+                : productionLineSelect.value === '' && workshopSelect.value
+                    ? hierarchy.equipments.filter(eq => {
+                        const line = hierarchy.productionLines.find(l => l.id === eq.lineId);
+                        return line && line.workshopId === workshopSelect.value;
+                    })
+                    : hierarchy.equipments;
+            
+            equipmentSelect.innerHTML = '<option value="">全部设备</option>' +
+                equipments.map(eq => `<option value="${eq.id}">${eq.name} (${eq.code})</option>`).join('');
+            
+            equipmentSelect.value = '';
+            updateMonitoringPointOptions();
+        }
+
+        // 更新监测点选项
+        function updateMonitoringPointOptions() {
+            const equipmentId = equipmentSelect.value;
+            const points = equipmentId
+                ? hierarchy.monitoringPoints.filter(mp => mp.equipmentId === equipmentId)
+                : equipmentSelect.value === '' && productionLineSelect.value
+                    ? hierarchy.monitoringPoints.filter(mp => {
+                        const equipment = hierarchy.equipments.find(eq => eq.id === mp.equipmentId);
+                        return equipment && equipment.lineId === productionLineSelect.value;
+                    })
+                    : hierarchy.monitoringPoints;
+            
+            monitoringPointSelect.innerHTML = '<option value="">全部监测点</option>' +
+                points.map(mp => `<option value="${mp.id}">${mp.name} (${mp.code})</option>`).join('');
+        }
+
+        // 查询报表
+        window.queryReport = function() {
+            const factoryId = factorySelect.value;
+            const workshopId = workshopSelect.value;
+            const productionLineId = productionLineSelect.value;
+            const equipmentId = equipmentSelect.value;
+            const monitoringPointId = monitoringPointSelect.value;
+            const startTime = startTimeInput.value;
+            const endTime = endTimeInput.value;
+            const status = statusSelect.value;
+
+            filteredData = allReportData.filter(record => {
+                if (factoryId && record.factoryId !== factoryId) return false;
+                if (workshopId && record.workshopId !== workshopId) return false;
+                if (productionLineId && record.productionLineId !== productionLineId) return false;
+                if (equipmentId && record.equipmentId !== equipmentId) return false;
+                if (monitoringPointId && record.monitoringPointId !== monitoringPointId) return false;
+                if (status && record.status !== status) return false;
+                if (startTime && record.timestamp < startTime) return false;
+                if (endTime && record.timestamp > endTime) return false;
+                return true;
+            });
+
+            currentPage = 1;
+            renderTable();
+            renderPagination();
+        };
+
+        // 重置筛选
+        window.resetFilter = function() {
+            factorySelect.value = '';
+            workshopSelect.value = '';
+            productionLineSelect.value = '';
+            equipmentSelect.value = '';
+            monitoringPointSelect.value = '';
+            statusSelect.value = '';
+            
+            const now = new Date();
+            const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+            endTimeInput.value = now.toISOString().slice(0, 16);
+            startTimeInput.value = twoHoursAgo.toISOString().slice(0, 16);
+            
+            queryReport();
+        };
+
+        // 渲染表格
+        function renderTable() {
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageData = filteredData.slice(start, end);
+
+            if (pageData.length === 0) {
+                reportTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="13" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>暂无数据</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            reportTableBody.innerHTML = pageData.map(record => {
+                const date = new Date(record.timestamp);
+                const timeStr = date.toLocaleString('zh-CN', { 
+                    year: 'numeric', 
+                    month: '2-digit', 
+                    day: '2-digit', 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                const statusMap = {
+                    normal: { text: '正常', class: 'normal' },
+                    warning: { text: '警告', class: 'warning' },
+                    error: { text: '异常', class: 'error' },
+                    offline: { text: '离线', class: 'offline' }
+                };
+                const statusInfo = statusMap[record.status] || statusMap.normal;
+
+                let valueClass = 'value-normal';
+                if (record.status === 'warning' || record.status === 'error') {
+                    valueClass = 'value-high';
+                }
+
+                return `
+                    <tr>
+                        <td>${timeStr}</td>
+                        <td>${record.factoryName || '--'}</td>
+                        <td>${record.workshopName || '--'}</td>
+                        <td>${record.productionLineName || '--'}</td>
+                        <td>${record.equipmentName || '--'}</td>
+                        <td>${record.equipmentCode || '--'}</td>
+                        <td>${record.monitoringPointName}</td>
+                        <td>${record.monitoringPointCode}</td>
+                        <td>${record.parameterName}</td>
+                        <td class="${valueClass}">${record.value}</td>
+                        <td>${record.unit}</td>
+                        <td><span class="status-badge ${statusInfo.class}">${statusInfo.text}</span></td>
+                        <td>${record.remark || '--'}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // 更新数据信息
+            dataInfo.textContent = `共 ${filteredData.length} 条记录，当前显示第 ${start + 1}-${Math.min(end, filteredData.length)} 条`;
+        }
+
+        // 渲染分页
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button class="pagination-button" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-left"></i> 上一页
+                </button>
+            `;
+
+            // 显示页码
+            const maxVisiblePages = 7;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            if (startPage > 1) {
+                html += `<button class="pagination-button" onclick="goToPage(1)">1</button>`;
+                if (startPage > 2) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <button class="pagination-button ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+                html += `<button class="pagination-button" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            html += `
+                <button class="pagination-button" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    下一页 <i class="fas fa-chevron-right"></i>
+                </button>
+                <span class="pagination-info">共 ${totalPages} 页</span>
+            `;
+
+            pagination.innerHTML = html;
+        }
+
+        // 跳转页面
+        window.goToPage = function(page) {
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable();
+            renderPagination();
+            // 滚动到表格顶部
+            document.querySelector('.report-table-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        // 导出报表
+        window.exportReport = function(format = 'excel') {
+            if (filteredData.length === 0) {
+                alert('暂无数据可导出');
+                return;
+            }
+
+            if (format === 'excel') {
+                // 生成CSV格式（简化版Excel导出）
+                const headers = ['时间', '厂区', '车间', '产线', '设备名称', '设备编码', '监测点名称', '监测点编码', '参数名称', '参数值', '单位', '运行状态', '备注'];
+                const rows = filteredData.map(record => {
+                    const date = new Date(record.timestamp);
+                    const timeStr = date.toLocaleString('zh-CN');
+                    const statusMap = { normal: '正常', warning: '警告', error: '异常', offline: '离线' };
+                    return [
+                        timeStr,
+                        record.factoryName || '',
+                        record.workshopName || '',
+                        record.productionLineName || '',
+                        record.equipmentName || '',
+                        record.equipmentCode || '',
+                        record.monitoringPointName,
+                        record.monitoringPointCode,
+                        record.parameterName,
+                        record.value,
+                        record.unit,
+                        statusMap[record.status] || '正常',
+                        record.remark || ''
+                    ];
+                });
+
+                const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `运行报表_${new Date().toISOString().slice(0, 10)}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('PDF导出功能开发中...');
+            }
+        };
+
+        // 初始化
+        function init() {
+            initSelectors();
+            queryReport();
+        }
+
+        // 确保初始化
+        function ensureInit() {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        }
+
+        ensureInit();
+    })();
+</script>

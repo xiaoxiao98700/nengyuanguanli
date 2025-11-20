@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>地图展示</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #0f1e2d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans', Arial, sans-serif;
+            color: #e0e6ed;
+        }
+        .iframe-page-wrapper {
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="iframe-page-wrapper">
+<h2><i class="fas fa-map"></i> 地图展示 - 站点能源监控</h2>
+
+<div class="tab-nav">
+    <button class="tab-button active" onclick="openEnergyMonitorTab(event, 'map-overview-tab')">地图总览</button>
+    <button class="tab-button" onclick="openEnergyMonitorTab(event, 'map-energy-ratio-tab')">能源占比</button>
+    <button class="tab-button" onclick="openEnergyMonitorTab(event, 'map-consumption-tab')">能耗统计</button>
+    <button class="tab-button" onclick="openEnergyMonitorTab(event, 'map-alarm-tab')">告警分布</button>
+</div>
+
+<!-- 地图总览 -->
+<div id="map-overview-tab" class="tab-content" style="display: block;">
+    <div class="map-container">
+        <!-- 左侧控制面板 -->
+        <div class="map-control-panel">
+            <h3 class="card-title"><i class="fas fa-filter"></i> 筛选条件</h3>
+            
+            <div class="filter-group">
+                <label>能源类型:</label>
+                <select class="filter-select">
+                    <option>全部</option>
+                    <option>电力</option>
+                    <option>水</option>
+                    <option>蒸汽</option>
+                    <option>压缩空气</option>
+                    <option>天然气</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>时间范围:</label>
+                <select class="filter-select">
+                    <option>今日</option>
+                    <option>本周</option>
+                    <option>本月</option>
+                    <option>本年</option>
+                    <option>自定义</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>站点类型:</label>
+                <select class="filter-select">
+                    <option>全部</option>
+                    <option>生产车间</option>
+                    <option>办公楼</option>
+                    <option>辅助设施</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>告警级别:</label>
+                <select class="filter-select">
+                    <option>全部</option>
+                    <option>严重</option>
+                    <option>警告</option>
+                    <option>提示</option>
+                </select>
+            </div>
+            
+            <button class="action-button" style="width: 100%; margin-top: 15px;">应用筛选</button>
+            
+            <!-- 图例 -->
+            <div class="map-legend">
+                <h4 class="legend-title">图例</h4>
+                <div class="legend-item">
+                    <div class="legend-marker status-normal"></div>
+                    <span>正常</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker status-warning"></div>
+                    <span>警告</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker status-danger"></div>
+                    <span>严重</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker status-offline"></div>
+                    <span>离线</span>
+                </div>
+            </div>
+            
+            <!-- 统计信息 -->
+            <div class="map-statistics">
+                <h4 class="legend-title">统计信息</h4>
+                <div class="stat-item">
+                    <span class="stat-label">总站点数:</span>
+                    <span class="stat-value">12</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">在线站点:</span>
+                    <span class="stat-value">11</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">告警站点:</span>
+                    <span class="stat-value">3</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">总能耗:</span>
+                    <span class="stat-value">1250.5</span>
+                    <span class="stat-unit">kWh</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 地图区域 -->
+        <div class="map-display-area">
+            <div class="map-canvas" id="energy-map">
+                <!-- 地图背景 -->
+                <svg width="100%" height="100%" viewBox="0 0 1000 600" class="map-svg">
+                    <!-- 背景网格 -->
+                    <defs>
+                        <pattern id="map-grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#2a3d54" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="#1a2a3a"/>
+                    <rect width="100%" height="100%" fill="url(#map-grid)" opacity="0.3"/>
+                    
+                    <!-- 道路/连接线 -->
+                    <path d="M 200,300 Q 500,200 800,300" stroke="#3c5472" stroke-width="3" fill="none" stroke-dasharray="10,5" opacity="0.5"/>
+                    <path d="M 300,150 Q 500,300 700,450" stroke="#3c5472" stroke-width="3" fill="none" stroke-dasharray="10,5" opacity="0.5"/>
+                    
+                    <!-- 站点标记 -->
+                    <!-- 站点1 - 生产车间1 -->
+                    <g class="site-marker" data-site="site1">
+                        <circle cx="200" cy="300" r="25" fill="#2a3d54" stroke="#00bcd4" stroke-width="3" class="site-circle"/>
+                        <circle cx="200" cy="300" r="15" fill="#00bcd4" opacity="0.5" class="site-pulse pulse-delay-0"/>
+                        <text x="200" y="340" text-anchor="middle" fill="#e0e6ed" font-size="14" font-weight="bold">生产车间1</text>
+                        <text x="200" y="355" text-anchor="middle" fill="#a7bed3" font-size="11">Site-001</text>
+                        <text x="200" y="370" text-anchor="middle" fill="#00bcd4" font-size="12" font-weight="bold">280.5 kWh</text>
+                    </g>
+                    
+                    <!-- 站点2 - 生产车间2 -->
+                    <g class="site-marker" data-site="site2">
+                        <circle cx="400" cy="250" r="25" fill="#2a3d54" stroke="#f39c12" stroke-width="3" class="site-circle"/>
+                        <circle cx="400" cy="250" r="15" fill="#f39c12" opacity="0.5" class="site-pulse pulse-delay-1"/>
+                        <text x="400" y="290" text-anchor="middle" fill="#e0e6ed" font-size="14" font-weight="bold">生产车间2</text>
+                        <text x="400" y="305" text-anchor="middle" fill="#a7bed3" font-size="11">Site-002</text>
+                        <text x="400" y="320" text-anchor="middle" fill="#f39c12" font-size="12" font-weight="bold">350.2 kWh</text>
+                    </g>
+                    
+                    <!-- 站点3 - 办公楼 -->
+                    <g class="site-marker" data-site="site3">
+                        <circle cx="600" cy="200" r="25" fill="#2a3d54" stroke="#00bcd4" stroke-width="3" class="site-circle"/>
+                        <circle cx="600" cy="200" r="15" fill="#00bcd4" opacity="0.5" class="site-pulse pulse-delay-2"/>
+                        <text x="600" y="240" text-anchor="middle" fill="#e0e6ed" font-size="14" font-weight="bold">办公楼</text>
+                        <text x="600" y="255" text-anchor="middle" fill="#a7bed3" font-size="11">Site-003</text>
+                        <text x="600" y="270" text-anchor="middle" fill="#00bcd4" font-size="12" font-weight="bold">120.8 kWh</text>
+                    </g>
+                    
+                    <!-- 站点4 - 辅助设施 -->
+                    <g class="site-marker" data-site="site4">
+                        <circle cx="800" cy="300" r="25" fill="#2a3d54" stroke="#e74c3c" stroke-width="3" class="site-circle"/>
+                        <circle cx="800" cy="300" r="15" fill="#e74c3c" opacity="0.5" class="site-pulse pulse-delay-3"/>
+                        <text x="800" y="340" text-anchor="middle" fill="#e0e6ed" font-size="14" font-weight="bold">辅助设施</text>
+                        <text x="800" y="355" text-anchor="middle" fill="#a7bed3" font-size="11">Site-004</text>
+                        <text x="800" y="370" text-anchor="middle" fill="#e74c3c" font-size="12" font-weight="bold">500.0 kWh</text>
+                    </g>
+                    
+                    <!-- 站点5 - 生产车间3 -->
+                    <g class="site-marker" data-site="site5">
+                        <circle cx="300" cy="450" r="25" fill="#2a3d54" stroke="#00bcd4" stroke-width="3" class="site-circle"/>
+                        <circle cx="300" cy="450" r="15" fill="#00bcd4" opacity="0.5" class="site-pulse pulse-delay-4"/>
+                        <text x="300" y="490" text-anchor="middle" fill="#e0e6ed" font-size="14" font-weight="bold">生产车间3</text>
+                        <text x="300" y="505" text-anchor="middle" fill="#a7bed3" font-size="11">Site-005</text>
+                        <text x="300" y="520" text-anchor="middle" fill="#00bcd4" font-size="12" font-weight="bold">280.5 kWh</text>
+                    </g>
+                    
+                    <!-- 站点6 - 仓库 -->
+                    <g class="site-marker" data-site="site6">
+                        <circle cx="700" cy="450" r="25" fill="#2a3d54" stroke="#5d7d9a" stroke-width="3" class="site-circle"/>
+                        <circle cx="700" cy="450" r="15" fill="#5d7d9a" opacity="0.5" class="site-pulse pulse-delay-5"/>
+                        <text x="700" y="490" text-anchor="middle" fill="#e0e6ed" font-size="14" font-weight="bold">仓库</text>
+                        <text x="700" y="505" text-anchor="middle" fill="#a7bed3" font-size="11">Site-006</text>
+                        <text x="700" y="520" text-anchor="middle" fill="#5d7d9a" font-size="12" font-weight="bold">离线</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 站点详情面板（点击站点后显示） -->
+    <div class="site-detail-panel" id="site-detail-panel" style="display: none;">
+        <div class="detail-header">
+            <h3 class="detail-title" id="detail-site-name">生产车间1</h3>
+            <button class="close-button" onclick="closeSiteDetail()">×</button>
+        </div>
+        <div class="detail-content">
+            <div class="detail-section">
+                <h4 class="section-title">基本信息</h4>
+                <div class="detail-info">
+                    <div class="info-item">
+                        <span class="info-label">站点编号:</span>
+                        <span class="info-value" id="detail-site-id">Site-001</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">站点类型:</span>
+                        <span class="info-value" id="detail-site-type">生产车间</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">运行状态:</span>
+                        <span class="info-value" id="detail-site-status"><span class="status-badge status-normal">正常</span></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">最后更新:</span>
+                        <span class="info-value" id="detail-last-update">2025-11-14 14:23:15</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h4 class="section-title">能源消耗</h4>
+                <div class="energy-consumption">
+                    <div class="energy-item">
+                        <div class="energy-label">电力</div>
+                        <div class="energy-value">280.5<span class="kpi-unit">kWh</span></div>
+                        <div class="energy-percent">45.2%</div>
+                    </div>
+                    <div class="energy-item">
+                        <div class="energy-label">水</div>
+                        <div class="energy-value">125.6<span class="kpi-unit">m³</span></div>
+                        <div class="energy-percent">20.3%</div>
+                    </div>
+                    <div class="energy-item">
+                        <div class="energy-label">蒸汽</div>
+                        <div class="energy-value">85.2<span class="kpi-unit">t</span></div>
+                        <div class="energy-percent">13.8%</div>
+                    </div>
+                    <div class="energy-item">
+                        <div class="energy-label">压缩空气</div>
+                        <div class="energy-value">45.5<span class="kpi-unit">m³</span></div>
+                        <div class="energy-percent">7.3%</div>
+                    </div>
+                    <div class="energy-item">
+                        <div class="energy-label">天然气</div>
+                        <div class="energy-value">82.1<span class="kpi-unit">m³</span></div>
+                        <div class="energy-percent">13.3%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h4 class="section-title">告警信息</h4>
+                <div class="alarm-list-mini">
+                    <div class="alarm-item-mini">
+                        <span class="alarm-time">14:23:15</span>
+                        <span class="alarm-content">THD超标告警</span>
+                        <span class="status-badge status-warning">警告</span>
+                    </div>
+                    <div class="alarm-item-mini">
+                        <span class="alarm-time">13:45:20</span>
+                        <span class="alarm-content">电压偏差告警</span>
+                        <span class="status-badge status-normal">提示</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 能源占比 -->
+<div id="map-energy-ratio-tab" class="tab-content" style="display: none;">
+    <div class="energy-ratio-container">
+        <div class="filter-bar">
+            <label>时间范围:</label>
+            <select>
+                <option>今日</option>
+                <option>本周</option>
+                <option>本月</option>
+                <option>本年</option>
+            </select>
+            <label>能源类型:</label>
+            <select>
+                <option>全部</option>
+                <option>电力</option>
+                <option>水</option>
+                <option>蒸汽</option>
+            </select>
+            <button class="action-button">查询</button>
+        </div>
+        
+        <!-- 站点能源占比图表 -->
+        <div class="ratio-charts-section">
+            <div class="ratio-chart-card">
+                <h3 class="card-title"><i class="fas fa-chart-pie"></i> 各站点能源占比（饼图）</h3>
+                <div class="pie-chart-container">
+                    <div class="pie-chart-wrapper">
+                        <svg width="400" height="400" viewBox="0 0 400 400" class="pie-chart-svg" id="donut-chart-svg">
+                            <!-- 环形图将通过JavaScript动态生成 -->
+                        </svg>
+                    </div>
+                    <div class="pie-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #00bcd4;"></div>
+                            <span>生产车间1: 280.5 kWh (22.4%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #3498db;"></div>
+                            <span>生产车间2: 350.2 kWh (28.0%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #9b59b6;"></div>
+                            <span>办公楼: 120.8 kWh (9.7%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #e74c3c;"></div>
+                            <span>辅助设施: 500.0 kWh (40.0%)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #f39c12;"></div>
+                            <span>生产车间3: 280.5 kWh (22.4%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ratio-chart-card">
+                <h3 class="card-title"><i class="fas fa-chart-bar"></i> 各站点能源占比（柱状图）</h3>
+                <div class="bar-chart-container">
+                    <svg width="100%" height="350" viewBox="0 0 800 350" class="bar-chart-svg">
+                        <!-- 背景网格 -->
+                        <rect width="100%" height="100%" fill="url(#spectrum-grid)"/>
+                        
+                        <!-- Y轴 -->
+                        <line x1="60" y1="20" x2="60" y2="330" stroke="#4a6a8a" stroke-width="2"/>
+                        <text x="20" y="30" fill="#a7bed3" font-size="12">能耗(kWh)</text>
+                        <text x="20" y="80" fill="#a7bed3" font-size="10">500</text>
+                        <text x="20" y="155" fill="#a7bed3" font-size="10">250</text>
+                        <text x="20" y="230" fill="#a7bed3" font-size="10">125</text>
+                        <text x="20" y="305" fill="#a7bed3" font-size="10">0</text>
+                        
+                        <!-- X轴 -->
+                        <line x1="60" y1="330" x2="780" y2="330" stroke="#4a6a8a" stroke-width="2"/>
+                        
+                        <!-- 柱状图 -->
+                        <rect x="100" y="230" width="80" height="100" fill="#00bcd4" opacity="0.8"/>
+                        <text x="140" y="320" text-anchor="middle" fill="#a7bed3" font-size="11">生产车间1</text>
+                        <text x="140" y="220" text-anchor="middle" fill="#00bcd4" font-size="12" font-weight="bold">280.5</text>
+                        
+                        <rect x="220" y="200" width="80" height="130" fill="#3498db" opacity="0.8"/>
+                        <text x="260" y="320" text-anchor="middle" fill="#a7bed3" font-size="11">生产车间2</text>
+                        <text x="260" y="190" text-anchor="middle" fill="#3498db" font-size="12" font-weight="bold">350.2</text>
+                        
+                        <rect x="340" y="280" width="80" height="50" fill="#9b59b6" opacity="0.8"/>
+                        <text x="380" y="320" text-anchor="middle" fill="#a7bed3" font-size="11">办公楼</text>
+                        <text x="380" y="270" text-anchor="middle" fill="#9b59b6" font-size="12" font-weight="bold">120.8</text>
+                        
+                        <rect x="460" y="130" width="80" height="200" fill="#e74c3c" opacity="0.8"/>
+                        <text x="500" y="320" text-anchor="middle" fill="#a7bed3" font-size="11">辅助设施</text>
+                        <text x="500" y="120" text-anchor="middle" fill="#e74c3c" font-size="12" font-weight="bold">500.0</text>
+                        
+                        <rect x="580" y="230" width="80" height="100" fill="#f39c12" opacity="0.8"/>
+                        <text x="620" y="320" text-anchor="middle" fill="#a7bed3" font-size="11">生产车间3</text>
+                        <text x="620" y="220" text-anchor="middle" fill="#f39c12" font-size="12" font-weight="bold">280.5</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 能耗统计 -->
+<div id="map-consumption-tab" class="tab-content" style="display: none;">
+    <div class="consumption-container">
+        <div class="filter-bar">
+            <label>时间范围:</label>
+            <select>
+                <option>今日</option>
+                <option>本周</option>
+                <option>本月</option>
+                <option>本年</option>
+            </select>
+            <label>能源类型:</label>
+            <select>
+                <option>全部</option>
+                <option>电力</option>
+                <option>水</option>
+                <option>蒸汽</option>
+                <option>压缩空气</option>
+            </select>
+            <button class="action-button">查询</button>
+        </div>
+        
+        <!-- 站点能耗排名 -->
+        <div class="consumption-ranking">
+            <h3 class="card-title"><i class="fas fa-trophy"></i> 站点能耗排名</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>排名</th>
+                        <th>站点名称</th>
+                        <th>站点编号</th>
+                        <th>总能耗</th>
+                        <th>电力</th>
+                        <th>水</th>
+                        <th>蒸汽</th>
+                        <th>占比</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="rank-badge rank-1">1</span></td>
+                        <td>辅助设施</td>
+                        <td>Site-004</td>
+                        <td>500.0</td>
+                        <td>350.0</td>
+                        <td>80.0</td>
+                        <td>70.0</td>
+                        <td>40.0%</td>
+                        <td><span class="status-badge status-danger">严重</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-2">2</span></td>
+                        <td>生产车间2</td>
+                        <td>Site-002</td>
+                        <td>350.2</td>
+                        <td>280.0</td>
+                        <td>45.2</td>
+                        <td>25.0</td>
+                        <td>28.0%</td>
+                        <td><span class="status-badge status-warning">警告</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge rank-3">3</span></td>
+                        <td>生产车间1</td>
+                        <td>Site-001</td>
+                        <td>280.5</td>
+                        <td>220.0</td>
+                        <td>35.5</td>
+                        <td>25.0</td>
+                        <td>22.4%</td>
+                        <td><span class="status-badge status-normal">正常</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">4</span></td>
+                        <td>生产车间3</td>
+                        <td>Site-005</td>
+                        <td>280.5</td>
+                        <td>220.0</td>
+                        <td>35.5</td>
+                        <td>25.0</td>
+                        <td>22.4%</td>
+                        <td><span class="status-badge status-normal">正常</span></td>
+                    </tr>
+                    <tr>
+                        <td><span class="rank-badge">5</span></td>
+                        <td>办公楼</td>
+                        <td>Site-003</td>
+                        <td>120.8</td>
+                        <td>100.0</td>
+                        <td>15.8</td>
+                        <td>5.0</td>
+                        <td>9.7%</td>
+                        <td><span class="status-badge status-normal">正常</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- 能耗趋势对比 -->
+        <div class="consumption-trend">
+            <h3 class="card-title"><i class="fas fa-chart-line"></i> 各站点能耗趋势对比</h3>
+            <div class="trend-chart-container">
+                <svg width="100%" height="400" viewBox="0 0 1000 400" class="trend-chart-svg">
+                    <rect width="100%" height="100%" fill="url(#spectrum-grid)"/>
+                    
+                    <!-- Y轴 -->
+                    <line x1="60" y1="20" x2="60" y2="380" stroke="#4a6a8a" stroke-width="2"/>
+                    <text x="20" y="30" fill="#a7bed3" font-size="12">能耗(kWh)</text>
+                    <text x="20" y="80" fill="#a7bed3" font-size="10">500</text>
+                    <text x="20" y="155" fill="#a7bed3" font-size="10">250</text>
+                    <text x="20" y="230" fill="#a7bed3" font-size="10">125</text>
+                    <text x="20" y="305" fill="#a7bed3" font-size="10">62.5</text>
+                    <text x="20" y="375" fill="#a7bed3" font-size="10">0</text>
+                    
+                    <!-- X轴 -->
+                    <line x1="60" y1="380" x2="980" y2="380" stroke="#4a6a8a" stroke-width="2"/>
+                    <text x="100" y="395" fill="#a7bed3" font-size="10">00:00</text>
+                    <text x="300" y="395" fill="#a7bed3" font-size="10">04:00</text>
+                    <text x="500" y="395" fill="#a7bed3" font-size="10">08:00</text>
+                    <text x="700" y="395" fill="#a7bed3" font-size="10">12:00</text>
+                    <text x="900" y="395" fill="#a7bed3" font-size="10">16:00</text>
+                    
+                    <!-- 趋势线 -->
+                    <path d="M 100,200 Q 300,180 500,160 T 900,140" stroke="#00bcd4" stroke-width="3" fill="none"/>
+                    <path d="M 100,250 Q 300,240 500,230 T 900,220" stroke="#3498db" stroke-width="3" fill="none"/>
+                    <path d="M 100,320 Q 300,310 500,300 T 900,290" stroke="#9b59b6" stroke-width="3" fill="none"/>
+                    <path d="M 100,100 Q 300,90 500,80 T 900,70" stroke="#e74c3c" stroke-width="3" fill="none"/>
+                    <path d="M 100,200 Q 300,180 500,160 T 900,140" stroke="#f39c12" stroke-width="3" fill="none"/>
+                </svg>
+            </div>
+            <div class="trend-legend">
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #00bcd4;"></span>
+                    <span>生产车间1</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #3498db;"></span>
+                    <span>生产车间2</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #9b59b6;"></span>
+                    <span>办公楼</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #e74c3c;"></span>
+                    <span>辅助设施</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color" style="background-color: #f39c12;"></span>
+                    <span>生产车间3</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 告警分布 -->
+<div id="map-alarm-tab" class="tab-content" style="display: none;">
+    <div class="alarm-map-container">
+        <div class="filter-bar">
+            <label>告警级别:</label>
+            <select>
+                <option>全部</option>
+                <option>严重</option>
+                <option>警告</option>
+                <option>提示</option>
+            </select>
+            <label>告警类型:</label>
+            <select>
+                <option>全部</option>
+                <option>THD超标</option>
+                <option>电压偏差</option>
+                <option>三相不平衡</option>
+                <option>能耗异常</option>
+            </select>
+            <label>时间范围:</label>
+            <select>
+                <option>最近1小时</option>
+                <option>最近24小时</option>
+                <option>最近7天</option>
+            </select>
+            <button class="action-button">查询</button>
+        </div>
+        
+        <!-- 告警地图 -->
+        <div class="alarm-map-section">
+            <h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> 告警分布地图</h3>
+            <div class="alarm-map-canvas">
+                <svg width="100%" height="600" viewBox="0 0 1000 600" class="alarm-map-svg">
+                    <rect width="100%" height="100%" fill="#1a2a3a"/>
+                    <rect width="100%" height="100%" fill="url(#map-grid)" opacity="0.3"/>
+                    
+                    <!-- 站点标记（带告警标识） -->
+                    <g class="site-marker alarm-site" data-site="site1">
+                        <circle cx="200" cy="300" r="30" fill="#2a3d54" stroke="#f39c12" stroke-width="4" class="site-circle"/>
+                        <circle cx="200" cy="300" r="20" fill="#f39c12" opacity="0.4" class="site-pulse pulse-delay-0"/>
+                        <text x="200" y="350" text-anchor="middle" fill="#e0e6ed" font-size="14" font-weight="bold">生产车间1</text>
+                        <text x="200" y="365" text-anchor="middle" fill="#a7bed3" font-size="11">Site-001</text>
+                        <text x="200" y="380" text-anchor="middle" fill="#f39c12" font-size="12" font-weight="bold">2条告警</text>
+                        <!-- 告警图标 -->
+                        <text x="230" y="285" fill="#f39c12" font-size="20">⚠</text>
+                    </g>
+                    
+                    <g class="site-marker alarm-site" data-site="site2">
+                        <circle cx="400" cy="250" r="30" fill="#2a3d54" stroke="#f39c12" stroke-width="4" class="site-circle"/>
+                        <circle cx="400" cy="250" r="20" fill="#f39c12" opacity="0.4" class="site-pulse pulse-delay-1"/>
+                        <text x="400" y="300" text-anchor="middle" fill="#e0e6ed" font-size="14" font-weight="bold">生产车间2</text>
+                        <text x="400" y="315" text-anchor="middle" fill="#a7bed3" font-size="11">Site-002</text>
+                        <text x="400" y="330" text-anchor="middle" fill="#f39c12" font-size="12" font-weight="bold">1条告警</text>
+                        <text x="430" y="235" fill="#f39c12" font-size="20">⚠</text>
+                    </g>
+                    
+                    <g class="site-marker alarm-site" data-site="site4">
+                        <circle cx="800" cy="300" r="30" fill="#2a3d54" stroke="#e74c3c" stroke-width="4" class="site-circle"/>
+                        <circle cx="800" cy="300" r="20" fill="#e74c3c" opacity="0.4" class="site-pulse pulse-delay-3"/>
+                        <text x="800" y="350" text-anchor="middle" fill="#e0e6ed" font-size="14" font-weight="bold">辅助设施</text>
+                        <text x="800" y="365" text-anchor="middle" fill="#a7bed3" font-size="11">Site-004</text>
+                        <text x="800" y="380" text-anchor="middle" fill="#e74c3c" font-size="12" font-weight="bold">严重告警</text>
+                        <text x="830" y="285" fill="#e74c3c" font-size="24">⚠</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- 告警统计 -->
+        <div class="alarm-statistics">
+            <div class="stat-card">
+                <div class="stat-label">总告警数</div>
+                <div class="stat-value">5<span class="kpi-unit">条</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">严重告警</div>
+                <div class="stat-value">1<span class="kpi-unit">条</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">警告</div>
+                <div class="stat-value">3<span class="kpi-unit">条</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">提示</div>
+                <div class="stat-value">1<span class="kpi-unit">条</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">告警站点</div>
+                <div class="stat-value">3<span class="kpi-unit">个</span></div>
+            </div>
+        </div>
+        
+        <!-- 告警列表 -->
+        <div class="alarm-list-map">
+            <h3 class="card-title"><i class="fas fa-list"></i> 站点告警详情</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>站点名称</th>
+                        <th>告警时间</th>
+                        <th>告警类型</th>
+                        <th>告警内容</th>
+                        <th>级别</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>辅助设施</td>
+                        <td>2025-11-14 14:23:15</td>
+                        <td>能耗异常</td>
+                        <td>能耗超过设定阈值</td>
+                        <td><span class="status-badge status-danger">严重</span></td>
+                        <td><span class="status-badge status-warning">未确认</span></td>
+                        <td><button class="action-button small">处理</button></td>
+                    </tr>
+                    <tr>
+                        <td>生产车间1</td>
+                        <td>2025-11-14 14:15:30</td>
+                        <td>THD超标</td>
+                        <td>电流THD超过限值</td>
+                        <td><span class="status-badge status-warning">警告</span></td>
+                        <td><span class="status-badge status-warning">未确认</span></td>
+                        <td><button class="action-button small">处理</button></td>
+                    </tr>
+                    <tr>
+                        <td>生产车间1</td>
+                        <td>2025-11-14 13:45:20</td>
+                        <td>电压偏差</td>
+                        <td>电压偏差接近限值</td>
+                        <td><span class="status-badge status-normal">提示</span></td>
+                        <td><span class="status-badge status-normal">已确认</span></td>
+                        <td><button class="action-button small">查看</button></td>
+                    </tr>
+                    <tr>
+                        <td>生产车间2</td>
+                        <td>2025-11-14 12:30:10</td>
+                        <td>三相不平衡</td>
+                        <td>电流不平衡度超过限值</td>
+                        <td><span class="status-badge status-warning">警告</span></td>
+                        <td><span class="status-badge status-normal">已确认</span></td>
+                        <td><button class="action-button small">查看</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 地图展示页面样式 */
+.map-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.map-control-panel {
+    width: 250px;
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+    flex-shrink: 0;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.filter-group {
+    margin-bottom: 15px;
+}
+
+.filter-group label {
+    display: block;
+    font-size: 12px;
+    color: #a7bed3;
+    margin-bottom: 6px;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #4a6a8a;
+    background-color: #1a2a3a;
+    color: #e0e6ed;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.map-legend, .map-statistics {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #3c5472;
+}
+
+.legend-title {
+    font-size: 14px;
+    color: #e0e6ed;
+    margin-bottom: 12px;
+    font-weight: bold;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #a7bed3;
+}
+
+.legend-marker {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #4a6a8a;
+}
+
+.legend-marker.status-normal {
+    background-color: #00bcd4;
+    border-color: #00bcd4;
+}
+
+.legend-marker.status-warning {
+    background-color: #f39c12;
+    border-color: #f39c12;
+}
+
+.legend-marker.status-danger {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.legend-marker.status-offline {
+    background-color: #5d7d9a;
+    border-color: #5d7d9a;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.stat-label {
+    color: #a7bed3;
+}
+
+.stat-value {
+    color: #00bcd4;
+    font-weight: bold;
+}
+
+.stat-unit {
+    font-size: 11px;
+    color: #5d7d9a;
+    margin-left: 3px;
+}
+
+.map-display-area {
+    flex: 1;
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    min-height: 600px;
+}
+
+.map-canvas {
+    width: 100%;
+    height: 600px;
+    position: relative;
+}
+
+.map-svg, .alarm-map-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.site-marker {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.site-marker:hover .site-circle {
+    stroke-width: 4;
+    filter: drop-shadow(0 0 10px currentColor);
+}
+
+.site-pulse {
+    animation: pulse 3s ease-in-out infinite;
+    transform-origin: center;
+}
+
+/* 告警站点的脉冲动画（半径更大） */
+.alarm-site .site-pulse {
+    animation: pulse-alarm 3s ease-in-out infinite;
+}
+
+/* 为不同站点添加动画延迟，让动画错开，更自然 */
+.pulse-delay-0 {
+    animation-delay: 0s;
+}
+
+.pulse-delay-1 {
+    animation-delay: 0.5s;
+}
+
+.pulse-delay-2 {
+    animation-delay: 1s;
+}
+
+.pulse-delay-3 {
+    animation-delay: 1.5s;
+}
+
+.pulse-delay-4 {
+    animation-delay: 2s;
+}
+
+.pulse-delay-5 {
+    animation-delay: 2.5s;
+}
+
+/* 普通站点的脉冲动画 */
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+        r: 15;
+    }
+    50% {
+        opacity: 0.2;
+        r: 22;
+    }
+    100% {
+        opacity: 0.5;
+        r: 15;
+    }
+}
+
+/* 告警站点的脉冲动画（半径从20到28） */
+@keyframes pulse-alarm {
+    0% {
+        opacity: 0.4;
+        r: 20;
+    }
+    50% {
+        opacity: 0.15;
+        r: 28;
+    }
+    100% {
+        opacity: 0.4;
+        r: 20;
+    }
+}
+
+/* 站点详情面板 */
+.site-detail-panel {
+    margin-top: 20px;
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #3c5472;
+    padding-bottom: 15px;
+}
+
+.detail-title {
+    font-size: 18px;
+    color: #e0e6ed;
+    margin: 0;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: #a7bed3;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+}
+
+.close-button:hover {
+    color: #e74c3c;
+}
+
+.detail-content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.detail-section {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.section-title {
+    font-size: 14px;
+    color: #e0e6ed;
+    margin-bottom: 15px;
+    font-weight: bold;
+    border-bottom: 1px solid #3c5472;
+    padding-bottom: 8px;
+}
+
+.detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.info-label {
+    color: #a7bed3;
+}
+
+.info-value {
+    color: #e0e6ed;
+    font-weight: bold;
+}
+
+.energy-consumption {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.energy-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #2a3d54;
+    border-radius: 4px;
+}
+
+.energy-label {
+    font-size: 12px;
+    color: #a7bed3;
+    flex: 1;
+}
+
+.energy-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #00bcd4;
+    margin-right: 10px;
+}
+
+.energy-percent {
+    font-size: 12px;
+    color: #5d7d9a;
+    min-width: 50px;
+    text-align: right;
+}
+
+.alarm-list-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.alarm-item-mini {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    background-color: #2a3d54;
+    border-radius: 4px;
+    font-size: 11px;
+}
+
+.alarm-time {
+    color: #5d7d9a;
+    min-width: 70px;
+}
+
+.alarm-content {
+    color: #a7bed3;
+    flex: 1;
+    margin: 0 10px;
+}
+
+/* 能源占比页面 */
+.energy-ratio-container, .consumption-container, .alarm-map-container {
+    margin-top: 20px;
+}
+
+.ratio-charts-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.ratio-chart-card {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.pie-chart-container {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pie-chart-wrapper {
+    flex-shrink: 0;
+}
+
+.pie-chart-svg {
+    width: 100%;
+    height: auto;
+}
+
+.pie-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.bar-chart-container {
+    margin-top: 20px;
+}
+
+.bar-chart-svg {
+    width: 100%;
+    height: 350px;
+}
+
+/* 能耗统计 */
+.consumption-ranking {
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
+
+.rank-badge {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.rank-badge.rank-1 {
+    background-color: #f39c12;
+    color: #fff;
+}
+
+.rank-badge.rank-2 {
+    background-color: #95a5a6;
+    color: #fff;
+}
+
+.rank-badge.rank-3 {
+    background-color: #e67e22;
+    color: #fff;
+}
+
+.rank-badge:not(.rank-1):not(.rank-2):not(.rank-3) {
+    background-color: #3c5472;
+    color: #a7bed3;
+}
+
+.consumption-trend {
+    margin-top: 25px;
+}
+
+.trend-chart-container {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.trend-chart-svg {
+    width: 100%;
+    height: 400px;
+}
+
+.trend-legend {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+/* 告警分布 */
+.alarm-map-section {
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
+
+.alarm-map-canvas {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.alarm-statistics {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.alarm-list-map {
+    margin-top: 25px;
+}
+</style>
+
+<script>
+// 站点点击事件
+document.addEventListener('DOMContentLoaded', function() {
+    const siteMarkers = document.querySelectorAll('.site-marker');
+    const siteDetailPanel = document.getElementById('site-detail-panel');
+    
+    // 站点数据
+    const siteData = {
+        site1: {
+            name: '生产车间1',
+            id: 'Site-001',
+            type: '生产车间',
+            status: '正常',
+            energy: {
+                power: 280.5,
+                water: 125.6,
+                steam: 85.2,
+                air: 45.5,
+                gas: 82.1
+            }
+        },
+        site2: {
+            name: '生产车间2',
+            id: 'Site-002',
+            type: '生产车间',
+            status: '警告',
+            energy: {
+                power: 350.2,
+                water: 150.0,
+                steam: 100.0,
+                air: 50.0,
+                gas: 90.0
+            }
+        },
+        site3: {
+            name: '办公楼',
+            id: 'Site-003',
+            type: '办公楼',
+            status: '正常',
+            energy: {
+                power: 120.8,
+                water: 50.0,
+                steam: 20.0,
+                air: 10.0,
+                gas: 0
+            }
+        },
+        site4: {
+            name: '辅助设施',
+            id: 'Site-004',
+            type: '辅助设施',
+            status: '严重',
+            energy: {
+                power: 500.0,
+                water: 200.0,
+                steam: 150.0,
+                air: 80.0,
+                gas: 120.0
+            }
+        },
+        site5: {
+            name: '生产车间3',
+            id: 'Site-005',
+            type: '生产车间',
+            status: '正常',
+            energy: {
+                power: 280.5,
+                water: 125.6,
+                steam: 85.2,
+                air: 45.5,
+                gas: 82.1
+            }
+        }
+    };
+    
+    siteMarkers.forEach(marker => {
+        marker.addEventListener('click', function() {
+            const siteId = this.getAttribute('data-site');
+            const data = siteData[siteId];
+            
+            if (data) {
+                // 更新详情面板
+                document.getElementById('detail-site-name').textContent = data.name;
+                document.getElementById('detail-site-id').textContent = data.id;
+                document.getElementById('detail-site-type').textContent = data.type;
+                document.getElementById('detail-site-status').innerHTML = 
+                    `<span class="status-badge status-${data.status === '正常' ? 'normal' : data.status === '警告' ? 'warning' : 'danger'}">${data.status}</span>`;
+                document.getElementById('detail-last-update').textContent = new Date().toLocaleString('zh-CN');
+                
+                // 显示详情面板
+                siteDetailPanel.style.display = 'block';
+                
+                // 滚动到详情面板
+                siteDetailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    });
+});
+
+function closeSiteDetail() {
+    document.getElementById('site-detail-panel').style.display = 'none';
+}
+
+// 生成环形图
+function initDonutChart() {
+    const svg = document.getElementById('donut-chart-svg');
+    if (!svg) {
+        // 如果SVG还没加载，延迟重试
+        setTimeout(initDonutChart, 100);
+        return;
+    }
+    
+    const centerX = 200;
+    const centerY = 200;
+    const outerRadius = 120;
+    const innerRadius = 80;
+    
+    // 数据：百分比
+    const data = [
+        { name: '生产车间1', percent: 22.4, value: 280.5, color: '#00bcd4' },
+        { name: '生产车间2', percent: 28.0, value: 350.2, color: '#3498db' },
+        { name: '办公楼', percent: 9.7, value: 120.8, color: '#9b59b6' },
+        { name: '辅助设施', percent: 40.0, value: 500.0, color: '#e74c3c' },
+        { name: '生产车间3', percent: 22.4, value: 280.5, color: '#f39c12' }
+    ];
+    
+    // 辅助函数：角度转弧度
+    function toRadians(degrees) {
+        return degrees * Math.PI / 180;
+    }
+    
+    // 辅助函数：计算圆上的点
+    function getPoint(angle, radius) {
+        const rad = toRadians(angle);
+        return {
+            x: centerX + radius * Math.cos(rad),
+            y: centerY + radius * Math.sin(rad)
+        };
+    }
+    
+    // 辅助函数：创建环形路径
+    function createDonutPath(startAngle, endAngle) {
+        const startOuter = getPoint(startAngle, outerRadius);
+        const endOuter = getPoint(endAngle, outerRadius);
+        const startInner = getPoint(startAngle, innerRadius);
+        const endInner = getPoint(endAngle, innerRadius);
+        
+        const sweepFlag = (endAngle - startAngle) > 180 ? 1 : 0;
+        
+        return `M ${startOuter.x} ${startOuter.y} 
+                A ${outerRadius} ${outerRadius} 0 ${sweepFlag} 1 ${endOuter.x} ${endOuter.y}
+                L ${endInner.x} ${endInner.y}
+                A ${innerRadius} ${innerRadius} 0 ${sweepFlag} 0 ${startInner.x} ${startInner.y}
+                Z`;
+    }
+    
+    let currentAngle = -90; // 从顶部开始
+    let svgContent = '';
+    
+    // 生成环形路径
+    data.forEach((item, index) => {
+        const angle = (item.percent / 100) * 360;
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + angle;
+        
+        svgContent += `
+            <path d="${createDonutPath(startAngle, endAngle)}" 
+                fill="${item.color}" opacity="0.8">
+                <title>${item.name}: ${item.value} kWh (${item.percent}%)</title>
+            </path>
+        `;
+        
+        currentAngle = endAngle;
+    });
+    
+    // 中心圆和总能耗信息
+    const total = data.reduce((sum, d) => sum + d.value, 0);
+    svgContent += `
+        <circle cx="${centerX}" cy="${centerY}" r="${innerRadius}" fill="#1a2a3a"/>
+        <text x="${centerX}" y="${centerY - 15}" text-anchor="middle" fill="#00bcd4" font-size="24" font-weight="bold">总能耗</text>
+        <text x="${centerX}" y="${centerY + 10}" text-anchor="middle" fill="#e0e6ed" font-size="18">${total.toFixed(1)}</text>
+        <text x="${centerX}" y="${centerY + 28}" text-anchor="middle" fill="#a7bed3" font-size="14">kWh</text>
+    `;
+    
+    svg.innerHTML = svgContent;
+}
+
+// 页面加载时初始化环形图
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDonutChart);
+} else {
+    initDonutChart();
+}
+</script>
+<script src="iframe-common.js"></script>
+</div>
+</body>
+</html>
