@@ -526,7 +526,8 @@
                 html.style.minHeight = 'auto';
                 
                 // 查找并临时移除容器元素的min-height和max-height
-                let containers = body.querySelectorAll('div[class*="-container"], .sub-menu-content-container, .home-overview');
+                // 排除.chart-container，因为它的高度应该由内联样式控制
+                let containers = body.querySelectorAll('div[class*="-container"]:not(.chart-container), .sub-menu-content-container, .home-overview');
                 const originalStyles = [];
                 containers.forEach((container, index) => {
                     originalStyles[index] = {
@@ -536,7 +537,8 @@
                     };
                     container.style.minHeight = 'auto';
                     container.style.maxHeight = 'none';
-                    container.style.height = 'auto';
+                    // 只移除min-height和max-height，不修改height，让内联样式控制
+                    // container.style.height = 'auto';  // 移除这行，不修改height
                 });
                 
                 // 强制重排以获取准确高度
