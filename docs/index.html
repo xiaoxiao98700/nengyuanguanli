@@ -310,7 +310,7 @@
                     justify-content: center !important;
                     background-color: rgba(0, 0, 0, 0.7);
                     backdrop-filter: blur(4px);
-                    overflow-y: auto;
+                    overflow-y: auto !important;
                     padding: 20px;
                     box-sizing: border-box;
                 }
@@ -320,15 +320,13 @@
                 }
                 body .modal-content,
                 body .modal-dialog {
-                    position: absolute !important;
-                    top: 50% !important;
-                    left: 50% !important;
-                    transform: translate(-50%, -50%) !important;
-                    margin: 0 !important;
+                    position: relative !important;
+                    margin: auto !important;
                     z-index: 1000000;
                     align-self: center !important;
                     flex-shrink: 0;
-                    /* 使用绝对定位确保完全居中 */
+                    max-height: calc(100vh - 40px) !important;
+                    /* 完全依赖flexbox居中，确保内容完整显示 */
                 }
             `
         };
