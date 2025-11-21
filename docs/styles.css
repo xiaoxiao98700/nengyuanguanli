@@ -769,7 +769,7 @@ h2 i {
 }
 
 .modal-overlay.active {
-    display: flex;
+    display: flex !important;
 }
 
 /* 在iframe环境中，使用绝对定位确保弹窗正确显示 */
@@ -799,23 +799,25 @@ body > .modal-overlay {
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     animation: modalSlideIn 0.3s ease;
     position: relative !important;
-    margin: 0 auto !important;
+    margin: auto !important;
     z-index: 1000000;
-    /* 确保在flex容器中居中 */
-    align-self: center;
+    /* 确保在flex容器中完全居中 */
+    align-self: center !important;
     flex-shrink: 0;
-    /* 垂直和水平居中 */
-    transform: translate(0, 0);
+    /* 使用绝对居中作为备选方案 */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 @keyframes modalSlideIn {
     from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translate(-50%, -60%);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate(-50%, -50%);
     }
 }
 

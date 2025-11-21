@@ -284,14 +284,18 @@
             left: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            min-width: 100% !important;
+            min-height: 100% !important;
             background-color: rgba(0, 0, 0, 0.7);
             z-index: 999999 !important;
-            align-items: center;
-            justify-content: center;
+            align-items: center !important;
+            justify-content: center !important;
             backdrop-filter: blur(4px);
             overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .modal.active,
@@ -308,10 +312,16 @@
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
-            position: relative;
-            margin: auto;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            margin: 0 !important;
             z-index: 1000000;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            /* 确保完全居中 */
+            align-self: center !important;
+            flex-shrink: 0;
         }
 
         .modal-header {

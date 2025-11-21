@@ -312,15 +312,16 @@
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
-            position: relative !important;
-            margin: 0 auto !important;
+            position: absolute !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            margin: 0 !important;
             z-index: 1000000;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            /* 确保在flex容器中居中 */
-            align-self: center;
+            /* 确保完全居中 */
+            align-self: center !important;
             flex-shrink: 0;
-            /* 如果在iframe中，使用transform居中 */
-            transform: translate(0, 0);
         }
 
         .modal-header {
