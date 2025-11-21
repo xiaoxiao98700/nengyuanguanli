@@ -1444,9 +1444,8 @@
                 const searchText = tabNames[tab];
                 if (searchText) {
                     document.querySelectorAll('.tab-button').forEach(btn => {
-                        if (btn.textContent.includes(searchText)) {
+                        if (btn.textContent.includes(searchText) && !targetButton) {
                             targetButton = btn;
-                            return;
                         }
                     });
                 }
