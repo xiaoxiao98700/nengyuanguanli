@@ -1641,6 +1641,10 @@
     // 渲染厂区表格（带分页）
     function renderFactoryTable(data = null) {
         const tbody = document.getElementById('factory-table-body');
+        if (!tbody) {
+            console.warn('factory-table-body element not found');
+            return;
+        }
         const displayData = data || factoryData;
         const state = paginationState.factory;
 
@@ -1696,6 +1700,10 @@
     // 渲染车间表格（带分页）
     function renderWorkshopTable(data = null) {
         const tbody = document.getElementById('workshop-table-body');
+        if (!tbody) {
+            console.warn('workshop-table-body element not found');
+            return;
+        }
         const displayData = data || workshopData;
         const state = paginationState.workshop;
 
@@ -1754,6 +1762,10 @@
     // 渲染产线表格（带分页）
     function renderProductionLineTable(data = null) {
         const tbody = document.getElementById('production-line-table-body');
+        if (!tbody) {
+            console.warn('production-line-table-body element not found');
+            return;
+        }
         const displayData = data || productionLineData;
 
         if (displayData.length === 0) {
@@ -1795,6 +1807,10 @@
     // 渲染工艺表格（带分页）
     function renderCraftTable(data = null) {
         const tbody = document.getElementById('craft-table-body');
+        if (!tbody) {
+            console.warn('craft-table-body element not found');
+            return;
+        }
         const displayData = data || craftData;
         const state = paginationState.craft;
 
@@ -1851,6 +1867,10 @@
     // 渲染工序表格（带分页）
     function renderProcessTable(data = null) {
         const tbody = document.getElementById('process-table-body');
+        if (!tbody) {
+            console.warn('process-table-body element not found');
+            return;
+        }
         const displayData = data || processData;
         const state = paginationState.process;
 
@@ -1908,6 +1928,10 @@
     // 渲染设备表格（带分页）
     function renderEquipmentTable(data = null) {
         const tbody = document.getElementById('equipment-table-body');
+        if (!tbody) {
+            console.warn('equipment-table-body element not found');
+            return;
+        }
         const displayData = data || equipmentData;
         const state = paginationState.equipment;
 
@@ -1971,6 +1995,10 @@
     // 渲染计量仪表表格（带分页）
     function renderMeterTable(data = null) {
         const tbody = document.getElementById('meter-table-body');
+        if (!tbody) {
+            console.warn('meter-table-body element not found');
+            return;
+        }
         const displayData = data || meterData;
         const state = paginationState.meter;
 
@@ -2990,9 +3018,19 @@
 
     // 初始化
     function init() {
+        // 检查必要的DOM元素是否存在
+        const factoryTableBody = document.getElementById('factory-table-body');
+        if (!factoryTableBody) {
+            console.warn('DOM elements not ready, retrying...');
+            // 如果DOM元素不存在，延迟重试
+            setTimeout(init, 200);
+            return;
+        }
+        
         // 重新加载ECC数据
         eccList = loadECCData();
         
+        // 渲染所有表格
         renderFactoryTable();
         renderWorkshopTable();
         renderProductionLineTable();
@@ -3004,23 +3042,34 @@
 
     // 确保在iframe中也能正常初始化
     function ensureInit() {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(init, 100); // 延迟一点确保DOM完全加载
-            });
+        // 如果DOM已经完全加载，直接初始化
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            // 稍微延迟确保所有元素都已渲染
+            setTimeout(init, 150);
         } else {
-            // 如果文档已经加载完成，也稍微延迟一下确保所有资源都已注入
-            setTimeout(init, 100);
+            // 等待DOM加载完成
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(init, 150);
+            });
         }
     }
 
-    // 在iframe中，可能需要等待父窗口的资源注入完成
+    // 在iframe环境中，需要多次尝试确保初始化成功
     if (window.parent !== window) {
         // 在iframe环境中
+        // 监听load事件
         window.addEventListener('load', function() {
-            setTimeout(init, 300); // 给父窗口一些时间来注入资源
+            setTimeout(init, 500);
         });
-        ensureInit(); // 同时也执行普通的初始化逻辑
+        // 也监听DOMContentLoaded
+        ensureInit();
+        // 备用：如果以上都没成功，延迟更长时间再试
+        setTimeout(function() {
+            const factoryTableBody = document.getElementById('factory-table-body');
+            if (factoryTableBody && factoryTableBody.children.length === 0) {
+                init();
+            }
+        }, 1000);
     } else {
         ensureInit();
     }
