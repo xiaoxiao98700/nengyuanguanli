@@ -352,6 +352,20 @@
                     margin-right: 10px !important;
                     color: #00bcd4 !important;
                 }
+                /* 确保图表容器能够正确显示其指定的高度，不被全局样式限制 */
+                body .chart-container {
+                    min-height: auto !important;
+                    max-height: none !important;
+                    /* 不设置height，让内联样式的高度生效 */
+                    position: relative !important;
+                    overflow: hidden !important;
+                    box-sizing: border-box !important;
+                }
+                /* 确保卡片的min-height不会影响内容 */
+                body .card {
+                    min-height: auto !important;
+                    max-height: none !important;
+                }
                 /* 移除body的min-height限制 */
                 body {
                     min-height: auto !important;
@@ -455,10 +469,19 @@
                     overflow: visible !important;
                 }
                 /* 确保容器不会遮挡弹窗 */
-                body div[class*="-container"]:not(.modal-overlay):not(.modal) {
+                body div[class*="-container"]:not(.modal-overlay):not(.modal):not(.chart-container) {
                     overflow: visible !important;
                     position: relative !important;
                     z-index: auto !important;
+                }
+                /* 确保图表容器能够正确显示其指定的高度，不被全局样式限制 */
+                body .chart-container {
+                    min-height: auto !important;
+                    max-height: none !important;
+                    /* 不设置height，让内联样式的高度生效 */
+                    position: relative !important;
+                    overflow: hidden !important;
+                    box-sizing: border-box !important;
                 }
                 /* 弹窗激活时，禁止背景滚动 */
                 body.modal-open {

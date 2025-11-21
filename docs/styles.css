@@ -581,7 +581,7 @@ h2 i {
 
 /* 图表容器 */
 .chart-container {
-    height: 350px; /* 图表高度 */
+    height: 350px; /* 默认图表高度，可以被内联样式覆盖 */
     margin-bottom: 30px;
     background-color: #2a3d54; /* 图表背景色 */
     border: 1px solid #3c5472;
@@ -590,6 +590,9 @@ h2 i {
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     color: #a7bed3; /* 提示文字颜色 */
     font-style: italic;
+    min-height: auto;
+    max-height: none;
+    box-sizing: border-box;
 }
 
 .data-point {
