@@ -391,20 +391,23 @@
         /* 模态框 */
         .modal-overlay {
             display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
             background: rgba(0, 0, 0, 0.7);
-            z-index: 10000;
+            z-index: 999999 !important;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(4px);
+            overflow-y: auto;
         }
 
         .modal-overlay.active {
-            display: flex;
+            display: flex !important;
         }
 
         .modal-content {
@@ -417,6 +420,9 @@
             overflow-y: auto;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             animation: modalSlideIn 0.3s ease;
+            position: relative;
+            margin: auto;
+            z-index: 1000000;
         }
 
         @keyframes modalSlideIn {
@@ -577,25 +583,25 @@
 
         <!-- Tab导航 -->
         <div class="tab-nav">
-            <button class="tab-button active" onclick="switchTab('factory')">
+            <button class="tab-button active" onclick="switchTab('factory', event)">
                 <i class="fas fa-building"></i> 厂区配置
             </button>
-            <button class="tab-button" onclick="switchTab('workshop')">
+            <button class="tab-button" onclick="switchTab('workshop', event)">
                 <i class="fas fa-industry"></i> 车间配置
             </button>
-            <button class="tab-button" onclick="switchTab('production-line')">
+            <button class="tab-button" onclick="switchTab('production-line', event)">
                 <i class="fas fa-stream"></i> 产线配置
             </button>
-            <button class="tab-button" onclick="switchTab('craft')">
+            <button class="tab-button" onclick="switchTab('craft', event)">
                 <i class="fas fa-flask"></i> 工艺配置
             </button>
-            <button class="tab-button" onclick="switchTab('process')">
+            <button class="tab-button" onclick="switchTab('process', event)">
                 <i class="fas fa-project-diagram"></i> 工序配置
             </button>
-            <button class="tab-button" onclick="switchTab('equipment')">
+            <button class="tab-button" onclick="switchTab('equipment', event)">
                 <i class="fas fa-cogs"></i> 设备配置
             </button>
-            <button class="tab-button" onclick="switchTab('meter')">
+            <button class="tab-button" onclick="switchTab('meter', event)">
                 <i class="fas fa-tachometer-alt"></i> 计量仪表配置
             </button>
         </div>
@@ -1394,18 +1400,40 @@
     let currentTab = 'factory';
 
     // Tab切换
-    window.switchTab = function(tab) {
+    window.switchTab = function(tab, event) {
         // 更新Tab按钮状态
         document.querySelectorAll('.tab-button').forEach(btn => {
             btn.classList.remove('active');
         });
-        event.target.classList.add('active');
+        
+        // 找到被点击的按钮（通过event或通过tab名称）
+        let targetButton = null;
+        if (event && event.target) {
+            targetButton = event.target.closest('.tab-button');
+        }
+        
+        // 如果找不到，通过onclick属性查找
+        if (!targetButton) {
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                const onclickAttr = btn.getAttribute('onclick');
+                if (onclickAttr && (onclickAttr.includes(`switchTab('${tab}'`) || onclickAttr.includes(`switchTab("${tab}"`))) {
+                    targetButton = btn;
+                }
+            });
+        }
+        
+        if (targetButton) {
+            targetButton.classList.add('active');
+        }
 
         // 更新Tab内容
         document.querySelectorAll('.tab-content').forEach(content => {
             content.classList.remove('active');
         });
-        document.getElementById('tab-' + tab).classList.add('active');
+        const targetTabContent = document.getElementById('tab-' + tab);
+        if (targetTabContent) {
+            targetTabContent.classList.add('active');
+        }
 
         currentTab = tab;
         
@@ -2977,12 +3005,24 @@
     // 确保在iframe中也能正常初始化
     function ensureInit() {
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(init, 100); // 延迟一点确保DOM完全加载
+            });
         } else {
-            init();
+            // 如果文档已经加载完成，也稍微延迟一下确保所有资源都已注入
+            setTimeout(init, 100);
         }
     }
 
-    ensureInit();
+    // 在iframe中，可能需要等待父窗口的资源注入完成
+    if (window.parent !== window) {
+        // 在iframe环境中
+        window.addEventListener('load', function() {
+            setTimeout(init, 300); // 给父窗口一些时间来注入资源
+        });
+        ensureInit(); // 同时也执行普通的初始化逻辑
+    } else {
+        ensureInit();
+    }
 })();
 </script>
