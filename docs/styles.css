@@ -399,7 +399,10 @@ body {
 .app-content {
     flex: 1;
     padding: 30px;
-    overflow-y: hidden; /* 隐藏滚动条 */
+    overflow-y: auto; /* 允许滚动 */
+    overflow-x: hidden; /* 隐藏横向滚动条 */
+    position: relative; /* 确保定位上下文 */
+    z-index: 1; /* 低于弹窗 */
 }
 
 .content-container {
@@ -756,14 +759,18 @@ h2 i {
     bottom: 0 !important;
     width: 100% !important;
     height: 100% !important;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.7) !important;
     z-index: 999999 !important;
     align-items: center !important;
     justify-content: center !important;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px) !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
     padding: 0 !important;
-    box-sizing: border-box;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    /* 确保在最上层，不被遮挡 */
+    pointer-events: auto !important;
 }
 
 .modal-overlay.active {
@@ -786,23 +793,25 @@ body > .modal-overlay {
 
 .modal-content,
 .modal-dialog {
-    background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%);
-    border: 1px solid #3c5472;
-    border-radius: 12px;
-    padding: 0;
-    width: 90%;
-    max-width: 800px;
+    background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%) !important;
+    border: 1px solid #3c5472 !important;
+    border-radius: 12px !important;
+    padding: 0 !important;
+    width: 90% !important;
+    max-width: min(800px, 90vw) !important;
     max-height: 90vh !important;
-    overflow-y: auto;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
     animation: modalSlideIn 0.3s ease;
     position: relative !important;
     margin: 20px auto !important;
-    z-index: 1000000;
+    z-index: 1000000 !important;
     /* 确保在flex容器中完全居中 */
     align-self: center !important;
-    flex-shrink: 0;
+    flex-shrink: 0 !important;
     /* 完全依赖flexbox居中，确保内容完整显示 */
+    box-sizing: border-box !important;
 }
 
 @keyframes modalSlideIn {
