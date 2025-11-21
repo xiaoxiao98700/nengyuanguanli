@@ -108,7 +108,7 @@
         }
         /* 图表容器样式 - 确保高度不受全局样式限制 */
         .chart-container {
-            position: relative !important;
+            position: relative;
             background-color: #2a3d54;
             border: 1px solid #3c5472;
             border-radius: 8px;
@@ -117,7 +117,7 @@
             min-height: auto !important;
             max-height: none !important;
             /* 不设置默认高度，让内联样式生效 */
-            overflow: hidden !important;
+            /* 不强制overflow，让内联样式控制 */
             box-sizing: border-box !important;
         }
     </style>

@@ -355,12 +355,11 @@
                     color: #00bcd4 !important;
                 }
                 /* 确保图表容器能够正确显示其指定的高度，不被全局样式限制 */
+                /* 只移除限制，不覆盖内联样式 */
                 body .chart-container {
                     min-height: auto !important;
                     max-height: none !important;
-                    /* 不设置height，让内联样式的高度生效 */
-                    position: relative !important;
-                    overflow: hidden !important;
+                    /* 不设置height、position、overflow，让内联样式生效 */
                     box-sizing: border-box !important;
                 }
                 /* 确保卡片的min-height不会影响内容 */
@@ -477,12 +476,11 @@
                     z-index: auto !important;
                 }
                 /* 确保图表容器能够正确显示其指定的高度，不被全局样式限制 */
+                /* 只移除限制，不覆盖内联样式 */
                 body .chart-container {
                     min-height: auto !important;
                     max-height: none !important;
-                    /* 不设置height，让内联样式的高度生效 */
-                    position: relative !important;
-                    overflow: hidden !important;
+                    /* 不设置height、position、overflow，让内联样式生效 */
                     box-sizing: border-box !important;
                 }
                 /* 弹窗激活时，禁止背景滚动 */
