@@ -754,17 +754,15 @@ h2 i {
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    min-width: 100% !important;
-    min-height: 100% !important;
+    width: 100% !important;
+    height: 100% !important;
     background-color: rgba(0, 0, 0, 0.7);
     z-index: 999999 !important;
     align-items: center !important;
     justify-content: center !important;
     backdrop-filter: blur(4px);
     overflow-y: auto !important;
-    padding: 20px;
+    padding: 0 !important;
     box-sizing: border-box;
 }
 
@@ -794,17 +792,17 @@ body > .modal-overlay {
     padding: 0;
     width: 90%;
     max-width: 800px;
-    max-height: calc(100vh - 40px) !important;
+    max-height: 90vh !important;
     overflow-y: auto;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     animation: modalSlideIn 0.3s ease;
     position: relative !important;
-    margin: auto !important;
+    margin: 20px auto !important;
     z-index: 1000000;
     /* 确保在flex容器中完全居中 */
     align-self: center !important;
     flex-shrink: 0;
-    /* 移除绝对定位，完全依赖flexbox */
+    /* 完全依赖flexbox居中，确保内容完整显示 */
 }
 
 @keyframes modalSlideIn {

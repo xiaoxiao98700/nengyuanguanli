@@ -300,10 +300,8 @@
                     left: 0 !important;
                     right: 0 !important;
                     bottom: 0 !important;
-                    width: 100vw !important;
-                    height: 100vh !important;
-                    min-width: 100% !important;
-                    min-height: 100% !important;
+                    width: 100% !important;
+                    height: 100% !important;
                     z-index: 999999 !important;
                     display: none;
                     align-items: center !important;
@@ -311,7 +309,7 @@
                     background-color: rgba(0, 0, 0, 0.7);
                     backdrop-filter: blur(4px);
                     overflow-y: auto !important;
-                    padding: 20px;
+                    padding: 0 !important;
                     box-sizing: border-box;
                 }
                 body .modal-overlay.active,
@@ -321,11 +319,11 @@
                 body .modal-content,
                 body .modal-dialog {
                     position: relative !important;
-                    margin: auto !important;
+                    margin: 20px auto !important;
                     z-index: 1000000;
                     align-self: center !important;
                     flex-shrink: 0;
-                    max-height: calc(100vh - 40px) !important;
+                    max-height: 90vh !important;
                     /* 完全依赖flexbox居中，确保内容完整显示 */
                 }
             `
@@ -361,7 +359,7 @@
                 const html = doc.documentElement;
                 
                 // 计算内容高度（取body和html的最大值，确保包含所有内容）
-                const height = Math.max(
+                const contentHeight = Math.max(
                     body.scrollHeight,
                     body.offsetHeight,
                     html.clientHeight,
@@ -369,13 +367,22 @@
                     html.offsetHeight
                 );
 
-                // 设置iframe高度，添加一些边距以确保内容完整显示
-                iframe.style.height = (height + 20) + 'px';
+                // 获取视口高度（可用高度）
+                const viewportHeight = window.innerHeight;
+                
+                // 如果内容高度小于视口高度，则使用内容高度（不超出视口）
+                // 如果内容高度大于视口高度，则使用视口高度（允许滚动）
+                const finalHeight = Math.min(contentHeight, viewportHeight);
+
+                // 设置iframe高度
+                iframe.style.height = finalHeight + 'px';
                 iframe.style.minHeight = 'auto';
+                iframe.style.maxHeight = viewportHeight + 'px';
             } catch (error) {
                 // 如果无法访问iframe内容（跨域等情况），使用默认最小高度
                 console.warn('无法调整iframe高度:', error);
-                iframe.style.minHeight = '800px';
+                iframe.style.minHeight = '600px';
+                iframe.style.maxHeight = window.innerHeight + 'px';
             }
         }
 
