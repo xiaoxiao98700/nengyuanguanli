@@ -234,6 +234,10 @@
                     margin: 0;
                     padding: 24px 28px 48px;
                     background-color: #0f1e2d;
+                    min-height: auto !important;
+                    height: auto !important;
+                    min-height: auto !important;
+                    height: auto !important;
                     font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
                     color: #e0e6ed;
                 }
@@ -249,6 +253,16 @@
                 }
                 body .card {
                     background-color: #1a2a3a;
+                }
+                /* 统一容器样式，移除min-height限制，确保高度根据内容自适应 */
+                body div[class*="-container"] {
+                    min-height: auto !important;
+                    height: auto !important;
+                }
+                /* 移除body的min-height限制 */
+                body {
+                    min-height: auto !important;
+                    height: auto !important;
                 }
                 /* 统一页面头部样式 */
                 body .page-header {
@@ -354,26 +368,65 @@
                 const doc = getIframeDocument(iframe);
                 if (!doc || !doc.body) return;
 
-                // 获取内容实际高度
+                // 临时移除body的min-height，以获取真实内容高度
                 const body = doc.body;
                 const html = doc.documentElement;
+                const originalBodyMinHeight = body.style.minHeight;
+                const originalHtmlMinHeight = html.style.minHeight;
                 
-                // 计算内容高度（取body和html的最大值，确保包含所有内容）
-                const height = Math.max(
+                // 移除min-height以获取真实内容高度
+                body.style.minHeight = 'auto';
+                html.style.minHeight = 'auto';
+                
+                // 查找并临时移除容器元素的min-height
+                let containers = body.querySelectorAll('div[class*="-container"]');
+                const originalMinHeights = [];
+                containers.forEach((container, index) => {
+                    originalMinHeights[index] = container.style.minHeight;
+                    container.style.minHeight = 'auto';
+                });
+                
+                // 强制重排以获取准确高度
+                void body.offsetHeight;
+                
+                // 计算实际内容高度
+                const contentHeight = Math.max(
                     body.scrollHeight,
-                    body.offsetHeight,
-                    html.clientHeight,
-                    html.scrollHeight,
-                    html.offsetHeight
+                    html.scrollHeight
                 );
 
-                // 设置iframe高度，添加一些边距以确保内容完整显示
-                iframe.style.height = (height + 20) + 'px';
+                // 恢复样式
+                body.style.minHeight = originalBodyMinHeight;
+                html.style.minHeight = originalHtmlMinHeight;
+                containers.forEach((container, index) => {
+                    container.style.minHeight = originalMinHeights[index];
+                });
+
+                // 获取视口高度（扣除头部和边距）
+                const viewportHeight = window.innerHeight;
+                
+                // 设置iframe高度：不超过内容高度，也不超过视口高度
+                const finalHeight = Math.min(contentHeight, viewportHeight);
+                iframe.style.height = finalHeight + 'px';
                 iframe.style.minHeight = 'auto';
+                iframe.style.maxHeight = finalHeight + 'px';
+                iframe.style.overflow = 'hidden';
+                
+                // 如果内容超出视口，让iframe内部滚动
+                if (contentHeight > viewportHeight) {
+                    // 允许iframe内部滚动
+                    doc.body.style.overflowY = 'auto';
+                    doc.documentElement.style.overflowY = 'auto';
+                } else {
+                    // 内容不超过视口时，禁止滚动
+                    doc.body.style.overflowY = 'visible';
+                    doc.documentElement.style.overflowY = 'visible';
+                }
             } catch (error) {
-                // 如果无法访问iframe内容（跨域等情况），使用默认最小高度
                 console.warn('无法调整iframe高度:', error);
-                iframe.style.minHeight = '800px';
+                iframe.style.minHeight = 'auto';
+                iframe.style.maxHeight = window.innerHeight + 'px';
+                iframe.style.height = 'auto';
             }
         }
 
