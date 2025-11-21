@@ -257,14 +257,23 @@
                     background-color: #1a2a3a;
                 }
                 /* 统一容器样式，移除min-height限制，确保高度根据内容自适应 */
-                body div[class*="-container"] {
+                body div[class*="-container"],
+                body .sub-menu-content-container,
+                body .home-overview {
                     min-height: auto !important;
                     height: auto !important;
+                    padding: 20px !important;
+                    background-color: #0f1e2d !important;
                 }
                 /* 移除body的min-height限制 */
                 body {
                     min-height: auto !important;
                     height: auto !important;
+                }
+                /* 如果存在双层容器，只让内层容器生效 */
+                body .sub-menu-content-container > div[class*="-container"] {
+                    padding: 0 !important;
+                    background-color: transparent !important;
                 }
                 /* 统一页面头部样式 */
                 body .page-header {
