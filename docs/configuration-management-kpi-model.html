@@ -1399,61 +1399,105 @@
     let currentEditingId = null;
     let currentTab = 'factory';
 
-    // Tab切换
+    // Tab切换 - 确保在iframe环境中也能正常工作
     window.switchTab = function(tab, event) {
-        // 更新Tab按钮状态
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        // 找到被点击的按钮（通过event或通过tab名称）
-        let targetButton = null;
-        if (event && event.target) {
-            targetButton = event.target.closest('.tab-button');
-        }
-        
-        // 如果找不到，通过onclick属性查找
-        if (!targetButton) {
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                const onclickAttr = btn.getAttribute('onclick');
-                if (onclickAttr && (onclickAttr.includes(`switchTab('${tab}'`) || onclickAttr.includes(`switchTab("${tab}"`))) {
-                    targetButton = btn;
-                }
+        try {
+            // 更新Tab按钮状态
+            const allButtons = document.querySelectorAll('.tab-button');
+            allButtons.forEach(btn => {
+                btn.classList.remove('active');
             });
-        }
-        
-        if (targetButton) {
-            targetButton.classList.add('active');
-        }
+            
+            // 找到被点击的按钮（通过event或通过tab名称）
+            let targetButton = null;
+            if (event && event.target) {
+                targetButton = event.target.closest('.tab-button');
+                // 如果event.target本身就是按钮，也接受
+                if (!targetButton && event.target.classList.contains('tab-button')) {
+                    targetButton = event.target;
+                }
+            }
+            
+            // 如果找不到，通过onclick属性查找
+            if (!targetButton) {
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    const onclickAttr = btn.getAttribute('onclick');
+                    if (onclickAttr && (onclickAttr.includes(`switchTab('${tab}'`) || onclickAttr.includes(`switchTab("${tab}"`))) {
+                        targetButton = btn;
+                    }
+                });
+            }
+            
+            if (targetButton) {
+                targetButton.classList.add('active');
+            } else {
+                // 如果还是找不到，尝试通过按钮文本来匹配
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    if (btn.textContent.includes(tab === 'factory' ? '厂区' : 
+                                                 tab === 'workshop' ? '车间' :
+                                                 tab === 'production-line' ? '产线' :
+                                                 tab === 'craft' ? '工艺' :
+                                                 tab === 'process' ? '工序' :
+                                                 tab === 'equipment' ? '设备' :
+                                                 tab === 'meter' ? '仪表' : '')) {
+                        if (tab === 'factory' && btn.textContent.includes('厂区')) targetButton = btn;
+                        else if (tab === 'workshop' && btn.textContent.includes('车间')) targetButton = btn;
+                        else if (tab === 'production-line' && btn.textContent.includes('产线')) targetButton = btn;
+                        else if (tab === 'craft' && btn.textContent.includes('工艺')) targetButton = btn;
+                        else if (tab === 'process' && btn.textContent.includes('工序')) targetButton = btn;
+                        else if (tab === 'equipment' && btn.textContent.includes('设备')) targetButton = btn;
+                        else if (tab === 'meter' && btn.textContent.includes('仪表')) targetButton = btn;
+                    }
+                });
+                if (targetButton) {
+                    targetButton.classList.add('active');
+                }
+            }
 
-        // 更新Tab内容
-        document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-        const targetTabContent = document.getElementById('tab-' + tab);
-        if (targetTabContent) {
-            targetTabContent.classList.add('active');
-        }
+            // 更新Tab内容
+            const allTabContents = document.querySelectorAll('.tab-content');
+            allTabContents.forEach(content => {
+                content.classList.remove('active');
+                content.style.display = 'none';
+            });
+            
+            const targetTabContent = document.getElementById('tab-' + tab);
+            if (targetTabContent) {
+                targetTabContent.classList.add('active');
+                targetTabContent.style.display = 'block';
+            }
 
-        currentTab = tab;
-        
-        // 重新渲染当前Tab的数据
-        if (tab === 'factory') {
-            renderFactoryTable();
-        } else if (tab === 'workshop') {
-            renderWorkshopTable();
-        } else if (tab === 'production-line') {
-            renderProductionLineTable();
-        } else if (tab === 'craft') {
-            renderCraftTable();
-        } else if (tab === 'process') {
-            renderProcessTable();
-        } else if (tab === 'equipment') {
-            renderEquipmentTable();
-        } else if (tab === 'meter') {
-            renderMeterTable();
+            currentTab = tab;
+            
+            // 重新渲染当前Tab的数据
+            try {
+                if (tab === 'factory') {
+                    renderFactoryTable();
+                } else if (tab === 'workshop') {
+                    renderWorkshopTable();
+                } else if (tab === 'production-line') {
+                    renderProductionLineTable();
+                } else if (tab === 'craft') {
+                    renderCraftTable();
+                } else if (tab === 'process') {
+                    renderProcessTable();
+                } else if (tab === 'equipment') {
+                    renderEquipmentTable();
+                } else if (tab === 'meter') {
+                    renderMeterTable();
+                }
+            } catch (error) {
+                console.error('Error rendering table for tab:', tab, error);
+            }
+        } catch (error) {
+            console.error('Error in switchTab:', error);
         }
     };
+    
+    // 确保switchTab函数在全局作用域中可用（即使在iframe中）
+    if (typeof window !== 'undefined') {
+        window.switchTab = window.switchTab || window.switchTab;
+    }
 
     // 通用分页渲染函数
     function renderPagination(tabName, totalRecords, startRecord, endRecord) {
@@ -3055,21 +3099,70 @@
     }
 
     // 在iframe环境中，需要多次尝试确保初始化成功
+    // 使用更激进的重试策略，确保在iframe环境中能正确初始化
+    function tryInitMultipleTimes() {
+        let attempts = 0;
+        const maxAttempts = 15;
+        
+        function attemptInit() {
+            attempts++;
+            const factoryTableBody = document.getElementById('factory-table-body');
+            
+            if (factoryTableBody) {
+                // DOM元素存在
+                try {
+                    init();
+                    // 验证初始化是否成功
+                    setTimeout(function() {
+                        const hasData = factoryTableBody.children.length > 0;
+                        if (!hasData && attempts < maxAttempts) {
+                            console.log('Init attempt', attempts, '- no data found, retrying...');
+                            attemptInit();
+                        } else if (hasData) {
+                            console.log('Init successful on attempt', attempts);
+                        }
+                    }, 300);
+                } catch (error) {
+                    console.error('Init error on attempt', attempts, ':', error);
+                    if (attempts < maxAttempts) {
+                        setTimeout(attemptInit, 500);
+                    }
+                }
+            } else {
+                // DOM元素不存在，延迟重试
+                if (attempts < maxAttempts) {
+                    setTimeout(attemptInit, 300);
+                } else {
+                    console.error('Failed to find factory-table-body after', maxAttempts, 'attempts');
+                }
+            }
+        }
+        
+        // 开始尝试
+        attemptInit();
+    }
+    
     if (window.parent !== window) {
         // 在iframe环境中
-        // 监听load事件
+        // 监听load事件（最可靠的触发时机）
         window.addEventListener('load', function() {
-            setTimeout(init, 500);
+            setTimeout(tryInitMultipleTimes, 1000);
         });
+        
         // 也监听DOMContentLoaded
-        ensureInit();
-        // 备用：如果以上都没成功，延迟更长时间再试
-        setTimeout(function() {
-            const factoryTableBody = document.getElementById('factory-table-body');
-            if (factoryTableBody && factoryTableBody.children.length === 0) {
-                init();
-            }
-        }, 1000);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(tryInitMultipleTimes, 800);
+            });
+        } else {
+            // 文档已加载，立即尝试
+            setTimeout(tryInitMultipleTimes, 800);
+        }
+        
+        // 备用：强制在多个时间点尝试
+        setTimeout(tryInitMultipleTimes, 1500);
+        setTimeout(tryInitMultipleTimes, 2500);
+        setTimeout(tryInitMultipleTimes, 3500);
     } else {
         ensureInit();
     }
