@@ -314,9 +314,11 @@
                 }
                 body .modal-content,
                 body .modal-dialog {
-                    position: relative;
-                    margin: auto;
+                    position: relative !important;
+                    margin: auto !important;
                     z-index: 1000000;
+                    align-self: center;
+                    /* 确保在flex容器中居中 */
                 }
             `
         };
