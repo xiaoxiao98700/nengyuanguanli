@@ -1495,8 +1495,9 @@
     };
     
     // 确保switchTab函数在全局作用域中可用（即使在iframe中）
-    if (typeof window !== 'undefined') {
-        window.switchTab = window.switchTab || window.switchTab;
+    if (typeof window !== 'undefined' && !window.switchTab) {
+        // 如果switchTab还没有被定义，则定义它（这不应该发生，但作为保障）
+        window.switchTab = window.switchTab;
     }
 
     // 通用分页渲染函数
