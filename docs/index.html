@@ -255,23 +255,102 @@
                     background-color: #1a2a3a;
                 }
                 /* 统一容器样式，移除min-height和max-height限制，确保高度根据内容自适应 */
-                body div[class*="-container"]:not(.iframe-page-wrapper),
+                body div[class*="-container"]:not(.iframe-page-wrapper):not(.modal-overlay):not(.modal),
                 body .home-overview {
                     min-height: auto !important;
                     max-height: none !important;
                     height: auto !important;
                 }
-                /* 处理sub-menu-content-container，但保持其原有样式，不强制覆盖padding和background */
+                /* 处理sub-menu-content-container，保持其原有样式 */
                 body .sub-menu-content-container {
                     min-height: auto !important;
                     max-height: none !important;
                     height: auto !important;
+                    padding: 0 !important;
+                    background-color: transparent !important;
                 }
                 /* iframe-page-wrapper保持原样，不强制覆盖 */
                 body .iframe-page-wrapper {
                     min-height: auto !important;
                     max-height: none !important;
                     height: auto !important;
+                    padding: 0 !important;
+                }
+                /* 确保页面标题样式正确 */
+                body .iframe-page-wrapper h2,
+                body .sub-menu-content-container h2 {
+                    font-size: 24px !important;
+                    color: #00bcd4 !important;
+                    margin: 0 0 10px 0 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    gap: 10px !important;
+                    font-weight: 600 !important;
+                    border-bottom: none !important;
+                    padding-bottom: 0 !important;
+                }
+                body .iframe-page-wrapper h2 + p,
+                body .sub-menu-content-container h2 + p {
+                    color: #a7bed3 !important;
+                    font-size: 14px !important;
+                    margin-top: 8px !important;
+                    margin-bottom: 20px !important;
+                    line-height: 1.6 !important;
+                }
+                /* 确保Tab导航样式正确 */
+                body .tab-nav {
+                    display: flex !important;
+                    gap: 10px !important;
+                    margin-bottom: 25px !important;
+                    border-bottom: 2px solid #3c5472 !important;
+                    padding-bottom: 0 !important;
+                    overflow-x: auto !important;
+                }
+                body .tab-button {
+                    background: transparent !important;
+                    border: none !important;
+                    color: #a7bed3 !important;
+                    padding: 12px 24px !important;
+                    font-size: 15px !important;
+                    cursor: pointer !important;
+                    white-space: nowrap !important;
+                    border-bottom: 2px solid transparent !important;
+                    transition: color 0.3s ease, border-bottom-color 0.3s ease !important;
+                }
+                body .tab-button:hover {
+                    color: #00bcd4 !important;
+                }
+                body .tab-button.active {
+                    color: #00bcd4 !important;
+                    border-bottom-color: #00bcd4 !important;
+                    font-weight: bold !important;
+                }
+                /* 确保Tab内容样式正确 */
+                body .tab-content {
+                    display: none !important;
+                }
+                body .tab-content.active {
+                    display: block !important;
+                }
+                /* 确保卡片样式正确 */
+                body .card {
+                    background-color: #1a2a3a !important;
+                    padding: 25px !important;
+                    border-radius: 8px !important;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+                    margin-bottom: 20px !important;
+                }
+                body .card-title {
+                    font-size: 1.1em !important;
+                    font-weight: bold !important;
+                    color: #e0e6ed !important;
+                    margin-bottom: 15px !important;
+                    display: flex !important;
+                    align-items: center !important;
+                }
+                body .card-title i {
+                    margin-right: 10px !important;
+                    color: #00bcd4 !important;
                 }
                 /* 移除body的min-height限制 */
                 body {
