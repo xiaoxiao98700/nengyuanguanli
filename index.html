@@ -256,11 +256,12 @@
                 body .card {
                     background-color: #1a2a3a;
                 }
-                /* 统一容器样式，移除min-height限制，确保高度根据内容自适应 */
+                /* 统一容器样式，移除min-height和max-height限制，确保高度根据内容自适应 */
                 body div[class*="-container"],
                 body .sub-menu-content-container,
                 body .home-overview {
                     min-height: auto !important;
+                    max-height: none !important;
                     height: auto !important;
                     padding: 20px !important;
                     background-color: #0f1e2d !important;
@@ -389,54 +390,71 @@
                 body.style.minHeight = 'auto';
                 html.style.minHeight = 'auto';
                 
-                // 查找并临时移除容器元素的min-height
-                let containers = body.querySelectorAll('div[class*="-container"]');
-                const originalMinHeights = [];
+                // 查找并临时移除容器元素的min-height和max-height
+                let containers = body.querySelectorAll('div[class*="-container"], .sub-menu-content-container, .home-overview');
+                const originalStyles = [];
                 containers.forEach((container, index) => {
-                    originalMinHeights[index] = container.style.minHeight;
+                    originalStyles[index] = {
+                        minHeight: container.style.minHeight,
+                        maxHeight: container.style.maxHeight,
+                        height: container.style.height
+                    };
                     container.style.minHeight = 'auto';
+                    container.style.maxHeight = 'none';
+                    container.style.height = 'auto';
                 });
                 
                 // 强制重排以获取准确高度
                 void body.offsetHeight;
+                void html.offsetHeight;
                 
-                // 计算实际内容高度
-                const contentHeight = Math.max(
-                    body.scrollHeight,
-                    html.scrollHeight
-                );
+                // 等待DOM完全渲染后再计算高度
+                setTimeout(() => {
+                    // 计算实际内容高度（取body和html的最大值，确保包含所有内容）
+                    const contentHeight = Math.max(
+                        body.scrollHeight,
+                        body.offsetHeight,
+                        html.scrollHeight,
+                        html.offsetHeight,
+                        body.getBoundingClientRect().height,
+                        html.getBoundingClientRect().height
+                    );
 
-                // 恢复样式
-                body.style.minHeight = originalBodyMinHeight;
-                html.style.minHeight = originalHtmlMinHeight;
-                containers.forEach((container, index) => {
-                    container.style.minHeight = originalMinHeights[index];
-                });
+                    // 恢复样式
+                    body.style.minHeight = originalBodyMinHeight;
+                    html.style.minHeight = originalHtmlMinHeight;
+                    containers.forEach((container, index) => {
+                        if (originalStyles[index]) {
+                            container.style.minHeight = originalStyles[index].minHeight;
+                            container.style.maxHeight = originalStyles[index].maxHeight;
+                            container.style.height = originalStyles[index].height;
+                        }
+                    });
 
-                // 获取视口高度（扣除头部和边距）
-                const viewportHeight = window.innerHeight;
-                
-                // 设置iframe高度：不超过内容高度，也不超过视口高度
-                const finalHeight = Math.min(contentHeight, viewportHeight);
-                iframe.style.height = finalHeight + 'px';
-                iframe.style.minHeight = 'auto';
-                iframe.style.maxHeight = finalHeight + 'px';
-                iframe.style.overflow = 'hidden';
-                
-                // 如果内容超出视口，让iframe内部滚动
-                if (contentHeight > viewportHeight) {
-                    // 允许iframe内部滚动
-                    doc.body.style.overflowY = 'auto';
-                    doc.html.style.overflowY = 'auto';
-                } else {
-                    // 内容不超过视口时，禁止滚动
-                    doc.body.style.overflowY = 'visible';
-                    doc.html.style.overflowY = 'visible';
-                }
+                    // 获取视口高度
+                    const viewportHeight = window.innerHeight;
+                    
+                    // 设置iframe高度：完全自适应内容高度
+                    // 如果内容高度小于视口，使用内容高度（不超出视口）
+                    // 如果内容高度大于视口，也使用内容高度（让外层容器滚动）
+                    const finalHeight = contentHeight;
+                    iframe.style.height = finalHeight + 'px';
+                    iframe.style.minHeight = 'auto';
+                    iframe.style.maxHeight = 'none'; // 移除最大高度限制，允许完全自适应
+                    iframe.style.overflow = 'visible';
+                    
+                    // 确保iframe内容可以正常显示，不设置overflow:hidden
+                    if (doc.body) {
+                        doc.body.style.overflowY = 'visible';
+                    }
+                    if (doc.documentElement) {
+                        doc.documentElement.style.overflowY = 'visible';
+                    }
+                }, 100);
             } catch (error) {
                 console.warn('无法调整iframe高度:', error);
                 iframe.style.minHeight = 'auto';
-                iframe.style.maxHeight = window.innerHeight + 'px';
+                iframe.style.maxHeight = 'none';
                 iframe.style.height = 'auto';
             }
         }
