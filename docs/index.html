@@ -255,14 +255,23 @@
                     background-color: #1a2a3a;
                 }
                 /* 统一容器样式，移除min-height和max-height限制，确保高度根据内容自适应 */
-                body div[class*="-container"],
-                body .sub-menu-content-container,
+                body div[class*="-container"]:not(.iframe-page-wrapper),
                 body .home-overview {
                     min-height: auto !important;
                     max-height: none !important;
                     height: auto !important;
-                    padding: 20px !important;
-                    background-color: #0f1e2d !important;
+                }
+                /* 处理sub-menu-content-container，但保持其原有样式，不强制覆盖padding和background */
+                body .sub-menu-content-container {
+                    min-height: auto !important;
+                    max-height: none !important;
+                    height: auto !important;
+                }
+                /* iframe-page-wrapper保持原样，不强制覆盖 */
+                body .iframe-page-wrapper {
+                    min-height: auto !important;
+                    max-height: none !important;
+                    height: auto !important;
                 }
                 /* 移除body的min-height限制 */
                 body {
