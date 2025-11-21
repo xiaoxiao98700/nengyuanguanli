@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分类能耗统计</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #0f1e2d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+<div class="categorized-energy-container">
+    <div class="page-header">
+        <h2 class="page-title"><i class="fas fa-chart-pie"></i> 分类能耗统计</h2>
+    </div>
+
+    <!-- 能源类型标签页 -->
+    <div class="energy-tabs">
+        <button class="energy-tab active" data-energy="electricity">
+            <i class="fas fa-bolt"></i> 用电统计
+        </button>
+        <button class="energy-tab" data-energy="water">
+            <i class="fas fa-tint"></i> 用水统计
+        </button>
+        <button class="energy-tab" data-energy="steam">
+            <i class="fas fa-cloud"></i> 蒸汽统计
+        </button>
+        <button class="energy-tab" data-energy="compressed-air">
+            <i class="fas fa-wind"></i> 压缩空气统计
+        </button>
+        <button class="energy-tab" data-energy="nitrogen">
+            <i class="fas fa-flask"></i> 氮气统计
+        </button>
+        <button class="energy-tab" data-energy="other">
+            <i class="fas fa-cog"></i> 其他能源
+        </button>
+    </div>
+
+    <!-- 内容区域 -->
+    <div class="energy-content">
+        <!-- 筛选和查询区域 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>时间范围:</label>
+                    <select id="time-range" class="filter-select">
+                        <option value="today">今日</option>
+                        <option value="yesterday">昨日</option>
+                        <option value="week">本周</option>
+                        <option value="month" selected>本月</option>
+                        <option value="year">本年</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                <div class="filter-item" id="custom-date-range" style="display: none;">
+                    <label>开始日期:</label>
+                    <input type="date" id="start-date" class="filter-input">
+                    <label>结束日期:</label>
+                    <input type="date" id="end-date" class="filter-input">
+                </div>
+                <div class="filter-item">
+                    <label>站点:</label>
+                    <select id="site-select" class="filter-select">
+                        <option value="all">全部站点</option>
+                        <option value="site1">生产车间1</option>
+                        <option value="site2">生产车间2</option>
+                        <option value="site3">办公楼</option>
+                        <option value="site4">辅助设施</option>
+                    </select>
+                </div>
+                <!-- 用电统计特有的峰平谷时段选择 -->
+                <div class="filter-item" id="peak-valley-filter" style="display: none;">
+                    <label>时段:</label>
+                    <select id="peak-valley-select" class="filter-select">
+                        <option value="all">全部时段</option>
+                        <option value="peak">峰时段</option>
+                        <option value="flat">平时段</option>
+                        <option value="valley">谷时段</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <button class="query-button" id="query-btn">
+                        <i class="fas fa-search"></i> 查询
+                    </button>
+                    <button class="export-button" id="export-btn">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据概览卡片 -->
+        <div class="overview-cards">
+            <div class="overview-card">
+                <div class="card-icon electricity">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-label">总用量</div>
+                    <div class="card-value" id="total-usage">0</div>
+                    <div class="card-unit" id="usage-unit">kWh</div>
+                </div>
+            </div>
+            <div class="overview-card">
+                <div class="card-icon cost">
+                    <i class="fas fa-yen-sign"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-label">总费用</div>
+                    <div class="card-value" id="total-cost">0</div>
+                    <div class="card-unit">元</div>
+                </div>
+            </div>
+            <div class="overview-card">
+                <div class="card-icon coal">
+                    <i class="fas fa-fire"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-label">标煤当量</div>
+                    <div class="card-value" id="total-coal">0</div>
+                    <div class="card-unit">tce</div>
+                </div>
+            </div>
+            <div class="overview-card">
+                <div class="card-icon trend">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-content">
+                    <div class="card-label">环比变化</div>
+                    <div class="card-value" id="compare-change">0%</div>
+                    <div class="card-unit" id="compare-type">环比</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 图表类型切换 -->
+        <div class="chart-controls">
+            <div class="chart-type-selector">
+                <button class="chart-type-btn active" data-type="line">
+                    <i class="fas fa-chart-line"></i> 曲线图
+                </button>
+                <button class="chart-type-btn" data-type="bar">
+                    <i class="fas fa-chart-bar"></i> 柱状图
+                </button>
+                <button class="chart-type-btn" data-type="pie">
+                    <i class="fas fa-chart-pie"></i> 饼图
+                </button>
+            </div>
+            <div class="analysis-selector">
+                <label>分析方式:</label>
+                <select id="analysis-type" class="filter-select">
+                    <option value="none">无分析</option>
+                    <option value="yoy">同比分析</option>
+                    <option value="mom">环比分析</option>
+                    <option value="compare">对比分析</option>
+                    <option value="hourly">时比分析</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 图表展示区域 -->
+        <div class="chart-section">
+            <div class="chart-container" id="chart-container">
+                <!-- 图表将通过JavaScript动态生成 -->
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-area"></i>
+                    <p>选择时间范围和站点后点击查询查看数据</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="data-table-section">
+            <div class="table-header">
+                <h3 class="table-title"><i class="fas fa-table"></i> 详细数据</h3>
+                <div class="table-actions">
+                    <button class="action-btn small" id="export-png">
+                        <i class="fas fa-image"></i> 导出PNG
+                    </button>
+                    <button class="action-btn small" id="export-jpg">
+                        <i class="fas fa-image"></i> 导出JPG
+                    </button>
+                    <button class="action-btn small" id="export-pdf">
+                        <i class="fas fa-file-pdf"></i> 导出PDF
+                    </button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table class="data-table" id="energy-data-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>用量</th>
+                            <th>费用（元）</th>
+                            <th>标煤当量（tce）</th>
+                            <th>单价（元/单位）</th>
+                            <th>站点</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: #a7bed3; padding: 40px;">
+                                暂无数据，请选择时间范围和站点后点击查询
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 分类能耗页面样式 */
+.categorized-energy-container {
+    padding: 20px;
+    background-color: #1a2a3a;
+    min-height: 100vh;
+}
+
+.page-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.page-title {
+    font-size: 24px;
+    color: #e0e6ed;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 能源类型标签页 */
+.energy-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.energy-tab {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    color: #a7bed3;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.energy-tab:hover {
+    background-color: #3c5472;
+    border-color: #00bcd4;
+    color: #00bcd4;
+}
+
+.energy-tab.active {
+    background-color: #00bcd4;
+    border-color: #00bcd4;
+    color: #1a2a3a;
+    font-weight: bold;
+}
+
+/* 内容区域 */
+.energy-content {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+/* 筛选区域 */
+.filter-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #1a2a3a;
+    border-radius: 6px;
+    border: 1px solid #3c5472;
+}
+
+.filter-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-item label {
+    color: #a7bed3;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.filter-select {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    color: #e0e6ed;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.filter-input {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    color: #e0e6ed;
+    padding: 8px 12px;
+    border-radius: 6px;
+    min-width: 150px;
+}
+
+.query-button, .export-button {
+    background-color: #00bcd4;
+    border: 1px solid #00bcd4;
+    color: #1a2a3a;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.query-button:hover, .export-button:hover {
+    background-color: #00acc1;
+    border-color: #00acc1;
+}
+
+.export-button {
+    background-color: #2a3d54;
+    border-color: #3c5472;
+    color: #e0e6ed;
+}
+
+.export-button:hover {
+    background-color: #3c5472;
+    border-color: #00bcd4;
+    color: #00bcd4;
+}
+
+/* 数据概览卡片 */
+.overview-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.overview-card {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s ease;
+}
+
+.overview-card:hover {
+    border-color: #00bcd4;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+}
+
+.card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.card-icon.electricity {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.card-icon.cost {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.card-icon.coal {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.card-icon.trend {
+    background-color: rgba(33, 150, 243, 0.2);
+    color: #2196f3;
+}
+
+.card-content {
+    flex: 1;
+}
+
+.card-label {
+    font-size: 12px;
+    color: #a7bed3;
+    margin-bottom: 5px;
+}
+
+.card-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #e0e6ed;
+    margin-bottom: 3px;
+}
+
+.card-unit {
+    font-size: 11px;
+    color: #5d7d9a;
+}
+
+/* 图表控制 */
+.chart-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #1a2a3a;
+    border-radius: 6px;
+    border: 1px solid #3c5472;
+}
+
+.chart-type-selector {
+    display: flex;
+    gap: 10px;
+}
+
+.chart-type-btn {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    color: #a7bed3;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.chart-type-btn:hover {
+    background-color: #3c5472;
+    border-color: #00bcd4;
+    color: #00bcd4;
+}
+
+.chart-type-btn.active {
+    background-color: #00bcd4;
+    border-color: #00bcd4;
+    color: #1a2a3a;
+    font-weight: bold;
+}
+
+.analysis-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.analysis-selector label {
+    color: #a7bed3;
+    font-size: 14px;
+}
+
+/* 图表区域 */
+.chart-section {
+    margin-bottom: 20px;
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 20px;
+    min-height: 400px;
+}
+
+.chart-container {
+    width: 100%;
+    height: 400px;
+    position: relative;
+}
+
+.chart-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #5d7d9a;
+}
+
+.chart-placeholder i {
+    font-size: 64px;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.chart-placeholder p {
+    font-size: 14px;
+    color: #a7bed3;
+}
+
+/* 数据表格区域 */
+.data-table-section {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.table-title {
+    font-size: 18px;
+    color: #e0e6ed;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.table-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    color: #e0e6ed;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background-color: #3c5472;
+    border-color: #00bcd4;
+    color: #00bcd4;
+}
+
+.action-btn.small {
+    padding: 5px 10px;
+    font-size: 11px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background-color: #2a3d54;
+    color: #e0e6ed;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #3c5472;
+    font-weight: bold;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #3c5472;
+    color: #a7bed3;
+    font-size: 12px;
+}
+
+.data-table tbody tr:hover {
+    background-color: #2a3d54;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+</style>
+
+<script>
+(function() {
+// 防止重复加载检查
+if (window.__categorizedEnergyModuleLoaded) {
+    // 如果已加载，直接调用初始化函数重新渲染
+    if (typeof window.initCategorizedEnergy === 'function') {
+        window.initCategorizedEnergy();
+    }
+    return;
+}
+window.__categorizedEnergyModuleLoaded = true;
+
+// 使用window对象避免重复声明
+window.categorizedEnergyConfig = window.categorizedEnergyConfig || {
+    electricity: {
+        name: '用电',
+        unit: 'kWh',
+        price: 0.8, // 元/kWh
+        coalFactor: 0.1229, // 标煤折算系数 (kgce/kWh)
+        hasPeakValley: true
+    },
+    water: {
+        name: '用水',
+        unit: 'm³',
+        price: 3.5, // 元/m³
+        coalFactor: 0.0857, // 标煤折算系数 (kgce/m³)
+        hasPeakValley: false
+    },
+    steam: {
+        name: '蒸汽',
+        unit: 't',
+        price: 200, // 元/t
+        coalFactor: 0.1286, // 标煤折算系数 (kgce/t)
+        hasPeakValley: false
+    },
+    'compressed-air': {
+        name: '压缩空气',
+        unit: 'm³',
+        price: 0.1, // 元/m³
+        coalFactor: 0.04, // 标煤折算系数 (kgce/m³)
+        hasPeakValley: false
+    },
+    nitrogen: {
+        name: '氮气',
+        unit: 'm³',
+        price: 0.5, // 元/m³
+        coalFactor: 0.05, // 标煤折算系数 (kgce/m³)
+        hasPeakValley: false
+    },
+    other: {
+        name: '其他能源',
+        unit: 'kWh',
+        price: 0.6, // 元/kWh
+        coalFactor: 0.1, // 标煤折算系数 (kgce/kWh)
+        hasPeakValley: false
+    }
+};
+const energyConfig = window.categorizedEnergyConfig;
+
+let currentEnergyType = 'electricity';
+let currentChartType = 'line';
+let currentData = null; // 保存当前查询的数据
+
+// 初始化
+function initCategorizedEnergy() {
+    setupEventListeners();
+    // 初始化时自动查询一次数据，确保图表显示
+    setTimeout(() => {
+        queryData();
+    }, 100);
+}
+
+// 设置事件监听器
+function setupEventListeners() {
+    // 防止重复绑定
+    if (window.__categorizedEnergyEventsInitialized) {
+        return;
+    }
+    window.__categorizedEnergyEventsInitialized = true;
+    
+    // 能源类型标签切换
+    document.querySelectorAll('.energy-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.energy-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            const energyType = this.getAttribute('data-energy');
+            switchEnergyType(energyType);
+        });
+    });
+
+    // 图表类型切换
+    document.querySelectorAll('.chart-type-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentChartType = this.getAttribute('data-type');
+            // 使用当前保存的数据重新渲染图表
+            if (currentData && currentData.length > 0) {
+                renderChart(currentData);
+            } else {
+                // 如果没有数据，先查询数据
+                queryData();
+            }
+        });
+    });
+
+    // 时间范围选择
+    document.getElementById('time-range').addEventListener('change', function() {
+        const customRange = document.getElementById('custom-date-range');
+        if (this.value === 'custom') {
+            customRange.style.display = 'flex';
+        } else {
+            customRange.style.display = 'none';
+        }
+    });
+
+    // 查询按钮
+    document.getElementById('query-btn').addEventListener('click', function() {
+        queryData();
+    });
+
+    // 导出按钮
+    document.getElementById('export-btn').addEventListener('click', function() {
+        exportData();
+    });
+
+    // 导出格式按钮
+    document.getElementById('export-png').addEventListener('click', () => exportChart('png'));
+    document.getElementById('export-jpg').addEventListener('click', () => exportChart('jpg'));
+    document.getElementById('export-pdf').addEventListener('click', () => exportChart('pdf'));
+
+    // 分析方式选择
+    document.getElementById('analysis-type').addEventListener('change', function() {
+        // 当分析方式改变时，重新渲染图表
+        if (currentData && currentData.length > 0) {
+            renderChart(currentData);
+        } else {
+            queryData();
+        }
+    });
+}
+
+// 切换能源类型
+function switchEnergyType(energyType) {
+    currentEnergyType = energyType;
+    const config = energyConfig[energyType];
+    
+    // 更新单位显示
+    document.getElementById('usage-unit').textContent = config.unit;
+    
+    // 显示/隐藏峰平谷时段选择（仅用电统计）
+    const peakValleyFilter = document.getElementById('peak-valley-filter');
+    if (config.hasPeakValley) {
+        peakValleyFilter.style.display = 'flex';
+    } else {
+        peakValleyFilter.style.display = 'none';
+    }
+    
+    // 重新查询数据
+    queryData();
+}
+
+// 查询数据
+function queryData() {
+    const timeRange = document.getElementById('time-range').value;
+    const site = document.getElementById('site-select').value;
+    const peakValley = document.getElementById('peak-valley-select')?.value || 'all';
+    
+    // 生成模拟数据
+    const data = generateMockData(timeRange, site, peakValley);
+    
+    // 保存当前数据
+    currentData = data;
+    
+    // 更新概览卡片
+    updateOverviewCards(data);
+    
+    // 渲染图表
+    renderChart(data);
+    
+    // 更新数据表格
+    updateDataTable(data);
+}
+
+// 生成模拟数据
+function generateMockData(timeRange, site, peakValley) {
+    const config = energyConfig[currentEnergyType];
+    const data = [];
+    
+    // 根据时间范围生成数据点
+    let dataPoints = 24; // 默认24小时
+    let timeLabel = '小时';
+    
+    if (timeRange === 'today' || timeRange === 'yesterday') {
+        dataPoints = 24;
+        timeLabel = '小时';
+    } else if (timeRange === 'week') {
+        dataPoints = 7;
+        timeLabel = '天';
+    } else if (timeRange === 'month') {
+        dataPoints = 30;
+        timeLabel = '天';
+    } else if (timeRange === 'year') {
+        dataPoints = 12;
+        timeLabel = '月';
+    }
+    
+    // 生成基础用量（根据能源类型不同）
+    const baseUsage = {
+        electricity: 200,
+        water: 50,
+        steam: 10,
+        'compressed-air': 100,
+        nitrogen: 30,
+        other: 150
+    };
+    
+    for (let i = 0; i < dataPoints; i++) {
+        const usage = baseUsage[currentEnergyType] + (Math.random() - 0.5) * baseUsage[currentEnergyType] * 0.3;
+        const cost = usage * config.price;
+        const coal = (usage * config.coalFactor) / 1000; // 转换为tce
+        
+        let timeStr = '';
+        if (timeLabel === '小时') {
+            timeStr = `${String(i).padStart(2, '0')}:00`;
+        } else if (timeLabel === '天') {
+            timeStr = `${i + 1}日`;
+        } else if (timeLabel === '月') {
+            timeStr = `${i + 1}月`;
+        }
+        
+        data.push({
+            time: timeStr,
+            usage: usage,
+            cost: cost,
+            coal: coal,
+            price: config.price,
+            site: site === 'all' ? '全部站点' : `站点${site.replace('site', '')}`
+        });
+    }
+    
+    return data;
+}
+
+// 更新概览卡片
+function updateOverviewCards(data) {
+    const totalUsage = data.reduce((sum, d) => sum + d.usage, 0);
+    const totalCost = data.reduce((sum, d) => sum + d.cost, 0);
+    const totalCoal = data.reduce((sum, d) => sum + d.coal, 0);
+    
+    // 计算环比变化（模拟）
+    const compareChange = (Math.random() - 0.5) * 20;
+    const compareType = document.getElementById('analysis-type').value === 'mom' ? '环比' : '同比';
+    
+    document.getElementById('total-usage').textContent = totalUsage.toFixed(2);
+    document.getElementById('total-cost').textContent = totalCost.toFixed(2);
+    document.getElementById('total-coal').textContent = totalCoal.toFixed(3);
+    document.getElementById('compare-change').textContent = 
+        (compareChange > 0 ? '+' : '') + compareChange.toFixed(1) + '%';
+    document.getElementById('compare-type').textContent = compareType;
+    
+    // 根据变化设置颜色
+    const changeElement = document.getElementById('compare-change');
+    if (compareChange > 0) {
+        changeElement.style.color = '#f44336';
+    } else if (compareChange < 0) {
+        changeElement.style.color = '#4caf50';
+    } else {
+        changeElement.style.color = '#a7bed3';
+    }
+}
+
+// 渲染图表
+function renderChart(data = null) {
+    const chartContainer = document.getElementById('chart-container');
+    
+    if (!data) {
+        chartContainer.innerHTML = `
+            <div class="chart-placeholder">
+                <i class="fas fa-chart-area"></i>
+                <p>选择时间范围和站点后点击查询查看数据</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // 获取分析方式
+    const analysisType = document.getElementById('analysis-type').value;
+    
+    // 根据分析方式处理数据
+    let processedData = data;
+    if (analysisType === 'yoy') {
+        // 同比分析：生成去年同期数据
+        processedData = generateComparisonData(data, 'yoy');
+    } else if (analysisType === 'mom') {
+        // 环比分析：生成上期数据
+        processedData = generateComparisonData(data, 'mom');
+    } else if (analysisType === 'compare') {
+        // 对比分析：生成多组对比数据
+        processedData = generateComparisonData(data, 'compare');
+    } else if (analysisType === 'hourly') {
+        // 时比分析：按小时分组对比
+        processedData = generateHourlyComparisonData(data);
+    }
+    
+    // 根据图表类型渲染
+    if (currentChartType === 'line') {
+        renderLineChart(chartContainer, processedData, analysisType);
+    } else if (currentChartType === 'bar') {
+        renderBarChart(chartContainer, processedData, analysisType);
+    } else if (currentChartType === 'pie') {
+        renderPieChart(chartContainer, processedData, analysisType);
+    }
+}
+
+// 生成对比数据
+function generateComparisonData(data, type) {
+    if (type === 'none') return data;
+    
+    // 生成对比数据（模拟）
+    const comparisonData = data.map(d => {
+        let compareValue;
+        if (type === 'yoy') {
+            // 同比：去年同期数据（假设比当前低5-15%）
+            compareValue = d.usage * (0.85 + Math.random() * 0.1);
+        } else if (type === 'mom') {
+            // 环比：上期数据（假设比当前低3-10%）
+            compareValue = d.usage * (0.90 + Math.random() * 0.07);
+        } else if (type === 'compare') {
+            // 对比：生成多个对比系列
+            compareValue = d.usage * (0.80 + Math.random() * 0.2);
+        }
+        return {
+            ...d,
+            compareUsage: compareValue
+        };
+    });
+    
+    return comparisonData;
+}
+
+// 生成时比分析数据（按小时分组）
+function generateHourlyComparisonData(data) {
+    // 时比分析：将数据按小时分组显示
+    // 如果数据是按天显示的，将每天的能耗平均分配到24小时，并添加小时波动
+    const hourlyData = [];
+    const config = energyConfig[currentEnergyType];
+    
+    // 计算平均每小时能耗
+    const avgHourlyUsage = data.reduce((sum, d) => sum + d.usage, 0) / (data.length * 24);
+    
+    // 生成24小时的数据，模拟一天中的能耗分布
+    for (let hour = 0; hour < 24; hour++) {
+        // 模拟一天中的能耗分布：工作时间（8-18点）较高，夜间较低
+        let hourFactor = 1.0;
+        if (hour >= 8 && hour <= 18) {
+            // 工作时间：较高
+            hourFactor = 1.2 + (hour - 8) / 10 * 0.3;
+        } else if (hour >= 6 && hour <= 22) {
+            // 正常时间：中等
+            hourFactor = 0.8 + Math.random() * 0.4;
+        } else {
+            // 夜间：较低
+            hourFactor = 0.3 + Math.random() * 0.3;
+        }
+        
+        const hourlyUsage = avgHourlyUsage * hourFactor * (0.9 + Math.random() * 0.2);
+        
+        hourlyData.push({
+            time: `${String(hour).padStart(2, '0')}:00`,
+            usage: hourlyUsage,
+            cost: hourlyUsage * config.price,
+            coal: (hourlyUsage * config.coalFactor) / 1000,
+            price: config.price,
+            site: data[0]?.site || '全部站点'
+        });
+    }
+    
+    return hourlyData;
+}
+
+// 渲染折线图
+function renderLineChart(container, data, analysisType = 'none') {
+    const config = energyConfig[currentEnergyType];
+    const allValues = data.map(d => d.usage).concat(
+        data.filter(d => d.compareUsage).map(d => d.compareUsage)
+    );
+    const maxValue = Math.max(...allValues, 1);
+    const height = 350;
+    const width = container.offsetWidth - 80;
+    const padding = 40;
+    
+    let svg = `
+        <svg width="100%" height="${height}" viewBox="0 0 ${width + padding * 2} ${height + padding * 2}">
+            <defs>
+                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#00bcd4;stop-opacity:0.8" />
+                    <stop offset="100%" style="stop-color:#00bcd4;stop-opacity:0.1" />
+                </linearGradient>
+            </defs>
+            
+            <!-- 网格线 -->
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                return `<line x1="${padding}" y1="${y}" x2="${width + padding}" y2="${y}" stroke="#3c5472" stroke-width="1" opacity="0.5"/>`;
+            }).join('')}
+            
+            <!-- Y轴标签 -->
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                const value = maxValue - (maxValue / 4) * i;
+                return `<text x="${padding - 10}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${value.toFixed(0)}</text>`;
+            }).join('')}
+            
+            <!-- 对比数据线（如果有） -->
+            ${analysisType !== 'none' && data[0]?.compareUsage ? `
+                <polyline points="${data.map((d, i) => {
+                    const x = padding + (width / (data.length - 1)) * i;
+                    const y = padding + height - ((d.compareUsage || 0) / maxValue) * height;
+                    return `${x},${y}`;
+                }).join(' ')}" 
+                    fill="none" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
+                ${data.map((d, i) => {
+                    const x = padding + (width / (data.length - 1)) * i;
+                    const y = padding + height - ((d.compareUsage || 0) / maxValue) * height;
+                    return `<circle cx="${x}" cy="${y}" r="4" fill="#ff9800" stroke="#1a2a3a" stroke-width="2"/>`;
+                }).join('')}
+            ` : ''}
+            
+            <!-- 当前数据点和连线 -->
+            <polyline points="${data.map((d, i) => {
+                const x = padding + (width / (data.length - 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `${x},${y}`;
+            }).join(' ')}" 
+                fill="none" stroke="#00bcd4" stroke-width="2"/>
+            
+            <!-- 填充区域 -->
+            <polygon points="${data.map((d, i) => {
+                const x = padding + (width / (data.length - 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `${x},${y}`;
+            }).join(' ')} ${padding + width},${padding + height} ${padding},${padding + height}" 
+                fill="url(#lineGradient)"/>
+            
+            <!-- 数据点 -->
+            ${data.map((d, i) => {
+                const x = padding + (width / (data.length - 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `<circle cx="${x}" cy="${y}" r="4" fill="#00bcd4" stroke="#1a2a3a" stroke-width="2"/>`;
+            }).join('')}
+            
+            <!-- 图例（如果有对比数据） -->
+            ${analysisType !== 'none' && data[0]?.compareUsage ? `
+                <g transform="translate(${width + padding - 150}, ${padding + 20})">
+                    <line x1="0" y1="0" x2="30" y2="0" stroke="#00bcd4" stroke-width="2"/>
+                    <text x="35" y="4" fill="#a7bed3" font-size="11">当前</text>
+                    <line x1="80" y1="0" x2="110" y2="0" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
+                    <text x="115" y="4" fill="#a7bed3" font-size="11">${analysisType === 'yoy' ? '去年同期' : analysisType === 'mom' ? '上期' : '对比'}</text>
+                </g>
+            ` : ''}
+            
+            <!-- X轴标签 -->
+            ${data.map((d, i) => {
+                const x = padding + (width / (data.length - 1)) * i;
+                if (i % Math.ceil(data.length / 8) === 0 || i === data.length - 1) {
+                    return `<text x="${x}" y="${height + padding + 20}" fill="#a7bed3" font-size="10" text-anchor="middle">${d.time}</text>`;
+                }
+                return '';
+            }).join('')}
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+}
+
+// 渲染柱状图
+function renderBarChart(container, data, analysisType = 'none') {
+    const config = energyConfig[currentEnergyType];
+    const allValues = data.map(d => d.usage).concat(
+        data.filter(d => d.compareUsage).map(d => d.compareUsage)
+    );
+    const maxValue = Math.max(...allValues, 1);
+    const height = 350;
+    const width = container.offsetWidth - 80;
+    const padding = 40;
+    const barWidth = (width / data.length) * 0.6;
+    const barGap = (width / data.length) * 0.4;
+    
+    let svg = `
+        <svg width="100%" height="${height}" viewBox="0 0 ${width + padding * 2} ${height + padding * 2}">
+            <!-- 网格线 -->
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                return `<line x1="${padding}" y1="${y}" x2="${width + padding}" y2="${y}" stroke="#3c5472" stroke-width="1" opacity="0.5"/>`;
+            }).join('')}
+            
+            <!-- Y轴标签 -->
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                const value = maxValue - (maxValue / 4) * i;
+                return `<text x="${padding - 10}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${value.toFixed(0)}</text>`;
+            }).join('')}
+            
+            <!-- 对比柱子（如果有） -->
+            ${analysisType !== 'none' && data[0]?.compareUsage ? data.map((d, i) => {
+                const x = padding + (width / data.length) * i + barGap / 2;
+                const barHeight = ((d.compareUsage || 0) / maxValue) * height;
+                const y = padding + height - barHeight;
+                const compareBarWidth = barWidth * 0.45;
+                return `
+                    <rect x="${x}" y="${y}" width="${compareBarWidth}" height="${barHeight}" 
+                        fill="#ff9800" opacity="0.8" rx="2">
+                        <title>${d.time} ${analysisType === 'yoy' ? '去年同期' : analysisType === 'mom' ? '上期' : '对比'}: ${(d.compareUsage || 0).toFixed(2)} ${config.unit}</title>
+                    </rect>
+                `;
+            }).join('') : ''}
+            
+            <!-- 当前数据柱子 -->
+            ${data.map((d, i) => {
+                const x = padding + (width / data.length) * i + barGap / 2;
+                const barHeight = (d.usage / maxValue) * height;
+                const y = padding + height - barHeight;
+                const currentBarWidth = analysisType !== 'none' && data[0]?.compareUsage ? barWidth * 0.45 : barWidth;
+                const currentBarX = analysisType !== 'none' && data[0]?.compareUsage ? x + barWidth * 0.5 : x;
+                return `
+                    <rect x="${currentBarX}" y="${y}" width="${currentBarWidth}" height="${barHeight}" 
+                        fill="#00bcd4" opacity="0.8" rx="2">
+                        <title>${d.time}: ${d.usage.toFixed(2)} ${config.unit}</title>
+                    </rect>
+                `;
+            }).join('')}
+            
+            <!-- 图例（如果有对比数据） -->
+            ${analysisType !== 'none' && data[0]?.compareUsage ? `
+                <g transform="translate(${width + padding - 150}, ${padding + 20})">
+                    <rect x="0" y="-8" width="15" height="15" fill="#00bcd4" opacity="0.8" rx="2"/>
+                    <text x="20" y="4" fill="#a7bed3" font-size="11">当前</text>
+                    <rect x="80" y="-8" width="15" height="15" fill="#ff9800" opacity="0.8" rx="2"/>
+                    <text x="100" y="4" fill="#a7bed3" font-size="11">${analysisType === 'yoy' ? '去年同期' : analysisType === 'mom' ? '上期' : '对比'}</text>
+                </g>
+            ` : ''}
+            
+            <!-- X轴标签 -->
+            ${data.map((d, i) => {
+                const x = padding + (width / data.length) * i + (width / data.length) / 2;
+                if (i % Math.ceil(data.length / 8) === 0 || i === data.length - 1) {
+                    return `<text x="${x}" y="${height + padding + 20}" fill="#a7bed3" font-size="10" text-anchor="middle">${d.time}</text>`;
+                }
+                return '';
+            }).join('')}
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+}
+
+// 渲染饼图
+function renderPieChart(container, data, analysisType = 'none') {
+    const config = energyConfig[currentEnergyType];
+    const total = data.reduce((sum, d) => sum + d.usage, 0);
+    const centerX = 200;
+    const centerY = 200;
+    const radius = 120;
+    
+    let currentAngle = -Math.PI / 2;
+    const colors = ['#00bcd4', '#4caf50', '#ff9800', '#f44336', '#9c27b0', '#2196f3'];
+    
+    let svg = `
+        <svg width="100%" height="400" viewBox="0 0 400 400">
+            ${data.slice(0, 6).map((d, i) => {
+                const angle = (d.usage / total) * 2 * Math.PI;
+                const startAngle = currentAngle;
+                const endAngle = currentAngle + angle;
+                currentAngle = endAngle;
+                
+                const x1 = centerX + radius * Math.cos(startAngle);
+                const y1 = centerY + radius * Math.sin(startAngle);
+                const x2 = centerX + radius * Math.cos(endAngle);
+                const y2 = centerY + radius * Math.sin(endAngle);
+                const largeArc = angle > Math.PI ? 1 : 0;
+                
+                return `
+                    <path d="M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z" 
+                        fill="${colors[i % colors.length]}" opacity="0.8" stroke="#1a2a3a" stroke-width="2">
+                        <title>${d.time}: ${d.usage.toFixed(2)} ${config.unit} (${((d.usage / total) * 100).toFixed(1)}%)</title>
+                    </path>
+                `;
+            }).join('')}
+            
+            <!-- 图例 -->
+            <g transform="translate(350, 50)">
+                ${data.slice(0, 6).map((d, i) => {
+                    const percent = ((d.usage / total) * 100).toFixed(1);
+                    return `
+                        <g transform="translate(0, ${i * 25})">
+                            <rect width="15" height="15" fill="${colors[i % colors.length]}" opacity="0.8"/>
+                            <text x="20" y="12" fill="#a7bed3" font-size="11">${d.time}: ${percent}%</text>
+                        </g>
+                    `;
+                }).join('')}
+            </g>
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+}
+
+// 更新数据表格
+function updateDataTable(data) {
+    const tbody = document.getElementById('table-body');
+    const config = energyConfig[currentEnergyType];
+    
+    if (data.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; color: #a7bed3; padding: 40px;">
+                    暂无数据
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = data.map(d => `
+        <tr>
+            <td>${d.time}</td>
+            <td>${d.usage.toFixed(2)} ${config.unit}</td>
+            <td>${d.cost.toFixed(2)}</td>
+            <td>${d.coal.toFixed(4)}</td>
+            <td>${d.price.toFixed(2)}</td>
+            <td>${d.site}</td>
+        </tr>
+    `).join('');
+}
+
+// 导出数据
+function exportData() {
+    alert('导出功能：支持导出为Excel、CSV格式');
+}
+
+// 导出图表
+function exportChart(format) {
+    alert(`导出图表为${format.toUpperCase()}格式功能`);
+}
+
+// 自动初始化
+function autoInitCategorized() {
+    const container = document.querySelector('.categorized-energy-container');
+    if (container) {
+        initCategorizedEnergy();
+    } else {
+        setTimeout(autoInitCategorized, 100);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoInitCategorized);
+} else {
+    setTimeout(autoInitCategorized, 0);
+}
+window.initCategorizedEnergy = initCategorizedEnergy;
+
+// 自动初始化
+initCategorizedEnergy();
+})();
+</script>
+</body>
+</html>

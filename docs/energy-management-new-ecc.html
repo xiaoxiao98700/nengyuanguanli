@@ -1,0 +1,1228 @@
+<div class="ecc-management-container">
+    <style>
+        .ecc-management-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        
+        .page-description {
+            color: #a7bed3;
+            font-size: 14px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .action-button {
+            background-color: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            background-color: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .action-button.secondary {
+            background-color: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .action-button.secondary:hover {
+            background-color: #4a6a8a;
+        }
+
+        .action-button.danger {
+            background-color: #f44336;
+            color: #fff;
+        }
+
+        .action-button.danger:hover {
+            background-color: #e53935;
+        }
+
+        /* 搜索栏 */
+        .search-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        /* ECC树形结构 */
+        .ecc-tree-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #e0e6ed;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ecc-tree {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            padding: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .ecc-tree-item {
+            margin-bottom: 8px;
+        }
+
+        .ecc-node {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ecc-node:hover {
+            border-color: #00bcd4;
+            background-color: #2d4054;
+        }
+
+        .ecc-node.selected {
+            border-color: #00bcd4;
+            background-color: #1e3a4a;
+            box-shadow: 0 0 8px rgba(0, 188, 212, 0.3);
+        }
+
+        .ecc-node-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            color: #00bcd4;
+            cursor: pointer;
+        }
+
+        .ecc-node-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ecc-node-name {
+            font-size: 14px;
+            color: #e0e6ed;
+            font-weight: 500;
+        }
+
+        .ecc-node-level {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            background-color: rgba(0, 188, 212, 0.2);
+            color: #00bcd4;
+        }
+
+        .ecc-node-code {
+            font-size: 12px;
+            color: #a7bed3;
+        }
+
+        .ecc-node-actions {
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .ecc-node:hover .ecc-node-actions {
+            opacity: 1;
+        }
+
+        .ecc-node-action-btn {
+            background: none;
+            border: none;
+            color: #a7bed3;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            min-height: 24px;
+        }
+
+        .ecc-node-action-btn i {
+            display: inline-block !important;
+            visibility: visible !important;
+            font-size: 12px !important;
+            width: auto !important;
+            height: auto !important;
+        }
+
+        .ecc-node-action-btn:hover {
+            background-color: #3c5472;
+            color: #00bcd4;
+        }
+
+        .ecc-node-action-btn.delete:hover {
+            color: #f44336;
+        }
+
+        .ecc-children {
+            margin-left: 28px;
+            margin-top: 8px;
+            border-left: 2px solid #3c5472;
+            padding-left: 15px;
+        }
+
+        .ecc-children.collapsed {
+            display: none;
+        }
+
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+
+        /* 模态框 */
+        .modal,
+        .modal-overlay {
+            display: none;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999999 !important;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+
+        .modal.active,
+        .modal-overlay.active {
+            display: flex !important;
+        }
+
+        .modal-content {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            margin: auto;
+            z-index: 1000000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            color: #e0e6ed;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #a7bed3;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: #e0e6ed;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            color: #a7bed3;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #f44336;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #5d7d9a;
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .level-badge.company { background-color: rgba(156, 39, 176, 0.2); color: #9c27b0; }
+        .level-badge.workshop { background-color: rgba(33, 150, 243, 0.2); color: #2196f3; }
+        .level-badge.production-line { background-color: rgba(76, 175, 80, 0.2); color: #4caf50; }
+        .level-badge.process { background-color: rgba(255, 152, 0, 0.2); color: #ff9800; }
+        .level-badge.equipment { background-color: rgba(0, 188, 212, 0.2); color: #00bcd4; }
+        .level-badge.team { background-color: rgba(158, 158, 158, 0.2); color: #9e9e9e; }
+    </style>
+
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-sitemap"></i>
+            能源成本中心（ECC）管理
+        </h2>
+    </div>
+
+    <!-- 操作栏 -->
+    <div class="action-bar">
+        <button class="action-button" onclick="showCreateECCModal()">
+            <i class="fas fa-plus"></i> 新建ECC
+        </button>
+        <button class="action-button secondary" onclick="expandAll()">
+            <i class="fas fa-expand"></i> 全部展开
+        </button>
+        <button class="action-button secondary" onclick="collapseAll()">
+            <i class="fas fa-compress"></i> 全部折叠
+        </button>
+        <button class="action-button secondary" onclick="exportECC()">
+            <i class="fas fa-download"></i> 导出配置
+        </button>
+    </div>
+
+    <!-- 搜索栏 -->
+    <div class="search-section">
+        <input type="text" class="search-input" id="search-input" placeholder="搜索ECC名称或编码..." oninput="filterECC()">
+    </div>
+
+    <!-- ECC树形结构 -->
+    <div class="ecc-tree-section">
+        <div class="section-title">
+            <i class="fas fa-project-diagram"></i>
+            ECC层级结构
+        </div>
+        <div class="ecc-tree" id="ecc-tree">
+            <!-- ECC树将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <!-- 创建/编辑ECC模态框 -->
+    <div class="modal" id="ecc-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title">新建ECC</h3>
+                <button class="modal-close" onclick="closeECCModal()">&times;</button>
+            </div>
+            <form id="ecc-form" onsubmit="saveECC(event)">
+                <div class="form-group">
+                    <label class="form-label required">ECC名称</label>
+                    <input type="text" class="form-input" id="ecc-name" required placeholder="请输入ECC名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">ECC编码</label>
+                    <input type="text" class="form-input" id="ecc-code" required placeholder="请输入ECC编码（如：ECC001）">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">ECC级别</label>
+                    <select class="form-select" id="ecc-level" required onchange="updateParentOptions()">
+                        <option value="">请选择级别</option>
+                        <option value="company">公司工厂级</option>
+                        <option value="workshop">车间级</option>
+                        <option value="production-line">产线级</option>
+                        <option value="process">工序级</option>
+                        <option value="equipment">设备级</option>
+                        <option value="team">班组级</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">上级ECC</label>
+                    <select class="form-select" id="ecc-parent">
+                        <option value="">无（顶级节点）</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">负责人</label>
+                    <input type="text" class="form-input" id="ecc-manager" placeholder="请输入负责人姓名">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">联系电话</label>
+                    <input type="text" class="form-input" id="ecc-phone" placeholder="请输入联系电话">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">描述</label>
+                    <textarea class="form-textarea" id="ecc-description" placeholder="请输入ECC描述（可选）"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="action-button secondary" onclick="closeECCModal()">取消</button>
+                    <button type="submit" class="action-button">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let eccList = [];
+        let currentEditingECC = null;
+        let selectedECCId = null;
+
+        // ECC级别配置
+        const levelConfig = {
+            company: { name: '公司工厂级', icon: 'fa-building', order: 1, parentLevels: [] },
+            workshop: { name: '车间级', icon: 'fa-industry', order: 2, parentLevels: ['company'] },
+            'production-line': { name: '产线级', icon: 'fa-stream', order: 3, parentLevels: ['company', 'workshop'] },
+            process: { name: '工序级', icon: 'fa-cogs', order: 4, parentLevels: ['company', 'workshop', 'production-line'] },
+            equipment: { name: '设备级', icon: 'fa-microchip', order: 5, parentLevels: ['company', 'workshop', 'production-line', 'process'] },
+            team: { name: '班组级', icon: 'fa-users', order: 6, parentLevels: ['company', 'workshop', 'production-line', 'process'] }
+        };
+
+        // 初始化
+        function initECCManagement() {
+            loadECCFromStorage();
+            renderECCTree();
+        }
+
+        // 从localStorage加载ECC数据
+        function loadECCFromStorage() {
+            const stored = localStorage.getItem('ecc-list');
+            if (stored) {
+                eccList = JSON.parse(stored);
+            } else {
+                // 初始化示例数据 - 完整的层级结构
+                const now = new Date();
+                eccList = [
+                    // 公司工厂级
+                    {
+                        id: 'ecc-1',
+                        name: 'XX制造有限公司',
+                        code: 'ECC001',
+                        level: 'company',
+                        parentId: null,
+                        manager: '张总',
+                        phone: '13800138000',
+                        description: '公司总部，负责整体能源管理',
+                        createTime: new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    // 车间级
+                    {
+                        id: 'ecc-2',
+                        name: '生产车间A',
+                        code: 'ECC002',
+                        level: 'workshop',
+                        parentId: 'ecc-1',
+                        manager: '李主任',
+                        phone: '13800138001',
+                        description: '主要生产车间，负责产品生产',
+                        createTime: new Date(now.getTime() - 85 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-3',
+                        name: '生产车间B',
+                        code: 'ECC003',
+                        level: 'workshop',
+                        parentId: 'ecc-1',
+                        manager: '王主任',
+                        phone: '13800138002',
+                        description: '辅助生产车间',
+                        createTime: new Date(now.getTime() - 80 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-4',
+                        name: '包装车间',
+                        code: 'ECC004',
+                        level: 'workshop',
+                        parentId: 'ecc-1',
+                        manager: '赵主任',
+                        phone: '13800138003',
+                        description: '产品包装车间',
+                        createTime: new Date(now.getTime() - 75 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    // 产线级
+                    {
+                        id: 'ecc-5',
+                        name: '注塑产线1',
+                        code: 'ECC005',
+                        level: 'production-line',
+                        parentId: 'ecc-2',
+                        manager: '刘班长',
+                        phone: '13800138004',
+                        description: '注塑产品生产线1',
+                        createTime: new Date(now.getTime() - 70 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-6',
+                        name: '注塑产线2',
+                        code: 'ECC006',
+                        level: 'production-line',
+                        parentId: 'ecc-2',
+                        manager: '陈班长',
+                        phone: '13800138005',
+                        description: '注塑产品生产线2',
+                        createTime: new Date(now.getTime() - 65 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-7',
+                        name: '冲压产线1',
+                        code: 'ECC007',
+                        level: 'production-line',
+                        parentId: 'ecc-3',
+                        manager: '周班长',
+                        phone: '13800138006',
+                        description: '冲压产品生产线1',
+                        createTime: new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-8',
+                        name: '包装产线1',
+                        code: 'ECC008',
+                        level: 'production-line',
+                        parentId: 'ecc-4',
+                        manager: '吴班长',
+                        phone: '13800138007',
+                        description: '自动包装生产线1',
+                        createTime: new Date(now.getTime() - 55 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-9',
+                        name: '包装产线2',
+                        code: 'ECC009',
+                        level: 'production-line',
+                        parentId: 'ecc-4',
+                        manager: '郑班长',
+                        phone: '13800138008',
+                        description: '自动包装生产线2',
+                        createTime: new Date(now.getTime() - 50 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    // 工序级
+                    {
+                        id: 'ecc-10',
+                        name: '注塑工序',
+                        code: 'ECC010',
+                        level: 'process',
+                        parentId: 'ecc-5',
+                        manager: '孙工',
+                        phone: '13800138009',
+                        description: '注塑成型工序',
+                        createTime: new Date(now.getTime() - 45 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-11',
+                        name: '冷却工序',
+                        code: 'ECC011',
+                        level: 'process',
+                        parentId: 'ecc-5',
+                        manager: '钱工',
+                        phone: '13800138010',
+                        description: '产品冷却工序',
+                        createTime: new Date(now.getTime() - 40 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-12',
+                        name: '脱模工序',
+                        code: 'ECC012',
+                        level: 'process',
+                        parentId: 'ecc-5',
+                        manager: '李工',
+                        phone: '13800138011',
+                        description: '产品脱模工序',
+                        createTime: new Date(now.getTime() - 35 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-13',
+                        name: '冲压工序',
+                        code: 'ECC013',
+                        level: 'process',
+                        parentId: 'ecc-7',
+                        manager: '王工',
+                        phone: '13800138012',
+                        description: '金属冲压成型工序',
+                        createTime: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-14',
+                        name: '包装工序',
+                        code: 'ECC014',
+                        level: 'process',
+                        parentId: 'ecc-8',
+                        manager: '张工',
+                        phone: '13800138013',
+                        description: '产品包装工序',
+                        createTime: new Date(now.getTime() - 25 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    // 设备级
+                    {
+                        id: 'ecc-15',
+                        name: '注塑机-01',
+                        code: 'ECC015',
+                        level: 'equipment',
+                        parentId: 'ecc-10',
+                        manager: '操作员A',
+                        phone: '13800138014',
+                        description: '注塑机设备01号',
+                        createTime: new Date(now.getTime() - 20 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-16',
+                        name: '注塑机-02',
+                        code: 'ECC016',
+                        level: 'equipment',
+                        parentId: 'ecc-10',
+                        manager: '操作员B',
+                        phone: '13800138015',
+                        description: '注塑机设备02号',
+                        createTime: new Date(now.getTime() - 18 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-17',
+                        name: '冷却塔-01',
+                        code: 'ECC017',
+                        level: 'equipment',
+                        parentId: 'ecc-11',
+                        manager: '操作员C',
+                        phone: '13800138016',
+                        description: '冷却塔设备01号',
+                        createTime: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-18',
+                        name: '冲压机-01',
+                        code: 'ECC018',
+                        level: 'equipment',
+                        parentId: 'ecc-13',
+                        manager: '操作员D',
+                        phone: '13800138017',
+                        description: '冲压机设备01号',
+                        createTime: new Date(now.getTime() - 12 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-19',
+                        name: '包装机-01',
+                        code: 'ECC019',
+                        level: 'equipment',
+                        parentId: 'ecc-14',
+                        manager: '操作员E',
+                        phone: '13800138018',
+                        description: '自动包装机设备01号',
+                        createTime: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-20',
+                        name: '包装机-02',
+                        code: 'ECC020',
+                        level: 'equipment',
+                        parentId: 'ecc-14',
+                        manager: '操作员F',
+                        phone: '13800138019',
+                        description: '自动包装机设备02号',
+                        createTime: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    // 班组级
+                    {
+                        id: 'ecc-21',
+                        name: '早班-注塑组',
+                        code: 'ECC021',
+                        level: 'team',
+                        parentId: 'ecc-5',
+                        manager: '早班组长',
+                        phone: '13800138020',
+                        description: '注塑产线1早班班组',
+                        createTime: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-22',
+                        name: '中班-注塑组',
+                        code: 'ECC022',
+                        level: 'team',
+                        parentId: 'ecc-5',
+                        manager: '中班组长',
+                        phone: '13800138021',
+                        description: '注塑产线1中班班组',
+                        createTime: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-23',
+                        name: '晚班-注塑组',
+                        code: 'ECC023',
+                        level: 'team',
+                        parentId: 'ecc-5',
+                        manager: '晚班组长',
+                        phone: '13800138022',
+                        description: '注塑产线1晚班班组',
+                        createTime: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-24',
+                        name: '早班-冲压组',
+                        code: 'ECC024',
+                        level: 'team',
+                        parentId: 'ecc-7',
+                        manager: '早班组长',
+                        phone: '13800138023',
+                        description: '冲压产线1早班班组',
+                        createTime: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-25',
+                        name: '中班-冲压组',
+                        code: 'ECC025',
+                        level: 'team',
+                        parentId: 'ecc-7',
+                        manager: '中班组长',
+                        phone: '13800138024',
+                        description: '冲压产线1中班班组',
+                        createTime: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-26',
+                        name: '仓储物流中心',
+                        code: 'ECC026',
+                        level: 'workshop',
+                        parentId: 'ecc-1',
+                        manager: '仓储经理',
+                        phone: '13800138025',
+                        description: '负责成品仓储与物流配送的能源成本中心',
+                        createTime: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-27',
+                        name: '物流配送线',
+                        code: 'ECC027',
+                        level: 'production-line',
+                        parentId: 'ecc-26',
+                        manager: '物流主管',
+                        phone: '13800138026',
+                        description: '立体仓储与自动分拣系统',
+                        createTime: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-28',
+                        name: '堆垛机器人单元',
+                        code: 'ECC028',
+                        level: 'equipment',
+                        parentId: 'ecc-27',
+                        manager: '机器人管理员',
+                        phone: '13800138027',
+                        description: '自动堆垛与出入库机器人设备',
+                        createTime: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'ecc-29',
+                        name: '成品仓班组',
+                        code: 'ECC029',
+                        level: 'team',
+                        parentId: 'ecc-26',
+                        manager: '仓库班组长',
+                        phone: '13800138028',
+                        description: '负责出入库操作与能耗管理的班组',
+                        createTime: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                    }
+                ];
+                saveECCToStorage();
+            }
+        }
+
+        // 保存ECC到localStorage
+        function saveECCToStorage() {
+            localStorage.setItem('ecc-list', JSON.stringify(eccList));
+        }
+
+        // 构建ECC树结构
+        function buildECCTree() {
+            const tree = {};
+            const rootNodes = [];
+
+            // 创建节点映射
+            eccList.forEach(ecc => {
+                tree[ecc.id] = { ...ecc, children: [] };
+            });
+
+            // 构建树结构
+            eccList.forEach(ecc => {
+                if (ecc.parentId && tree[ecc.parentId]) {
+                    tree[ecc.parentId].children.push(tree[ecc.id]);
+                } else {
+                    rootNodes.push(tree[ecc.id]);
+                }
+            });
+
+            // 按级别和名称排序
+            function sortNodes(nodes) {
+                nodes.sort((a, b) => {
+                    const levelOrderA = levelConfig[a.level]?.order || 999;
+                    const levelOrderB = levelConfig[b.level]?.order || 999;
+                    if (levelOrderA !== levelOrderB) {
+                        return levelOrderA - levelOrderB;
+                    }
+                    return a.name.localeCompare(b.name);
+                });
+                nodes.forEach(node => {
+                    if (node.children.length > 0) {
+                        sortNodes(node.children);
+                    }
+                });
+            }
+
+            sortNodes(rootNodes);
+            return rootNodes;
+        }
+
+        // 渲染ECC树
+        function renderECCTree(filterText = '') {
+            const container = document.getElementById('ecc-tree');
+            const tree = buildECCTree();
+
+            if (tree.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
+                        <div>暂无ECC配置，点击"新建ECC"按钮创建第一个能源成本中心</div>
+                    </div>
+                `;
+                return;
+            }
+
+            function renderNode(node, depth = 0) {
+                const levelInfo = levelConfig[node.level] || {};
+                const isSelected = selectedECCId === node.id;
+                const hasChildren = node.children && node.children.length > 0;
+                const isExpanded = !node.collapsed;
+                const matchesFilter = !filterText || 
+                    node.name.toLowerCase().includes(filterText.toLowerCase()) ||
+                    node.code.toLowerCase().includes(filterText.toLowerCase());
+
+                if (!matchesFilter && (!hasChildren || !node.children.some(child => 
+                    child.name.toLowerCase().includes(filterText.toLowerCase()) ||
+                    child.code.toLowerCase().includes(filterText.toLowerCase())
+                ))) {
+                    return '';
+                }
+
+                let html = `
+                    <div class="ecc-tree-item">
+                        <div class="ecc-node ${isSelected ? 'selected' : ''}" onclick="selectECC('${node.id}')">
+                            <div class="ecc-node-icon" onclick="event.stopPropagation(); toggleNode('${node.id}')">
+                                ${hasChildren ? `<i class="fas fa-chevron-${isExpanded ? 'down' : 'right'}" style="font-size: 12px;"></i>` : '<i class="fas fa-circle" style="font-size: 6px;"></i>'}
+                            </div>
+                            <div class="ecc-node-content">
+                                <i class="fas ${levelInfo.icon || 'fa-folder'}" style="color: #00bcd4; margin-right: 8px;"></i>
+                                <span class="ecc-node-name">${node.name}</span>
+                                <span class="ecc-node-level level-badge ${node.level}">${levelInfo.name || node.level}</span>
+                                <span class="ecc-node-code">${node.code}</span>
+                            </div>
+                            <div class="ecc-node-actions" onclick="event.stopPropagation()">
+                                <button class="ecc-node-action-btn" onclick="showEditECCModal('${node.id}')" title="编辑">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="ecc-node-action-btn" onclick="showCreateECCModal('${node.id}')" title="添加子节点">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <button class="ecc-node-action-btn delete" onclick="deleteECC('${node.id}')" title="删除">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        ${hasChildren ? `
+                            <div class="ecc-children ${!isExpanded ? 'collapsed' : ''}" id="children-${node.id}">
+                                ${node.children.map(child => renderNode(child, depth + 1)).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                return html;
+            }
+
+            container.innerHTML = tree.map(node => renderNode(node)).join('');
+        }
+
+        // 选择ECC
+        function selectECC(eccId) {
+            selectedECCId = eccId;
+            renderECCTree(document.getElementById('search-input')?.value || '');
+        }
+
+        // 切换节点展开/折叠
+        function toggleNode(eccId) {
+            const node = findNodeById(eccList, eccId);
+            if (node) {
+                node.collapsed = !node.collapsed;
+                saveECCToStorage();
+                renderECCTree(document.getElementById('search-input')?.value || '');
+            }
+        }
+
+        // 查找节点
+        function findNodeById(list, id) {
+            for (const node of list) {
+                if (node.id === id) return node;
+            }
+            return null;
+        }
+
+        // 展开所有
+        function expandAll() {
+            eccList.forEach(ecc => ecc.collapsed = false);
+            saveECCToStorage();
+            renderECCTree(document.getElementById('search-input')?.value || '');
+        }
+
+        // 折叠所有
+        function collapseAll() {
+            eccList.forEach(ecc => ecc.collapsed = true);
+            saveECCToStorage();
+            renderECCTree(document.getElementById('search-input')?.value || '');
+        }
+
+        // 过滤ECC
+        function filterECC() {
+            const filterText = document.getElementById('search-input').value;
+            renderECCTree(filterText);
+        }
+
+        // 显示创建ECC模态框
+        function showCreateECCModal(parentId = null) {
+            currentEditingECC = null;
+            document.getElementById('modal-title').textContent = '新建ECC';
+            document.getElementById('ecc-form').reset();
+            
+            if (parentId) {
+                const parent = findNodeById(eccList, parentId);
+                if (parent) {
+                    document.getElementById('ecc-parent').value = parentId;
+                    document.getElementById('ecc-level').value = getNextLevel(parent.level);
+                    updateParentOptions();
+                }
+            } else {
+                updateParentOptions();
+            }
+            
+            document.getElementById('ecc-modal').classList.add('active');
+        }
+
+        // 显示编辑ECC模态框
+        function showEditECCModal(eccId) {
+            currentEditingECC = findNodeById(eccList, eccId);
+            if (!currentEditingECC) return;
+            
+            document.getElementById('modal-title').textContent = '编辑ECC';
+            document.getElementById('ecc-name').value = currentEditingECC.name;
+            document.getElementById('ecc-code').value = currentEditingECC.code;
+            document.getElementById('ecc-level').value = currentEditingECC.level;
+            document.getElementById('ecc-parent').value = currentEditingECC.parentId || '';
+            document.getElementById('ecc-manager').value = currentEditingECC.manager || '';
+            document.getElementById('ecc-phone').value = currentEditingECC.phone || '';
+            document.getElementById('ecc-description').value = currentEditingECC.description || '';
+            
+            updateParentOptions();
+            document.getElementById('ecc-modal').classList.add('active');
+        }
+
+        // 更新父级选项
+        function updateParentOptions() {
+            const level = document.getElementById('ecc-level').value;
+            const parentSelect = document.getElementById('ecc-parent');
+            const currentParentId = currentEditingECC ? currentEditingECC.parentId : null;
+            const currentId = currentEditingECC ? currentEditingECC.id : null;
+            
+            parentSelect.innerHTML = '<option value="">无（顶级节点）</option>';
+            
+            if (level) {
+                const levelInfo = levelConfig[level];
+                if (levelInfo && levelInfo.parentLevels.length > 0) {
+                    const availableParents = eccList.filter(ecc => {
+                        if (ecc.id === currentId) return false; // 不能选择自己
+                        if (currentEditingECC && isDescendant(ecc.id, currentId)) return false; // 不能选择自己的后代
+                        return levelInfo.parentLevels.includes(ecc.level);
+                    });
+                    
+                    availableParents.forEach(parent => {
+                        const option = document.createElement('option');
+                        option.value = parent.id;
+                        option.textContent = `${parent.name} (${parent.code})`;
+                        if (parent.id === currentParentId) {
+                            option.selected = true;
+                        }
+                        parentSelect.appendChild(option);
+                    });
+                }
+            }
+        }
+
+        // 检查是否为后代节点
+        function isDescendant(ancestorId, descendantId) {
+            const descendant = findNodeById(eccList, descendantId);
+            if (!descendant || !descendant.parentId) return false;
+            if (descendant.parentId === ancestorId) return true;
+            return isDescendant(ancestorId, descendant.parentId);
+        }
+
+        // 获取下一级级别
+        function getNextLevel(currentLevel) {
+            const levelOrder = levelConfig[currentLevel]?.order || 0;
+            for (const [key, value] of Object.entries(levelConfig)) {
+                if (value.order === levelOrder + 1) {
+                    return key;
+                }
+            }
+            return '';
+        }
+
+        // 保存ECC
+        function saveECC(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('ecc-name').value.trim();
+            const code = document.getElementById('ecc-code').value.trim();
+            const level = document.getElementById('ecc-level').value;
+            const parentId = document.getElementById('ecc-parent').value || null;
+            
+            if (!name || !code || !level) {
+                alert('请填写必填项');
+                return;
+            }
+            
+            // 检查编码是否重复
+            if (!currentEditingECC || currentEditingECC.code !== code) {
+                const existing = eccList.find(ecc => ecc.code === code);
+                if (existing) {
+                    alert('ECC编码已存在，请使用其他编码');
+                    return;
+                }
+            }
+            
+            if (currentEditingECC) {
+                // 更新
+                const index = eccList.findIndex(ecc => ecc.id === currentEditingECC.id);
+                if (index >= 0) {
+                    eccList[index] = {
+                        ...eccList[index],
+                        name: name,
+                        code: code,
+                        level: level,
+                        parentId: parentId,
+                        manager: document.getElementById('ecc-manager').value.trim(),
+                        phone: document.getElementById('ecc-phone').value.trim(),
+                        description: document.getElementById('ecc-description').value.trim(),
+                        updateTime: new Date().toISOString()
+                    };
+                }
+            } else {
+                // 新建
+                const newECC = {
+                    id: 'ecc-' + Date.now(),
+                    name: name,
+                    code: code,
+                    level: level,
+                    parentId: parentId,
+                    manager: document.getElementById('ecc-manager').value.trim(),
+                    phone: document.getElementById('ecc-phone').value.trim(),
+                    description: document.getElementById('ecc-description').value.trim(),
+                    createTime: new Date().toISOString()
+                };
+                eccList.push(newECC);
+            }
+            
+            saveECCToStorage();
+            renderECCTree(document.getElementById('search-input')?.value || '');
+            closeECCModal();
+        }
+
+        // 删除ECC
+        function deleteECC(eccId) {
+            const node = findNodeById(eccList, eccId);
+            if (!node) return;
+            
+            // 检查是否有子节点
+            const hasChildren = eccList.some(ecc => ecc.parentId === eccId);
+            if (hasChildren) {
+                if (!confirm(`该ECC下有子节点，删除将同时删除所有子节点。确定要删除吗？`)) {
+                    return;
+                }
+                // 递归删除所有子节点
+                function deleteChildren(parentId) {
+                    const children = eccList.filter(ecc => ecc.parentId === parentId);
+                    children.forEach(child => {
+                        deleteChildren(child.id);
+                        eccList = eccList.filter(ecc => ecc.id !== child.id);
+                    });
+                }
+                deleteChildren(eccId);
+            } else {
+                if (!confirm(`确定要删除"${node.name}"吗？`)) {
+                    return;
+                }
+            }
+            
+            eccList = eccList.filter(ecc => ecc.id !== eccId);
+            saveECCToStorage();
+            renderECCTree(document.getElementById('search-input')?.value || '');
+        }
+
+        // 关闭模态框
+        function closeECCModal() {
+            document.getElementById('ecc-modal').classList.remove('active');
+            currentEditingECC = null;
+        }
+
+        // 导出ECC配置
+        function exportECC() {
+            const dataStr = JSON.stringify(eccList, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `ECC配置_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 页面加载时自动初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initECCManagement);
+        } else {
+            initECCManagement();
+        }
+    </script>
+</div>

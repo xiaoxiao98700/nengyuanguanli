@@ -1,0 +1,2211 @@
+<div class="sub-menu-content-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+        
+        .alarm-query-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            color: #a7bed3;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .filter-select, .filter-input {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .filter-input {
+            cursor: text;
+        }
+
+        .filter-select:hover, .filter-input:focus {
+            border-color: #00bcd4;
+            outline: none;
+        }
+
+        .action-button {
+            background-color: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            background-color: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .action-button.secondary {
+            background-color: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .action-button.secondary:hover {
+            background-color: #4a6a8a;
+        }
+
+        /* 统计卡片 */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-label {
+            color: #a7bed3;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            color: #e0e6ed;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stat-card.critical .stat-value {
+            color: #f44336;
+        }
+
+        .stat-card.warning .stat-value {
+            color: #ff9800;
+        }
+
+        .stat-card.info .stat-value {
+            color: #00bcd4;
+        }
+
+        /* 告警列表 */
+        .alarm-list-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #e0e6ed;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alarm-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-button {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: #2a3d54;
+            border-color: #00bcd4;
+            color: #00bcd4;
+            transform: translateY(-1px);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            color: #1a2a3a;
+            border-color: #00bcd4;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+        }
+
+        .pagination-info {
+            color: #a7bed3;
+            font-size: 14px;
+            margin: 0 12px;
+            white-space: nowrap;
+        }
+
+        .pagination-jump {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .pagination-jump input {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .pagination-jump input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .pagination-jump button {
+            background: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-jump button:hover {
+            background: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .alarm-item {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .alarm-item:hover {
+            background-color: #1e2d3f;
+            border-color: #00bcd4;
+        }
+
+        .alarm-item.unconfirmed {
+            border-left: 4px solid #f44336;
+        }
+
+        .alarm-item.confirmed {
+            border-left: 4px solid #4caf50;
+            opacity: 0.8;
+        }
+
+        .alarm-level {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .alarm-level.critical {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 2px solid #f44336;
+        }
+
+        .alarm-level.warning {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 2px solid #ff9800;
+        }
+
+        .alarm-level.info {
+            background-color: rgba(0, 188, 212, 0.2);
+            color: #00bcd4;
+            border: 2px solid #00bcd4;
+        }
+
+        .alarm-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .alarm-name {
+            color: #e0e6ed;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .alarm-desc {
+            color: #a7bed3;
+            font-size: 14px;
+        }
+
+        .alarm-meta {
+            display: flex;
+            gap: 20px;
+            color: #a7bed3;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .alarm-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .alarm-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-badge.unconfirmed {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+
+        .status-badge.confirmed {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .confirm-button {
+            background-color: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-button:hover {
+            background-color: #00acc1;
+        }
+
+        .confirm-button:disabled {
+            background-color: #3c5472;
+            color: #a7bed3;
+            cursor: not-allowed;
+        }
+
+        /* 告警弹窗 */
+        .alarm-popup {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 420px;
+            max-width: 90vw;
+            background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%);
+            border-radius: 12px;
+            padding: 0;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            z-index: 10000;
+            animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: none;
+            overflow: hidden;
+        }
+
+        .alarm-popup.active {
+            display: block;
+        }
+
+        .alarm-popup.critical {
+            border-left: 4px solid #f44336;
+            box-shadow: 0 12px 48px rgba(244, 67, 54, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .alarm-popup.warning {
+            border-left: 4px solid #ff9800;
+            box-shadow: 0 12px 48px rgba(255, 152, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .alarm-popup.info {
+            border-left: 4px solid #00bcd4;
+            box-shadow: 0 12px 48px rgba(0, 188, 212, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(244, 67, 54, 0.05) 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .alarm-popup.warning .popup-header {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(255, 152, 0, 0.05) 100%);
+        }
+
+        .alarm-popup.info .popup-header {
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.15) 0%, rgba(0, 188, 212, 0.05) 100%);
+        }
+
+        .popup-title {
+            color: #e0e6ed;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .popup-title i {
+            font-size: 20px;
+            color: #f44336;
+        }
+
+        .alarm-popup.warning .popup-title i {
+            color: #ff9800;
+        }
+
+        .alarm-popup.info .popup-title i {
+            color: #00bcd4;
+        }
+
+        .popup-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #e0e6ed;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .popup-close i {
+            font-size: 18px;
+            color: #e0e6ed;
+            display: inline-block !important;
+            line-height: 1;
+            visibility: visible !important;
+        }
+
+        /* 如果Font Awesome未加载，显示Unicode字符作为后备 */
+        .popup-close .fallback-close {
+            display: none;
+            font-size: 20px;
+            font-weight: 300;
+            color: #e0e6ed;
+            line-height: 1;
+            margin-left: -18px;
+        }
+
+        /* 如果图标未显示，显示后备字符 */
+        .popup-close:has(i.fa-times:empty) .fallback-close,
+        .popup-close i.fa-times:empty + .fallback-close {
+            display: inline-block;
+        }
+
+        .popup-close:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            transform: rotate(90deg);
+        }
+
+        .popup-close:hover i {
+            color: #f44336;
+        }
+
+        /* 确保图标可见 */
+        .popup-close i.fa-times {
+            display: inline-block !important;
+            visibility: visible !important;
+        }
+
+        .popup-body {
+            padding: 24px;
+        }
+
+        .popup-content {
+            margin-bottom: 20px;
+        }
+
+        .popup-alarm-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e0e6ed;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .popup-alarm-name i {
+            font-size: 22px;
+            color: #f44336;
+        }
+
+        .alarm-popup.warning .popup-alarm-name i {
+            color: #ff9800;
+        }
+
+        .alarm-popup.info .popup-alarm-name i {
+            color: #00bcd4;
+        }
+
+        .popup-alarm-desc {
+            color: #a7bed3;
+            line-height: 1.6;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .popup-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .popup-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #a7bed3;
+            font-size: 13px;
+        }
+
+        .popup-meta-item i {
+            width: 18px;
+            text-align: center;
+            color: #00bcd4;
+        }
+
+        .popup-meta-item strong {
+            color: #e0e6ed;
+            margin-right: 4px;
+        }
+
+        .popup-level-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .popup-level-badge.critical {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid rgba(244, 67, 54, 0.4);
+        }
+
+        .popup-level-badge.warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid rgba(255, 152, 0, 0.4);
+        }
+
+        .popup-level-badge.info {
+            background: rgba(0, 188, 212, 0.2);
+            color: #00bcd4;
+            border: 1px solid rgba(0, 188, 212, 0.4);
+        }
+
+        .popup-actions {
+            display: flex;
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .popup-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .popup-button.primary {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            color: #1a2a3a;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+        }
+
+        .popup-button.primary:hover {
+            background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
+            box-shadow: 0 6px 16px rgba(0, 188, 212, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .popup-button.secondary {
+            background: rgba(60, 84, 114, 0.6);
+            color: #e0e6ed;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .popup-button.secondary:hover {
+            background: rgba(60, 84, 114, 0.8);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a7bed3;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* 告警详情模态框 */
+        .alarm-detail-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10001;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .alarm-detail-modal.active {
+            display: flex;
+        }
+
+        .detail-modal-content {
+            background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 16px 64px rgba(0, 0, 0, 0.6);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .detail-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.15) 0%, rgba(0, 188, 212, 0.05) 100%);
+        }
+
+        .detail-modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e0e6ed;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-modal-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #e0e6ed;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .detail-modal-close i {
+            font-size: 20px;
+            color: #e0e6ed;
+            display: inline-block !important;
+            line-height: 1;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            visibility: visible !important;
+        }
+
+        .detail-modal-close .fallback-close {
+            display: none;
+            font-size: 24px;
+            font-weight: 300;
+            color: #e0e6ed;
+            line-height: 1;
+            margin-left: -20px;
+        }
+
+        /* 如果图标未显示，显示后备字符 */
+        .detail-modal-close:has(i.fa-times:empty) .fallback-close,
+        .detail-modal-close i.fa-times:empty + .fallback-close {
+            display: inline-block;
+        }
+
+        .detail-modal-close:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            transform: rotate(90deg);
+        }
+
+        .detail-modal-close:hover i {
+            color: #f44336;
+        }
+
+        /* 确保图标可见 */
+        .detail-modal-close i.fa-times {
+            display: inline-block !important;
+            visibility: visible !important;
+        }
+
+        .detail-modal-body {
+            padding: 24px;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #00bcd4;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid rgba(0, 188, 212, 0.3);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-item-label {
+            min-width: 100px;
+            color: #a7bed3;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .detail-item-label i {
+            width: 18px;
+            text-align: center;
+            color: #00bcd4;
+        }
+
+        .detail-item-value {
+            flex: 1;
+            color: #e0e6ed;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .detail-item-value.level-critical {
+            color: #f44336;
+            font-weight: 600;
+        }
+
+        .detail-item-value.level-warning {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        .detail-item-value.level-info {
+            color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .detail-item-value.status-unconfirmed {
+            color: #f44336;
+            font-weight: 600;
+        }
+
+        .detail-item-value.status-confirmed {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .detail-description {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid #00bcd4;
+            color: #a7bed3;
+            line-height: 1.8;
+            font-size: 14px;
+        }
+
+        .detail-modal-actions {
+            padding: 20px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .detail-modal-button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-modal-button.primary {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            color: #1a2a3a;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+        }
+
+        .detail-modal-button.primary:hover {
+            background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
+            box-shadow: 0 6px 16px rgba(0, 188, 212, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .detail-modal-button.confirm {
+            background: linear-gradient(135deg, #4caf50 0%, #43a047 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .detail-modal-button.confirm:hover {
+            background: linear-gradient(135deg, #43a047 0%, #388e3c 100%);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+            transform: translateY(-2px);
+        }
+    </style>
+
+    <div class="alarm-query-container">
+        <div class="page-header">
+            <h2 class="page-title">
+                <i class="fas fa-bell"></i> 告警查询
+            </h2>
+            <p class="page-description">
+                显示未被确认和已经确认的告警信息，包括告警点名称、告警内容、告警时间及确认状态。支持按时间、厂站、设备、级别等进行分类查询。
+            </p>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-section" id="stats-section">
+            <!-- 统计卡片将通过JavaScript动态生成 -->
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>时间范围：</label>
+                    <select class="filter-select" id="time-range">
+                        <option value="today">今天</option>
+                        <option value="week">近一周</option>
+                        <option value="month" selected>近一月</option>
+                        <option value="custom">自定义</option>
+                    </select>
+                </div>
+                <div class="filter-item" id="custom-date-range" style="display: none;">
+                    <label>开始日期：</label>
+                    <input type="date" class="filter-input" id="start-date">
+                    <label>结束日期：</label>
+                    <input type="date" class="filter-input" id="end-date">
+                </div>
+                <div class="filter-item">
+                    <label>厂站：</label>
+                    <select class="filter-select" id="filter-station">
+                        <option value="all">全部厂站</option>
+                        <option value="station-1">生产车间1</option>
+                        <option value="station-2">生产车间2</option>
+                        <option value="station-3">生产车间3</option>
+                        <option value="station-4">辅助设施</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>设备：</label>
+                    <select class="filter-select" id="filter-equipment">
+                        <option value="all">全部设备</option>
+                        <option value="equipment-1">主电机</option>
+                        <option value="equipment-2">压缩机</option>
+                        <option value="equipment-3">水泵</option>
+                        <option value="equipment-4">风机</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>告警级别：</label>
+                    <select class="filter-select" id="filter-level">
+                        <option value="all">全部级别</option>
+                        <option value="critical">严重</option>
+                        <option value="warning">警告</option>
+                        <option value="info">提示</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>确认状态：</label>
+                    <select class="filter-select" id="filter-status">
+                        <option value="all">全部</option>
+                        <option value="unconfirmed">未确认</option>
+                        <option value="confirmed">已确认</option>
+                    </select>
+                </div>
+                <button class="action-button" onclick="queryAlarms()">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="action-button secondary" onclick="resetFilter()">
+                    <i class="fas fa-redo"></i> 重置
+                </button>
+            </div>
+        </div>
+
+        <!-- 告警列表 -->
+        <div class="alarm-list-section">
+            <div class="section-title">
+                <i class="fas fa-list"></i> 告警列表
+            </div>
+            <div class="alarm-list" id="alarm-list">
+                <!-- 告警列表将通过JavaScript动态生成 -->
+            </div>
+            <!-- 分页控件 -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 告警弹窗 -->
+    <div class="alarm-popup" id="alarm-popup">
+        <div class="popup-header">
+            <div class="popup-title">
+                <i class="fas fa-bell"></i> 新告警通知
+            </div>
+            <button class="popup-close" onclick="closeAlarmPopup()" title="关闭">
+                <i class="fas fa-times"></i>
+                <span class="fallback-close" style="display: none;">×</span>
+            </button>
+        </div>
+        <div class="popup-body">
+            <!-- 弹窗内容将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <!-- 告警详情模态框 -->
+    <div class="alarm-detail-modal" id="alarm-detail-modal">
+        <div class="detail-modal-content">
+            <div class="detail-modal-header">
+                <div class="detail-modal-title">
+                    <i class="fas fa-info-circle"></i> 告警详情
+                </div>
+                <button class="detail-modal-close" onclick="closeAlarmDetailModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                    <span class="fallback-close" style="display: none;">×</span>
+                </button>
+            </div>
+            <div class="detail-modal-body" id="detail-modal-body">
+                <!-- 详情内容将通过JavaScript动态生成 -->
+            </div>
+            <div class="detail-modal-actions" id="detail-modal-actions">
+                <!-- 操作按钮将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    // 告警数据（示例数据）- 根据告警配置页面的规则生成
+    let alarmData = [
+        // ========== 电能源告警 ==========
+        {
+            id: 1,
+            name: '生产车间1电能超标',
+            description: '生产车间1电能达到历史平均值的135%，超过设定上限130%，触发严重告警',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'ecc-1',
+            equipmentName: '生产车间1',
+            equipmentCode: 'ECC-001',
+            level: 'critical',
+            levelName: '严重',
+            time: '2024-12-16 14:35:22',
+            confirmed: false,
+            confirmedBy: null,
+            confirmedTime: null
+        },
+        {
+            id: 2,
+            name: '主电机功率超限',
+            description: '主电机功率达到105kW，超过设定上限100kW，触发严重告警',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-1',
+            equipmentName: '主电机',
+            equipmentCode: 'MT-001',
+            level: 'critical',
+            levelName: '严重',
+            time: '2024-12-16 13:20:15',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-16 13:35:00'
+        },
+        {
+            id: 3,
+            name: '主电机电流过载',
+            description: '主电机电流达到125A，超过设定上限120A，触发严重告警',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-1',
+            equipmentName: '主电机',
+            equipmentCode: 'MT-002',
+            level: 'critical',
+            levelName: '严重',
+            time: '2024-12-16 12:15:08',
+            confirmed: false,
+            confirmedBy: null,
+            confirmedTime: null
+        },
+        {
+            id: 4,
+            name: '生产车间1电压波动异常',
+            description: '生产车间1电压达到410V，超出正常范围360-400V，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'station-1',
+            equipmentName: '生产车间1',
+            equipmentCode: 'ST-001',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-16 11:45:33',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-16 12:00:00'
+        },
+        {
+            id: 5,
+            name: '变压器功率因数异常',
+            description: '变压器功率因数降至0.82，低于设定下限0.85，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-5',
+            equipmentName: '变压器',
+            equipmentCode: 'TF-001',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-16 10:30:45',
+            confirmed: false,
+            confirmedBy: null,
+            confirmedTime: null
+        },
+        {
+            id: 6,
+            name: '主电机电流过载',
+            description: '主电机电流达到122A，超过设定上限120A，触发严重告警',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-1',
+            equipmentName: '主电机',
+            equipmentCode: 'MT-003',
+            level: 'critical',
+            levelName: '严重',
+            time: '2024-12-15 18:20:15',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-15 18:35:00'
+        },
+        // ========== 水能源告警 ==========
+        {
+            id: 7,
+            name: '生产用水流量不足',
+            description: '生产用水系统流量降至45m³/h，低于设定下限50m³/h，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-3',
+            equipmentName: '生产用水系统',
+            equipmentCode: 'WS-001',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-16 09:20:12',
+            confirmed: false,
+            confirmedBy: null,
+            confirmedTime: null
+        },
+        {
+            id: 8,
+            name: '冷却水流量不足',
+            description: '冷却水系统流量降至25m³/h，低于设定下限30m³/h，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-8',
+            equipmentName: '冷却水系统',
+            equipmentCode: 'CW-001',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-16 08:15:28',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-16 08:30:00'
+        },
+        {
+            id: 9,
+            name: '供水管道流速异常',
+            description: '供水管道流速达到3.5m/s，超过设定上限3.0m/s，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-3',
+            equipmentName: '供水管道',
+            equipmentCode: 'WP-001',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-15 22:10:55',
+            confirmed: false,
+            confirmedBy: null,
+            confirmedTime: null
+        },
+        {
+            id: 10,
+            name: '供水压力不足',
+            description: '供水系统压力降至0.25MPa，低于设定下限0.3MPa，触发严重告警',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-3',
+            equipmentName: '供水系统',
+            equipmentCode: 'WS-002',
+            level: 'critical',
+            levelName: '严重',
+            time: '2024-12-15 20:45:18',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-15 21:00:00'
+        },
+        // ========== 蒸汽能源告警 ==========
+        {
+            id: 11,
+            name: '蒸汽压力异常',
+            description: '蒸汽系统压力达到1.25MPa，超过设定上限1.2MPa，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-11',
+            equipmentName: '蒸汽系统',
+            equipmentCode: 'ST-001',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-16 07:30:42',
+            confirmed: false,
+            confirmedBy: null,
+            confirmedTime: null
+        },
+        {
+            id: 12,
+            name: '蒸汽温度过高',
+            description: '蒸汽系统温度达到205℃，超过设定上限200℃，触发严重告警',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-11',
+            equipmentName: '蒸汽系统',
+            equipmentCode: 'ST-002',
+            level: 'critical',
+            levelName: '严重',
+            time: '2024-12-15 16:20:30',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-15 16:35:00'
+        },
+        {
+            id: 13,
+            name: '蒸汽流量异常',
+            description: '蒸汽系统流量达到55t/h，超过设定上限50t/h，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-11',
+            equipmentName: '蒸汽系统',
+            equipmentCode: 'ST-003',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-15 14:15:25',
+            confirmed: false,
+            confirmedBy: null,
+            confirmedTime: null
+        },
+        // ========== 压缩空气能源告警 ==========
+        {
+            id: 14,
+            name: '压缩空气压力不足',
+            description: '压缩空气系统压力降至0.55MPa，低于设定下限0.6MPa，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-10',
+            equipmentName: '压缩空气系统',
+            equipmentCode: 'CA-001',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-16 15:50:18',
+            confirmed: false,
+            confirmedBy: null,
+            confirmedTime: null
+        },
+        {
+            id: 15,
+            name: '压缩空气流量不足',
+            description: '压缩空气系统流量降至18m³/min，低于设定下限20m³/min，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-10',
+            equipmentName: '压缩空气系统',
+            equipmentCode: 'CA-002',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-16 11:25:33',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-16 11:40:00'
+        },
+        {
+            id: 16,
+            name: '压缩空气露点异常',
+            description: '压缩空气系统露点达到-8℃，高于设定上限-10℃，触发提示',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-10',
+            equipmentName: '压缩空气系统',
+            equipmentCode: 'CA-003',
+            level: 'info',
+            levelName: '提示',
+            time: '2024-12-15 19:30:15',
+            confirmed: false,
+            confirmedBy: null,
+            confirmedTime: null
+        },
+        // ========== 氮气能源告警 ==========
+        {
+            id: 17,
+            name: '氮气压力异常',
+            description: '氮气系统压力达到0.85MPa，超过设定上限0.8MPa，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-12',
+            equipmentName: '氮气系统',
+            equipmentCode: 'N2-001',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-16 13:45:28',
+            confirmed: false,
+            confirmedBy: null,
+            confirmedTime: null
+        },
+        {
+            id: 18,
+            name: '氮气流量不足',
+            description: '氮气系统流量降至12m³/h，低于设定下限15m³/h，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-12',
+            equipmentName: '氮气系统',
+            equipmentCode: 'N2-002',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-16 10:15:42',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-16 10:30:00'
+        },
+        {
+            id: 19,
+            name: '氮气纯度不足',
+            description: '氮气系统纯度降至99.2%，低于设定下限99.5%，触发严重告警',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-12',
+            equipmentName: '氮气系统',
+            equipmentCode: 'N2-003',
+            level: 'critical',
+            levelName: '严重',
+            time: '2024-12-15 17:40:25',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-15 17:55:00'
+        },
+        // ========== 历史告警记录 ==========
+        {
+            id: 20,
+            name: '主电机功率超限',
+            description: '主电机功率达到102kW，超过设定上限100kW，触发严重告警',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-1',
+            equipmentName: '主电机',
+            equipmentCode: 'MT-004',
+            level: 'critical',
+            levelName: '严重',
+            time: '2024-12-15 15:20:10',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-15 15:35:00'
+        },
+        {
+            id: 21,
+            name: '生产车间1电压波动异常',
+            description: '生产车间1电压降至355V，低于正常范围下限360V，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'station-1',
+            equipmentName: '生产车间1',
+            equipmentCode: 'ST-004',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-15 13:10:35',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-15 13:25:00'
+        },
+        {
+            id: 22,
+            name: '生产用水流量不足',
+            description: '生产用水系统流量降至48m³/h，低于设定下限50m³/h，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-3',
+            equipmentName: '生产用水系统',
+            equipmentCode: 'WS-003',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-15 11:55:20',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-15 12:10:00'
+        },
+        {
+            id: 23,
+            name: '压缩空气压力不足',
+            description: '压缩空气系统压力降至0.58MPa，低于设定下限0.6MPa，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-10',
+            equipmentName: '压缩空气系统',
+            equipmentCode: 'CA-004',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-15 09:30:45',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-15 09:45:00'
+        },
+        {
+            id: 24,
+            name: '氮气流量不足',
+            description: '氮气系统流量降至14m³/h，低于设定下限15m³/h，触发警告',
+            station: 'station-1',
+            stationName: '生产车间1',
+            equipment: 'equipment-12',
+            equipmentName: '氮气系统',
+            equipmentCode: 'N2-004',
+            level: 'warning',
+            levelName: '警告',
+            time: '2024-12-15 08:15:12',
+            confirmed: true,
+            confirmedBy: '调度员 Tang',
+            confirmedTime: '2024-12-15 08:30:00'
+        }
+    ];
+
+    let currentPopupAlarmId = null;
+    let currentPage = 1;
+    const pageSize = 10; // 每页显示10条数据
+
+    // 筛选数据
+    function getFilteredData() {
+        const timeRange = document.getElementById('time-range').value;
+        const filterStation = document.getElementById('filter-station').value;
+        const filterEquipment = document.getElementById('filter-equipment').value;
+        const filterLevel = document.getElementById('filter-level').value;
+        const filterStatus = document.getElementById('filter-status').value;
+
+        let filtered = [...alarmData];
+
+        // 时间筛选
+        if (timeRange === 'custom') {
+            const startDate = document.getElementById('start-date').value;
+            const endDate = document.getElementById('end-date').value;
+            if (startDate) {
+                filtered = filtered.filter(item => item.time >= startDate);
+            }
+            if (endDate) {
+                filtered = filtered.filter(item => item.time <= endDate + ' 23:59:59');
+            }
+        } else {
+            // 对于非自定义时间范围，如果当前日期不在样例数据的时间范围内，则不进行时间筛选
+            // 样例数据日期为2024-12-15和2024-12-16
+            const now = new Date();
+            const sampleDataStart = new Date('2024-12-15');
+            const sampleDataEnd = new Date('2024-12-17');
+            
+            // 如果当前日期不在样例数据时间范围内，不进行时间筛选（显示所有数据）
+            if (now < sampleDataStart || now > sampleDataEnd) {
+                // 不进行时间筛选，显示所有数据
+            } else {
+                // 当前日期在样例数据范围内，进行正常的时间筛选
+                let cutoffDate;
+                if (timeRange === 'today') {
+                    cutoffDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                } else if (timeRange === 'week') {
+                    cutoffDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                } else if (timeRange === 'month') {
+                    cutoffDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                }
+                if (cutoffDate) {
+                    filtered = filtered.filter(item => {
+                        const itemDate = new Date(item.time);
+                        return itemDate >= cutoffDate;
+                    });
+                }
+            }
+        }
+
+        // 其他筛选
+        if (filterStation !== 'all') {
+            filtered = filtered.filter(item => item.station === filterStation);
+        }
+        if (filterEquipment !== 'all') {
+            filtered = filtered.filter(item => item.equipment === filterEquipment);
+        }
+        if (filterLevel !== 'all') {
+            filtered = filtered.filter(item => item.level === filterLevel);
+        }
+        if (filterStatus !== 'all') {
+            filtered = filtered.filter(item => 
+                filterStatus === 'unconfirmed' ? !item.confirmed : item.confirmed
+            );
+        }
+
+        // 按时间倒序排列
+        filtered.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+        return filtered;
+    }
+
+    // 计算统计信息
+    function calculateStats(data) {
+        const total = data.length;
+        const unconfirmed = data.filter(item => !item.confirmed).length;
+        const critical = data.filter(item => item.level === 'critical').length;
+        const warning = data.filter(item => item.level === 'warning').length;
+        const info = data.filter(item => item.level === 'info').length;
+
+        return { total, unconfirmed, critical, warning, info };
+    }
+
+    // 渲染统计卡片
+    function renderStats(data) {
+        const stats = calculateStats(data);
+        const statsSection = document.getElementById('stats-section');
+        
+        statsSection.innerHTML = `
+            <div class="stat-card">
+                <div class="stat-label">
+                    <i class="fas fa-bell"></i> 总告警数
+                </div>
+                <div class="stat-value">${stats.total}</div>
+            </div>
+            <div class="stat-card critical">
+                <div class="stat-label">
+                    <i class="fas fa-exclamation-circle"></i> 未确认告警
+                </div>
+                <div class="stat-value">${stats.unconfirmed}</div>
+            </div>
+            <div class="stat-card critical">
+                <div class="stat-label">
+                    <i class="fas fa-times-circle"></i> 严重告警
+                </div>
+                <div class="stat-value">${stats.critical}</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-label">
+                    <i class="fas fa-exclamation-triangle"></i> 警告告警
+                </div>
+                <div class="stat-value">${stats.warning}</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-label">
+                    <i class="fas fa-info-circle"></i> 提示告警
+                </div>
+                <div class="stat-value">${stats.info}</div>
+            </div>
+        `;
+    }
+
+    // 渲染告警列表（带分页）
+    function renderAlarmList(data) {
+        const alarmList = document.getElementById('alarm-list');
+        const pagination = document.getElementById('pagination');
+        
+        if (data.length === 0) {
+            alarmList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>暂无告警数据</p>
+                </div>
+            `;
+            pagination.style.display = 'none';
+            return;
+        }
+
+        // 计算分页
+        const totalRecords = data.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        // 如果当前页超出范围，重置到第一页
+        if (currentPage > totalPages && totalPages > 0) {
+            currentPage = 1;
+        }
+
+        // 计算当前页的数据范围
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = data.slice(startIndex, endIndex);
+
+        pagination.style.display = 'flex';
+
+        alarmList.innerHTML = currentPageData.map(item => {
+            const statusClass = item.confirmed ? 'confirmed' : 'unconfirmed';
+            const levelClass = item.level;
+            
+            return `
+                <div class="alarm-item ${statusClass}" onclick="viewAlarmDetail(${item.id})">
+                    <div class="alarm-level ${levelClass}">
+                        ${item.levelName}
+                    </div>
+                    <div class="alarm-content">
+                        <div class="alarm-name">${item.name}</div>
+                        <div class="alarm-desc">${item.description}</div>
+                        <div class="alarm-meta">
+                            <div class="alarm-meta-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                ${item.stationName}
+                            </div>
+                            <div class="alarm-meta-item">
+                                <i class="fas fa-cog"></i>
+                                ${item.equipmentName}${item.equipmentCode ? ` (${item.equipmentCode})` : ''}
+                            </div>
+                            <div class="alarm-meta-item">
+                                <i class="fas fa-clock"></i>
+                                ${item.time}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alarm-status">
+                        <span class="status-badge ${statusClass}">
+                            ${item.confirmed ? '已确认' : '未确认'}
+                        </span>
+                        ${!item.confirmed ? `
+                            <button class="confirm-button" onclick="event.stopPropagation(); confirmAlarm(${item.id})">
+                                <i class="fas fa-check"></i> 确认
+                            </button>
+                        ` : `
+                            <div style="font-size: 11px; color: #a7bed3; text-align: right;">
+                                <div>确认人: ${item.confirmedBy}</div>
+                                <div>确认时间: ${item.confirmedTime}</div>
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        renderPagination(totalPages, totalRecords, startIndex + 1, endIndex);
+    }
+
+    // 渲染分页控件
+    function renderPagination(totalPages, totalRecords, startRecord, endRecord) {
+        const pagination = document.getElementById('pagination');
+        if (!pagination) return;
+
+        if (totalPages <= 1) {
+            pagination.style.display = 'none';
+            return;
+        }
+
+        let html = '';
+
+        // 上一页按钮
+        html += `<button class="pagination-button" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i> 上一页
+        </button>`;
+
+        // 页码按钮
+        const maxVisiblePages = 7;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // 第一页
+        if (startPage > 1) {
+            html += `<button class="pagination-button" onclick="goToPage(1)">1</button>`;
+            if (startPage > 2) {
+                html += `<span class="pagination-info">...</span>`;
+            }
+        }
+
+        // 中间页码
+        for (let i = startPage; i <= endPage; i++) {
+            html += `<button class="pagination-button ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+        }
+
+        // 最后一页
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<span class="pagination-info">...</span>`;
+            }
+            html += `<button class="pagination-button" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+        }
+
+        // 下一页按钮
+        html += `<button class="pagination-button" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+            下一页 <i class="fas fa-chevron-right"></i>
+        </button>`;
+
+        // 分页信息
+        html += `<span class="pagination-info">共 ${totalRecords} 条，第 ${startRecord}-${endRecord} 条</span>`;
+
+        // 跳转输入
+        html += `<div class="pagination-jump">
+            <span style="color: #a7bed3; font-size: 13px;">跳至</span>
+            <input type="number" id="page-jump-input" min="1" max="${totalPages}" value="${currentPage}" onkeypress="handlePageJump(event)">
+            <span style="color: #a7bed3; font-size: 13px;">页</span>
+            <button onclick="jumpToPage()">确定</button>
+        </div>`;
+
+        pagination.innerHTML = html;
+    }
+
+    // 跳转到指定页
+    window.goToPage = function(page) {
+        const filteredData = getFilteredData();
+        const totalPages = Math.ceil(filteredData.length / pageSize);
+        
+        if (page < 1 || page > totalPages) return;
+        
+        currentPage = page;
+        renderAlarmList(filteredData);
+        
+        // 滚动到列表顶部
+        const alarmListSection = document.querySelector('.alarm-list-section');
+        if (alarmListSection) {
+            alarmListSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
+    // 处理跳转输入框的Enter键
+    window.handlePageJump = function(event) {
+        if (event.key === 'Enter') {
+            jumpToPage();
+        }
+    };
+
+    // 跳转到指定页（通过输入框）
+    window.jumpToPage = function() {
+        const input = document.getElementById('page-jump-input');
+        if (!input) return;
+        
+        const targetPage = parseInt(input.value);
+        if (isNaN(targetPage) || targetPage < 1) {
+            alert('请输入有效的页码');
+            return;
+        }
+
+        const filteredData = getFilteredData();
+        const totalPages = Math.ceil(filteredData.length / pageSize);
+        
+        if (targetPage > totalPages) {
+            alert(`页码不能超过 ${totalPages}`);
+            input.value = currentPage;
+            return;
+        }
+
+        goToPage(targetPage);
+    };
+
+    // 确认告警
+    window.confirmAlarm = function(id) {
+        const alarm = alarmData.find(item => item.id === id);
+        if (!alarm || alarm.confirmed) return;
+
+        alarm.confirmed = true;
+        alarm.confirmedBy = '调度员 Tang';
+        alarm.confirmedTime = new Date().toLocaleString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        }).replace(/\//g, '-');
+
+        queryAlarms();
+        alert('告警已确认');
+    };
+
+    // 从弹窗确认告警
+    window.confirmAlarmFromPopup = function() {
+        if (currentPopupAlarmId) {
+            confirmAlarm(currentPopupAlarmId);
+            closeAlarmPopup();
+        }
+    };
+
+    // 查看告警详情
+    window.viewAlarmDetail = function(id) {
+        const alarm = alarmData.find(item => item.id === id);
+        if (!alarm) return;
+
+        const modal = document.getElementById('alarm-detail-modal');
+        const modalBody = document.getElementById('detail-modal-body');
+        const modalActions = document.getElementById('detail-modal-actions');
+
+        // 获取级别图标
+        let levelIcon = 'fa-info-circle';
+        if (alarm.level === 'critical') {
+            levelIcon = 'fa-exclamation-triangle';
+        } else if (alarm.level === 'warning') {
+            levelIcon = 'fa-exclamation-triangle';
+        }
+
+        modalBody.innerHTML = `
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    <i class="fas ${levelIcon}"></i> 基本信息
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">
+                        <i class="fas fa-tag"></i> 告警名称
+                    </div>
+                    <div class="detail-item-value">${alarm.name}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">
+                        <i class="fas fa-info-circle"></i> 告警级别
+                    </div>
+                    <div class="detail-item-value level-${alarm.level}">${alarm.levelName}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">
+                        <i class="fas fa-check-circle"></i> 确认状态
+                    </div>
+                    <div class="detail-item-value status-${alarm.confirmed ? 'confirmed' : 'unconfirmed'}">
+                        ${alarm.confirmed ? '已确认' : '未确认'}
+                    </div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    <i class="fas fa-file-alt"></i> 告警描述
+                </div>
+                <div class="detail-description">
+                    ${alarm.description}
+                </div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    <i class="fas fa-map-marker-alt"></i> 位置信息
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">
+                        <i class="fas fa-building"></i> 厂站
+                    </div>
+                    <div class="detail-item-value">${alarm.stationName}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">
+                        <i class="fas fa-cog"></i> 设备
+                    </div>
+                    <div class="detail-item-value">${alarm.equipmentName}${alarm.equipmentCode ? ` (${alarm.equipmentCode})` : ''}</div>
+                </div>
+                ${alarm.equipmentCode ? `
+                <div class="detail-item">
+                    <div class="detail-item-label">
+                        <i class="fas fa-barcode"></i> 设备编码
+                    </div>
+                    <div class="detail-item-value">${alarm.equipmentCode}</div>
+                </div>
+                ` : ''}
+            </div>
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    <i class="fas fa-clock"></i> 时间信息
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">
+                        <i class="fas fa-calendar-alt"></i> 告警时间
+                    </div>
+                    <div class="detail-item-value">${alarm.time}</div>
+                </div>
+                ${alarm.confirmed ? `
+                    <div class="detail-item">
+                        <div class="detail-item-label">
+                            <i class="fas fa-user"></i> 确认人
+                        </div>
+                        <div class="detail-item-value">${alarm.confirmedBy}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-item-label">
+                            <i class="fas fa-check"></i> 确认时间
+                        </div>
+                        <div class="detail-item-value">${alarm.confirmedTime}</div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        modalActions.innerHTML = `
+            ${!alarm.confirmed ? `
+                <button class="detail-modal-button confirm" onclick="confirmAlarmFromDetail(${alarm.id})">
+                    <i class="fas fa-check"></i> 确认告警
+                </button>
+            ` : ''}
+            <button class="detail-modal-button primary" onclick="closeAlarmDetailModal()">
+                <i class="fas fa-times"></i> 关闭
+            </button>
+        `;
+
+        modal.classList.add('active');
+    };
+
+    // 从详情模态框确认告警
+    window.confirmAlarmFromDetail = function(id) {
+        confirmAlarm(id);
+        closeAlarmDetailModal();
+    };
+
+    // 关闭告警详情模态框
+    window.closeAlarmDetailModal = function() {
+        const modal = document.getElementById('alarm-detail-modal');
+        modal.classList.remove('active');
+    };
+
+    // 显示告警弹窗
+    function showAlarmPopup(alarm) {
+        const popup = document.getElementById('alarm-popup');
+        const popupBody = popup.querySelector('.popup-body') || popup;
+        
+        currentPopupAlarmId = alarm.id;
+        
+        // 根据告警级别设置弹窗样式
+        popup.className = 'alarm-popup active ' + alarm.level;
+        
+        // 获取级别图标
+        let levelIcon = 'fa-exclamation-circle';
+        if (alarm.level === 'critical') {
+            levelIcon = 'fa-exclamation-triangle';
+        } else if (alarm.level === 'warning') {
+            levelIcon = 'fa-exclamation-triangle';
+        } else if (alarm.level === 'info') {
+            levelIcon = 'fa-info-circle';
+        }
+        
+        popupBody.innerHTML = `
+            <div class="popup-content">
+                <div class="popup-alarm-name">
+                    <i class="fas ${levelIcon}"></i>
+                    ${alarm.name}
+                    <span class="popup-level-badge ${alarm.level}">${alarm.levelName}</span>
+                </div>
+                <div class="popup-alarm-desc">
+                    ${alarm.description}
+                </div>
+            </div>
+            <div class="popup-meta">
+                <div class="popup-meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <strong>厂站：</strong>${alarm.stationName}
+                </div>
+                <div class="popup-meta-item">
+                    <i class="fas fa-cog"></i>
+                    <strong>设备：</strong>${alarm.equipmentName}${alarm.equipmentCode ? ` (${alarm.equipmentCode})` : ''}
+                </div>
+                <div class="popup-meta-item">
+                    <i class="fas fa-clock"></i>
+                    <strong>时间：</strong>${alarm.time}
+                </div>
+                <div class="popup-meta-item">
+                    <i class="fas fa-bell"></i>
+                    <strong>状态：</strong><span style="color: #f44336;">未确认</span>
+                </div>
+            </div>
+            <div class="popup-actions">
+                <button class="popup-button primary" onclick="confirmAlarmFromPopup()">
+                    <i class="fas fa-check"></i> 确认告警
+                </button>
+                <button class="popup-button secondary" onclick="closeAlarmPopup()">
+                    <i class="fas fa-clock"></i> 稍后处理
+                </button>
+            </div>
+        `;
+        
+        // 5秒后自动关闭
+        setTimeout(() => {
+            if (popup.classList.contains('active')) {
+                closeAlarmPopup();
+            }
+        }, 5000);
+    }
+
+    // 关闭告警弹窗
+    window.closeAlarmPopup = function() {
+        const popup = document.getElementById('alarm-popup');
+        popup.classList.remove('active');
+        currentPopupAlarmId = null;
+    };
+
+    // 模拟新告警（用于演示自动弹窗）
+    function simulateNewAlarm() {
+        const unconfirmedAlarms = alarmData.filter(item => !item.confirmed);
+        if (unconfirmedAlarms.length > 0) {
+            const randomAlarm = unconfirmedAlarms[Math.floor(Math.random() * unconfirmedAlarms.length)];
+            showAlarmPopup(randomAlarm);
+        }
+    }
+
+    // 查询告警
+    window.queryAlarms = function() {
+        currentPage = 1; // 重置到第一页
+        const data = getFilteredData();
+        
+        // 调试：如果筛选后没有数据，检查是否是时间范围问题
+        if (data.length === 0 && alarmData.length > 0) {
+            console.log('筛选条件:', {
+                timeRange: document.getElementById('time-range').value,
+                filterStation: document.getElementById('filter-station').value,
+                filterEquipment: document.getElementById('filter-equipment').value,
+                filterLevel: document.getElementById('filter-level').value,
+                filterStatus: document.getElementById('filter-status').value
+            });
+            console.log('总数据量:', alarmData.length);
+            console.log('样例数据时间范围:', alarmData.map(item => item.time));
+        }
+        
+        renderStats(data);
+        renderAlarmList(data);
+    };
+
+    // 重置筛选
+    window.resetFilter = function() {
+        document.getElementById('time-range').value = 'month';
+        document.getElementById('filter-station').value = 'all';
+        document.getElementById('filter-equipment').value = 'all';
+        document.getElementById('filter-level').value = 'all';
+        document.getElementById('filter-status').value = 'all';
+        document.getElementById('custom-date-range').style.display = 'none';
+        queryAlarms();
+    };
+
+    // 时间范围切换
+    document.getElementById('time-range').addEventListener('change', function() {
+        const customRange = document.getElementById('custom-date-range');
+        if (this.value === 'custom') {
+            customRange.style.display = 'flex';
+        } else {
+            customRange.style.display = 'none';
+        }
+    });
+
+    // 确保在iframe中也能正确初始化
+    function ensureInit() {
+        const statsSection = document.getElementById('stats-section');
+        const alarmList = document.getElementById('alarm-list');
+        
+        if (!statsSection || !alarmList) {
+            setTimeout(ensureInit, 100);
+            return;
+        }
+        init();
+    }
+
+    // 初始化
+    function init() {
+        // 延迟渲染，确保DOM已完全加载
+        setTimeout(() => {
+            queryAlarms();
+        }, 100);
+        
+        // 模拟自动弹出告警（每30秒检查一次未确认告警）
+        setInterval(() => {
+            const unconfirmedAlarms = alarmData.filter(item => !item.confirmed);
+            const popup = document.getElementById('alarm-popup');
+            if (unconfirmedAlarms.length > 0 && popup && !popup.classList.contains('active')) {
+                simulateNewAlarm();
+            }
+        }, 30000);
+    }
+
+    // 获取详情模态框元素（只声明一次）
+    const detailModal = document.getElementById('alarm-detail-modal');
+    
+    // 点击遮罩层关闭详情模态框
+    if (detailModal) {
+        detailModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAlarmDetailModal();
+            }
+        });
+    }
+
+    // ESC键关闭详情模态框
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (detailModal && detailModal.classList.contains('active')) {
+                closeAlarmDetailModal();
+            }
+        }
+    });
+
+    // 检查并显示后备关闭图标（如果Font Awesome未加载）
+    function checkCloseIcons() {
+        setTimeout(() => {
+            const closeButtons = document.querySelectorAll('.detail-modal-close, .popup-close');
+            closeButtons.forEach(btn => {
+                const icon = btn.querySelector('i.fa-times');
+                const fallback = btn.querySelector('.fallback-close');
+                if (icon && fallback) {
+                    // 检查图标是否真的显示了（通过检查字体或宽度）
+                    const computedStyle = window.getComputedStyle(icon);
+                    const fontFamily = computedStyle.fontFamily || '';
+                    const isFontAwesome = fontFamily.includes('Font Awesome') || fontFamily.includes('FontAwesome');
+                    const iconWidth = icon.offsetWidth;
+                    const iconHeight = icon.offsetHeight;
+                    
+                    // 如果Font Awesome未加载或图标不可见，显示后备字符
+                    if (!isFontAwesome || (iconWidth === 0 && iconHeight === 0) || icon.textContent.trim() === '') {
+                        fallback.style.display = 'inline-block';
+                        icon.style.display = 'none';
+                    } else {
+                        fallback.style.display = 'none';
+                        icon.style.display = 'inline-block';
+                    }
+                }
+            });
+        }, 800);
+    }
+
+    // 监听模态框打开，重新检查图标
+    if (detailModal) {
+        const observer = new MutationObserver(() => {
+            if (detailModal.classList.contains('active')) {
+                checkCloseIcons();
+            }
+        });
+        observer.observe(detailModal, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    // 页面加载时初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            ensureInit();
+            checkCloseIcons();
+        });
+    } else {
+        ensureInit();
+        checkCloseIcons();
+    }
+})();
+</script>

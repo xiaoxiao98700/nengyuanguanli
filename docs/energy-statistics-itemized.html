@@ -1,0 +1,2346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分项能耗统计</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #0f1e2d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+<div class="itemized-energy-container">
+    <div class="page-header">
+        <h2 class="page-title"><i class="fas fa-sitemap"></i> 分项能耗统计</h2>
+    </div>
+
+    <!-- 分项类别标签页 -->
+    <div class="item-tabs">
+        <button class="item-tab active" data-item="lighting">
+            <i class="fas fa-lightbulb"></i> 照明
+        </button>
+        <button class="item-tab" data-item="air-conditioning">
+            <i class="fas fa-snowflake"></i> 空调
+        </button>
+        <button class="item-tab" data-item="power">
+            <i class="fas fa-bolt"></i> 动力
+        </button>
+        <button class="item-tab" data-item="special">
+            <i class="fas fa-star"></i> 特殊
+        </button>
+        <button class="item-tab" data-item="water-pump">
+            <i class="fas fa-tint"></i> 水泵
+        </button>
+        <button class="item-tab" data-item="mainframe">
+            <i class="fas fa-server"></i> 主机
+        </button>
+    </div>
+
+    <!-- 筛选和查询区域 -->
+    <div class="filter-section">
+        <div class="filter-row">
+            <div class="filter-item">
+                <label>时间范围:</label>
+                <select id="time-range" class="filter-select">
+                    <option value="today">今日</option>
+                    <option value="yesterday">昨日</option>
+                    <option value="week">本周</option>
+                    <option value="month" selected>本月</option>
+                    <option value="year">本年</option>
+                    <option value="custom">自定义</option>
+                </select>
+            </div>
+            <div class="filter-item" id="custom-date-range" style="display: none;">
+                <label>开始日期:</label>
+                <input type="date" id="start-date" class="filter-input">
+                <label>结束日期:</label>
+                <input type="date" id="end-date" class="filter-input">
+            </div>
+            <div class="filter-item">
+                <label>能源单元:</label>
+                <select id="energy-unit-select" class="filter-select">
+                    <option value="all">全部单元</option>
+                    <option value="unit1">生产车间1</option>
+                    <option value="unit2">生产车间2</option>
+                    <option value="unit3">办公楼</option>
+                    <option value="unit4">辅助设施</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <button class="query-button" id="query-btn">
+                    <i class="fas fa-search"></i> 查询
+                </button>
+                <button class="export-button" id="export-btn">
+                    <i class="fas fa-download"></i> 导出
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计概览卡片 -->
+    <div class="overview-cards">
+        <div class="overview-card">
+            <div class="card-icon usage">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="card-content">
+                <div class="card-label">总能耗用量</div>
+                <div class="card-value" id="total-usage">0</div>
+                <div class="card-unit">kWh</div>
+            </div>
+        </div>
+        <div class="overview-card">
+            <div class="card-icon coal">
+                <i class="fas fa-fire"></i>
+            </div>
+            <div class="card-content">
+                <div class="card-label">标煤用量</div>
+                <div class="card-value" id="total-coal">0</div>
+                <div class="card-unit">tce</div>
+            </div>
+        </div>
+        <div class="overview-card">
+            <div class="card-icon area">
+                <i class="fas fa-ruler-combined"></i>
+            </div>
+            <div class="card-content">
+                <div class="card-label">单位面积能耗</div>
+                <div class="card-value" id="area-usage">0</div>
+                <div class="card-unit">kWh/m²</div>
+            </div>
+        </div>
+        <div class="overview-card">
+            <div class="card-icon person">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="card-content">
+                <div class="card-label">人均能耗</div>
+                <div class="card-value" id="person-usage">0</div>
+                <div class="card-unit">kWh/人</div>
+            </div>
+        </div>
+        <div class="overview-card">
+            <div class="card-icon carbon">
+                <i class="fas fa-leaf"></i>
+            </div>
+            <div class="card-content">
+                <div class="card-label">碳排放</div>
+                <div class="card-value" id="carbon-emission">0</div>
+                <div class="card-unit">tCO₂</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图表区域 -->
+    <div class="charts-section">
+        <!-- 对比分析图表 -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-chart-bar"></i> 能耗对比分析</h3>
+                <div class="chart-controls">
+                    <button class="chart-type-btn active" data-chart="bar">
+                        <i class="fas fa-chart-bar"></i> 柱状图
+                    </button>
+                    <button class="chart-type-btn" data-chart="line">
+                        <i class="fas fa-chart-line"></i> 曲线图
+                    </button>
+                </div>
+            </div>
+            <div class="chart-container" id="comparison-chart">
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-area"></i>
+                    <p>点击查询查看对比分析数据</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 占比排名图表 -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-chart-pie"></i> 占比排名分析</h3>
+                <div class="chart-controls">
+                    <button class="chart-type-btn active" data-chart="pie">
+                        <i class="fas fa-chart-pie"></i> 饼图
+                    </button>
+                    <button class="chart-type-btn" data-chart="bar">
+                        <i class="fas fa-chart-bar"></i> 柱状图
+                    </button>
+                </div>
+            </div>
+            <div class="chart-container" id="ranking-chart">
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-area"></i>
+                    <p>点击查询查看占比排名数据</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详细数据表格 -->
+    <div class="data-table-section">
+        <div class="table-header">
+            <h3 class="table-title"><i class="fas fa-table"></i> 分项能耗明细</h3>
+            <div class="table-actions">
+                <button class="action-btn small" id="export-png">
+                    <i class="fas fa-image"></i> 导出PNG
+                </button>
+                <button class="action-btn small" id="export-pdf">
+                    <i class="fas fa-file-pdf"></i> 导出PDF
+                </button>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="data-table" id="itemized-data-table">
+                <thead>
+                    <tr>
+                        <th>能源单元</th>
+                        <th>分项类别</th>
+                        <th>能耗用量 (kWh)</th>
+                        <th>标煤用量 (tce)</th>
+                        <th>单位面积能耗 (kWh/m²)</th>
+                        <th>人均能耗 (kWh/人)</th>
+                        <th>碳排放 (tCO₂)</th>
+                        <th>占比 (%)</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr>
+                        <td colspan="9" style="text-align: center; color: #a7bed3; padding: 40px;">
+                            暂无数据，请选择时间范围和能源单元后点击查询
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- 能源单元详情模态框 -->
+<div class="modal-overlay" id="detail-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modal-title">能源单元详情</h3>
+            <button class="close-button" id="close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="detail-tabs">
+                <button class="detail-tab active" data-tab="overview">概览</button>
+                <button class="detail-tab" data-tab="history">历史数据</button>
+                <button class="detail-tab" data-tab="equipment">关联设备</button>
+            </div>
+            
+            <div class="detail-content">
+                <!-- 概览标签页 -->
+                <div class="detail-tab-content active" id="overview-tab">
+                    <div class="detail-cards">
+                        <div class="detail-card">
+                            <div class="detail-label">能耗用量</div>
+                            <div class="detail-value" id="detail-usage">0</div>
+                            <div class="detail-unit">kWh</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-label">标煤用量</div>
+                            <div class="detail-value" id="detail-coal">0</div>
+                            <div class="detail-unit">tce</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-label">单位面积能耗</div>
+                            <div class="detail-value" id="detail-area">0</div>
+                            <div class="detail-unit">kWh/m²</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-label">人均能耗</div>
+                            <div class="detail-value" id="detail-person">0</div>
+                            <div class="detail-unit">kWh/人</div>
+                        </div>
+                        <div class="detail-card">
+                            <div class="detail-label">碳排放</div>
+                            <div class="detail-value" id="detail-carbon">0</div>
+                            <div class="detail-unit">tCO₂</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 历史数据标签页 -->
+                <div class="detail-tab-content" id="history-tab">
+                    <div class="history-controls">
+                        <div class="history-filter">
+                            <label>时间范围:</label>
+                            <select id="history-time-range" class="filter-select">
+                                <option value="7days">近7天</option>
+                                <option value="30days" selected>近30天</option>
+                                <option value="90days">近90天</option>
+                                <option value="year">近一年</option>
+                            </select>
+                        </div>
+                        <div class="history-filter">
+                            <label>对比分析:</label>
+                            <select id="history-compare" class="filter-select">
+                                <option value="none">无对比</option>
+                                <option value="equipment">关联设备对比</option>
+                                <option value="period">同期对比</option>
+                            </select>
+                        </div>
+                        <button class="query-button small" id="history-query-btn">
+                            <i class="fas fa-search"></i> 查询
+                        </button>
+                    </div>
+                    
+                    <div class="history-chart-container" id="history-chart">
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-line"></i>
+                            <p>历史数据趋势图</p>
+                        </div>
+                    </div>
+                    
+                    <div class="history-table-section">
+                        <div class="table-header-small">
+                            <h4 class="table-title-small"><i class="fas fa-table"></i> 历史数据明细</h4>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="history-data-table" id="history-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>日期</th>
+                                        <th>能耗用量 (kWh)</th>
+                                        <th>标煤用量 (tce)</th>
+                                        <th>单位面积能耗 (kWh/m²)</th>
+                                        <th>人均能耗 (kWh/人)</th>
+                                        <th>碳排放 (tCO₂)</th>
+                                        <th>环比变化 (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-table-body">
+                                    <!-- 历史数据将通过JavaScript动态生成 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 关联设备标签页 -->
+                <div class="detail-tab-content" id="equipment-tab">
+                    <table class="equipment-table">
+                        <thead>
+                            <tr>
+                                <th>设备名称</th>
+                                <th>设备类型</th>
+                                <th>能耗 (kWh)</th>
+                                <th>占比 (%)</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="equipment-table-body">
+                            <!-- 设备数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 设备详情模态框 -->
+<div class="modal-overlay" id="equipment-modal">
+    <div class="modal-content equipment-modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="equipment-modal-title">设备详情</h3>
+            <button class="close-button" id="close-equipment-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="equipment-detail-tabs">
+                <button class="equipment-detail-tab active" data-tab="equipment-overview">设备信息</button>
+                <button class="equipment-detail-tab" data-tab="equipment-energy">能耗数据</button>
+                <button class="equipment-detail-tab" data-tab="equipment-history">历史数据</button>
+            </div>
+            
+            <div class="equipment-detail-content">
+                <!-- 设备信息标签页 -->
+                <div class="equipment-detail-tab-content active" id="equipment-overview-tab">
+                    <div class="equipment-info-grid">
+                        <div class="info-item">
+                            <div class="info-label">设备名称</div>
+                            <div class="info-value" id="equipment-name">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">设备类型</div>
+                            <div class="info-value" id="equipment-type">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">设备状态</div>
+                            <div class="info-value" id="equipment-status">
+                                <span class="status-badge status-normal">运行中</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">所属能源单元</div>
+                            <div class="info-value" id="equipment-unit">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">安装位置</div>
+                            <div class="info-value" id="equipment-location">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">额定功率</div>
+                            <div class="info-value" id="equipment-power">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">运行时长</div>
+                            <div class="info-value" id="equipment-runtime">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">维护状态</div>
+                            <div class="info-value" id="equipment-maintenance">
+                                <span class="status-badge status-normal">正常</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 能耗数据标签页 -->
+                <div class="equipment-detail-tab-content" id="equipment-energy-tab">
+                    <div class="equipment-energy-cards">
+                        <div class="energy-card">
+                            <div class="energy-label">当前能耗</div>
+                            <div class="energy-value" id="equipment-current-usage">0</div>
+                            <div class="energy-unit">kWh</div>
+                        </div>
+                        <div class="energy-card">
+                            <div class="energy-label">今日累计</div>
+                            <div class="energy-value" id="equipment-today-usage">0</div>
+                            <div class="energy-unit">kWh</div>
+                        </div>
+                        <div class="energy-card">
+                            <div class="energy-label">本月累计</div>
+                            <div class="energy-value" id="equipment-month-usage">0</div>
+                            <div class="energy-unit">kWh</div>
+                        </div>
+                        <div class="energy-card">
+                            <div class="energy-label">能耗占比</div>
+                            <div class="energy-value" id="equipment-percentage">0</div>
+                            <div class="energy-unit">%</div>
+                        </div>
+                    </div>
+                    <div class="equipment-energy-chart" id="equipment-energy-chart">
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-line"></i>
+                            <p>24小时能耗趋势</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 历史数据标签页 -->
+                <div class="equipment-detail-tab-content" id="equipment-history-tab">
+                    <div class="equipment-history-controls">
+                        <div class="history-filter">
+                            <label>时间范围:</label>
+                            <select id="equipment-history-range" class="filter-select">
+                                <option value="7days">近7天</option>
+                                <option value="30days" selected>近30天</option>
+                                <option value="90days">近90天</option>
+                            </select>
+                        </div>
+                        <button class="query-button small" id="equipment-history-query-btn">
+                            <i class="fas fa-search"></i> 查询
+                        </button>
+                    </div>
+                    <div class="equipment-history-chart" id="equipment-history-chart">
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-line"></i>
+                            <p>历史数据趋势图</p>
+                        </div>
+                    </div>
+                    <div class="equipment-history-table-section">
+                        <table class="history-data-table">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>能耗 (kWh)</th>
+                                    <th>运行时长 (h)</th>
+                                    <th>平均功率 (kW)</th>
+                                    <th>环比变化 (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="equipment-history-table-body">
+                                <!-- 历史数据将通过JavaScript动态生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* 分项能耗页面样式 */
+.itemized-energy-container {
+    padding: 20px;
+    background-color: #1a2a3a;
+    min-height: 100vh;
+}
+
+.page-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.page-title {
+    font-size: 24px;
+    color: #e0e6ed;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 分项类别标签页 */
+.item-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.item-tab {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    color: #a7bed3;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.item-tab:hover {
+    background-color: #3c5472;
+    border-color: #00bcd4;
+    color: #00bcd4;
+}
+
+.item-tab.active {
+    background-color: #00bcd4;
+    border-color: #00bcd4;
+    color: #1a2a3a;
+    font-weight: bold;
+}
+
+/* 筛选区域 */
+.filter-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #2a3d54;
+    border-radius: 6px;
+    border: 1px solid #3c5472;
+}
+
+.filter-row {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-item label {
+    color: #a7bed3;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.filter-select {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    color: #e0e6ed;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    min-width: 120px;
+}
+
+.filter-input {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    color: #e0e6ed;
+    padding: 8px 12px;
+    border-radius: 6px;
+    min-width: 150px;
+}
+
+.query-button, .export-button {
+    background-color: #00bcd4;
+    border: 1px solid #00bcd4;
+    color: #1a2a3a;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.query-button:hover, .export-button:hover {
+    background-color: #00acc1;
+    border-color: #00acc1;
+}
+
+.export-button {
+    background-color: #2a3d54;
+    border-color: #3c5472;
+    color: #e0e6ed;
+}
+
+.export-button:hover {
+    background-color: #3c5472;
+    border-color: #00bcd4;
+    color: #00bcd4;
+}
+
+/* 统计概览卡片 */
+.overview-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.overview-card {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s ease;
+}
+
+.overview-card:hover {
+    border-color: #00bcd4;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+}
+
+.card-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+
+.card-icon.usage {
+    background-color: rgba(0, 188, 212, 0.2);
+    color: #00bcd4;
+}
+
+.card-icon.coal {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.card-icon.area {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.card-icon.person {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.card-icon.carbon {
+    background-color: rgba(33, 150, 243, 0.2);
+    color: #2196f3;
+}
+
+.card-content {
+    flex: 1;
+}
+
+.card-label {
+    font-size: 12px;
+    color: #a7bed3;
+    margin-bottom: 5px;
+}
+
+.card-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #e0e6ed;
+    margin-bottom: 3px;
+}
+
+.card-unit {
+    font-size: 11px;
+    color: #5d7d9a;
+}
+
+/* 图表区域 */
+.charts-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 1200px) {
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chart-card {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 450px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.chart-title {
+    font-size: 18px;
+    color: #e0e6ed;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chart-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.chart-type-btn {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    color: #a7bed3;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.chart-type-btn:hover {
+    background-color: #3c5472;
+    border-color: #00bcd4;
+    color: #00bcd4;
+}
+
+.chart-type-btn.active {
+    background-color: #00bcd4;
+    border-color: #00bcd4;
+    color: #1a2a3a;
+    font-weight: bold;
+}
+
+.chart-container {
+    width: 100%;
+    height: 350px;
+    position: relative;
+    min-height: 350px;
+    max-height: 350px;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 10px;
+}
+
+.chart-container svg {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+    box-sizing: border-box;
+}
+
+.chart-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #5d7d9a;
+}
+
+.chart-placeholder i {
+    font-size: 48px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.chart-placeholder p {
+    font-size: 14px;
+    color: #a7bed3;
+}
+
+/* 数据表格区域 */
+.data-table-section {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.table-title {
+    font-size: 18px;
+    color: #e0e6ed;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.table-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    color: #e0e6ed;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover {
+    background-color: #3c5472;
+    border-color: #00bcd4;
+    color: #00bcd4;
+}
+
+.action-btn.small {
+    padding: 5px 10px;
+    font-size: 11px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th {
+    background-color: #1a2a3a;
+    color: #e0e6ed;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #3c5472;
+    font-weight: bold;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #3c5472;
+    color: #a7bed3;
+    font-size: 12px;
+}
+
+.data-table tbody tr:hover {
+    background-color: #1a2a3a;
+}
+
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.view-detail-btn {
+    background-color: #00bcd4;
+    border: none;
+    color: #1a2a3a;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.view-detail-btn:hover {
+    background-color: #00acc1;
+}
+
+/* 模态框样式 */
+.modal-overlay {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 999999 !important;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    overflow-y: auto;
+}
+
+.modal-overlay.active {
+    display: flex !important;
+}
+
+.modal-content {
+    background-color: #2a3d54;
+    border: 1px solid #3c5472;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    position: relative;
+    margin: auto;
+    z-index: 1000000;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.modal-title {
+    font-size: 20px;
+    color: #e0e6ed;
+    margin: 0;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    color: #a7bed3;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: color 0.3s ease;
+}
+
+.close-button:hover {
+    color: #e74c3c;
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.detail-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.detail-tab {
+    background: none;
+    border: none;
+    color: #a7bed3;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.detail-tab:hover {
+    color: #00bcd4;
+}
+
+.detail-tab.active {
+    color: #00bcd4;
+    border-bottom-color: #00bcd4;
+}
+
+.detail-tab-content {
+    display: none;
+}
+
+.detail-tab-content.active {
+    display: block;
+}
+
+.detail-cards {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+
+.detail-card {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: #a7bed3;
+    margin-bottom: 8px;
+}
+
+.detail-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00bcd4;
+    margin-bottom: 5px;
+}
+
+.detail-unit {
+    font-size: 11px;
+    color: #5d7d9a;
+}
+
+.history-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+}
+
+.history-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.history-filter label {
+    color: #a7bed3;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.query-button.small {
+    padding: 6px 15px;
+    font-size: 12px;
+}
+
+.history-chart-container {
+    width: 100%;
+    height: 400px;
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.history-table-section {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.table-header-small {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.table-title-small {
+    font-size: 16px;
+    color: #e0e6ed;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.history-data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-data-table th {
+    background-color: #2a3d54;
+    color: #e0e6ed;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 2px solid #3c5472;
+    font-weight: bold;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.history-data-table td {
+    padding: 10px;
+    border-bottom: 1px solid #3c5472;
+    color: #a7bed3;
+    font-size: 11px;
+}
+
+.history-data-table tbody tr:hover {
+    background-color: #2a3d54;
+}
+
+.history-data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.equipment-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.equipment-table th {
+    background-color: #1a2a3a;
+    color: #e0e6ed;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid #3c5472;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.equipment-table td {
+    padding: 12px;
+    border-bottom: 1px solid #3c5472;
+    color: #a7bed3;
+    font-size: 12px;
+}
+
+.equipment-table tbody tr:hover {
+    background-color: #1a2a3a;
+}
+
+/* 设备详情模态框样式 */
+.equipment-modal-content {
+    max-width: 900px;
+}
+
+.equipment-detail-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #3c5472;
+}
+
+.equipment-detail-tab {
+    background: none;
+    border: none;
+    color: #a7bed3;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.equipment-detail-tab:hover {
+    color: #00bcd4;
+}
+
+.equipment-detail-tab.active {
+    color: #00bcd4;
+    border-bottom-color: #00bcd4;
+}
+
+.equipment-detail-tab-content {
+    display: none;
+}
+
+.equipment-detail-tab-content.active {
+    display: block;
+}
+
+.equipment-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.info-item {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.info-label {
+    font-size: 12px;
+    color: #a7bed3;
+    margin-bottom: 8px;
+}
+
+.info-value {
+    font-size: 16px;
+    color: #e0e6ed;
+    font-weight: bold;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-badge.status-normal {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.status-badge.status-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.status-badge.status-danger {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #f44336;
+}
+
+.equipment-energy-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.energy-card {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+}
+
+.energy-label {
+    font-size: 12px;
+    color: #a7bed3;
+    margin-bottom: 8px;
+}
+
+.energy-value {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00bcd4;
+    margin-bottom: 5px;
+}
+
+.energy-unit {
+    font-size: 11px;
+    color: #5d7d9a;
+}
+
+.equipment-energy-chart {
+    width: 100%;
+    height: 300px;
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.equipment-history-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+}
+
+.equipment-history-chart {
+    width: 100%;
+    height: 300px;
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.equipment-history-table-section {
+    background-color: #1a2a3a;
+    border: 1px solid #3c5472;
+    border-radius: 6px;
+    padding: 15px;
+}
+</style>
+
+<script>
+(function() {
+// 防止重复加载检查
+if (window.__itemizedEnergyModuleLoaded) {
+    // 如果已加载，直接调用初始化函数重新渲染
+    if (typeof window.initItemizedEnergy === 'function') {
+        window.initItemizedEnergy();
+    }
+    return;
+}
+window.__itemizedEnergyModuleLoaded = true;
+
+// 分项配置
+window.itemConfig = window.itemConfig || {
+    lighting: { name: '照明', icon: 'fa-lightbulb' },
+    'air-conditioning': { name: '空调', icon: 'fa-snowflake' },
+    power: { name: '动力', icon: 'fa-bolt' },
+    special: { name: '特殊', icon: 'fa-star' },
+    'water-pump': { name: '水泵', icon: 'fa-tint' },
+    mainframe: { name: '主机', icon: 'fa-server' }
+};
+const itemConfig = window.itemConfig;
+
+let currentItem = 'lighting';
+let currentData = null;
+
+// 初始化
+function initItemizedEnergy() {
+    setupEventListeners();
+    setTimeout(() => {
+        queryData();
+    }, 100);
+}
+
+// 设置事件监听器
+function setupEventListeners() {
+    // 防止重复绑定
+    if (window.__itemizedEnergyEventsInitialized) {
+        return;
+    }
+    window.__itemizedEnergyEventsInitialized = true;
+    
+    // 分项类别切换
+    document.querySelectorAll('.item-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            document.querySelectorAll('.item-tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            currentItem = this.getAttribute('data-item');
+            queryData();
+        });
+    });
+
+    // 时间范围选择
+    document.getElementById('time-range').addEventListener('change', function() {
+        const customRange = document.getElementById('custom-date-range');
+        if (this.value === 'custom') {
+            customRange.style.display = 'flex';
+        } else {
+            customRange.style.display = 'none';
+        }
+    });
+
+    // 查询按钮
+    document.getElementById('query-btn').addEventListener('click', queryData);
+
+    // 导出按钮
+    document.getElementById('export-btn').addEventListener('click', () => {
+        alert('导出功能：支持导出为Excel、CSV格式');
+    });
+
+    // 图表类型切换
+    document.querySelectorAll('.chart-type-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const chartContainer = this.closest('.chart-card');
+            chartContainer.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const chartId = chartContainer.querySelector('.chart-container').id;
+            
+            // 使用当前保存的数据重新渲染图表
+            if (currentData && currentData.length > 0) {
+                if (chartId === 'comparison-chart') {
+                    renderComparisonChart(currentData);
+                } else if (chartId === 'ranking-chart') {
+                    renderRankingChart(currentData);
+                }
+            } else {
+                // 如果没有数据，先查询数据
+                queryData();
+            }
+        });
+    });
+
+    // 模态框关闭
+    document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('detail-modal').classList.remove('active');
+    });
+
+    // 详情标签切换
+    document.querySelectorAll('.detail-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.detail-tab-content').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // 如果切换到历史数据标签页，重新加载数据
+            if (tabName === 'history') {
+                const currentUnit = document.getElementById('modal-title').textContent.split(' - ')[0];
+                const unitData = currentData.find(d => d.unit === currentUnit);
+                if (unitData) {
+                    renderHistoryChart(unitData);
+                    updateHistoryTable(unitData);
+                }
+            }
+        });
+    });
+
+    // 历史数据查询按钮
+    document.getElementById('history-query-btn').addEventListener('click', function() {
+        const currentUnit = document.getElementById('modal-title').textContent.split(' - ')[0];
+        const unitData = currentData.find(d => d.unit === currentUnit);
+        if (unitData) {
+            renderHistoryChart(unitData);
+            updateHistoryTable(unitData);
+        }
+    });
+
+    // 设备详情模态框关闭
+    document.getElementById('close-equipment-modal').addEventListener('click', () => {
+        document.getElementById('equipment-modal').classList.remove('active');
+    });
+
+    // 设备详情标签切换
+    document.querySelectorAll('.equipment-detail-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            document.querySelectorAll('.equipment-detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.equipment-detail-tab-content').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // 如果切换到能耗数据或历史数据标签页，加载相应数据
+            if (tabName === 'equipment-energy') {
+                renderEquipmentEnergyChart();
+            } else if (tabName === 'equipment-history') {
+                renderEquipmentHistoryChart();
+            }
+        });
+    });
+
+    // 设备历史数据查询按钮
+    document.getElementById('equipment-history-query-btn').addEventListener('click', function() {
+        renderEquipmentHistoryChart();
+    });
+}
+
+// 查询数据
+function queryData() {
+    const timeRange = document.getElementById('time-range').value;
+    const energyUnit = document.getElementById('energy-unit-select').value;
+    
+    // 生成模拟数据
+    const data = generateMockData(timeRange, energyUnit);
+    currentData = data;
+    
+    // 更新概览卡片
+    updateOverviewCards(data);
+    
+    // 渲染图表
+    renderComparisonChart(data);
+    renderRankingChart(data);
+    
+    // 更新数据表格
+    updateDataTable(data);
+}
+
+// 生成模拟数据
+function generateMockData(timeRange, energyUnit) {
+    const units = energyUnit === 'all' 
+        ? ['生产车间1', '生产车间2', '办公楼', '辅助设施']
+        : [energyUnit.replace('unit', '单元')];
+    
+    const data = units.map(unit => {
+        const baseUsage = 500 + Math.random() * 300;
+        const area = 1000 + Math.random() * 500; // 面积 m²
+        const personCount = 50 + Math.random() * 30; // 人数
+        
+        return {
+            unit: unit,
+            item: itemConfig[currentItem].name,
+            usage: baseUsage,
+            coal: (baseUsage * 0.1229) / 1000, // 标煤当量
+            areaUsage: baseUsage / area,
+            personUsage: baseUsage / personCount,
+            carbon: (baseUsage * 0.581) / 1000, // 碳排放 (假设系数)
+            area: area,
+            personCount: personCount
+        };
+    });
+    
+    // 计算占比
+    const totalUsage = data.reduce((sum, d) => sum + d.usage, 0);
+    data.forEach(d => {
+        d.percentage = (d.usage / totalUsage) * 100;
+    });
+    
+    return data;
+}
+
+// 更新概览卡片
+function updateOverviewCards(data) {
+    const totalUsage = data.reduce((sum, d) => sum + d.usage, 0);
+    const totalCoal = data.reduce((sum, d) => sum + d.coal, 0);
+    const totalArea = data.reduce((sum, d) => sum + d.area, 0);
+    const totalPerson = data.reduce((sum, d) => sum + d.personCount, 0);
+    const totalCarbon = data.reduce((sum, d) => sum + d.carbon, 0);
+    
+    document.getElementById('total-usage').textContent = totalUsage.toFixed(2);
+    document.getElementById('total-coal').textContent = totalCoal.toFixed(3);
+    document.getElementById('area-usage').textContent = (totalUsage / totalArea).toFixed(2);
+    document.getElementById('person-usage').textContent = (totalUsage / totalPerson).toFixed(2);
+    document.getElementById('carbon-emission').textContent = totalCarbon.toFixed(3);
+}
+
+// 渲染对比分析图表
+function renderComparisonChart(data) {
+    const container = document.getElementById('comparison-chart');
+    const chartType = container.closest('.chart-card').querySelector('.chart-type-btn.active')?.getAttribute('data-chart') || 'bar';
+    
+    if (chartType === 'bar') {
+        renderBarChart(container, data, '对比分析');
+    } else {
+        renderLineChart(container, data, '对比分析');
+    }
+}
+
+// 渲染占比排名图表
+function renderRankingChart(data) {
+    const container = document.getElementById('ranking-chart');
+    const chartType = container.closest('.chart-card').querySelector('.chart-type-btn.active')?.getAttribute('data-chart') || 'pie';
+    
+    if (chartType === 'pie') {
+        renderPieChart(container, data);
+    } else {
+        renderBarChart(container, data, '占比排名');
+    }
+}
+
+// 渲染柱状图
+function renderBarChart(container, data, title) {
+    if (!data || data.length === 0) {
+        container.innerHTML = `
+            <div class="chart-placeholder">
+                <i class="fas fa-chart-area"></i>
+                <p>暂无数据</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const maxValue = Math.max(...data.map(d => d.usage), 1);
+    const height = 280;
+    // 使用固定宽度或容器宽度，确保图表正常显示
+    const containerWidth = container.offsetWidth || container.clientWidth || 600;
+    const width = Math.max(containerWidth - 120, 400);
+    const padding = 60;
+    const barWidth = Math.max((width / data.length) * 0.6, 20);
+    const barGap = (width / data.length) * 0.4;
+    
+    // 确保SVG宽度足够显示所有内容，为X轴标签和Y轴标签留出足够空间
+    const svgWidth = width + padding * 2;
+    const svgHeight = height + padding * 2 + 40; // 为X轴标签留出更多空间
+    
+    let svg = `
+        <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet" style="max-width: 100%;">
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                const value = maxValue - (maxValue / 4) * i;
+                return `<line x1="${padding}" y1="${y}" x2="${width + padding}" y2="${y}" stroke="#3c5472" stroke-width="1" opacity="0.5"/>`;
+            }).join('')}
+            
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                const value = maxValue - (maxValue / 4) * i;
+                return `<text x="${padding - 15}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${value.toFixed(0)}</text>`;
+            }).join('')}
+            
+            ${data.map((d, i) => {
+                const x = padding + (width / (data.length - 1 || 1)) * i + barGap / 2;
+                const barHeight = (d.usage / maxValue) * height;
+                const y = padding + height - barHeight;
+                return `
+                    <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" 
+                        fill="#00bcd4" opacity="0.8" rx="2">
+                        <title>${d.unit}: ${d.usage.toFixed(2)} kWh</title>
+                    </rect>
+                `;
+            }).join('')}
+            
+            ${data.map((d, i) => {
+                const x = padding + (width / (data.length - 1 || 1)) * i + (width / (data.length || 1)) / 2;
+                return `<text x="${x}" y="${height + padding + 25}" fill="#a7bed3" font-size="11" text-anchor="middle">${d.unit}</text>`;
+            }).join('')}
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+}
+
+// 渲染折线图
+function renderLineChart(container, data, title) {
+    if (!data || data.length === 0) {
+        container.innerHTML = `
+            <div class="chart-placeholder">
+                <i class="fas fa-chart-area"></i>
+                <p>暂无数据</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const maxValue = Math.max(...data.map(d => d.usage), 1);
+    const height = 280;
+    // 使用固定宽度或容器宽度，确保图表正常显示
+    const containerWidth = container.offsetWidth || container.clientWidth || 600;
+    const width = Math.max(containerWidth - 120, 400);
+    const padding = 60;
+    
+    // 确保SVG宽度足够显示所有内容，为X轴标签和Y轴标签留出足够空间
+    const svgWidth = width + padding * 2;
+    const svgHeight = height + padding * 2 + 40; // 为X轴标签留出更多空间
+    
+    let svg = `
+        <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet" style="max-width: 100%;">
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                return `<line x1="${padding}" y1="${y}" x2="${width + padding}" y2="${y}" stroke="#3c5472" stroke-width="1" opacity="0.5"/>`;
+            }).join('')}
+            
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                const value = maxValue - (maxValue / 4) * i;
+                return `<text x="${padding - 15}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${value.toFixed(0)}</text>`;
+            }).join('')}
+            
+            <polyline points="${data.map((d, i) => {
+                const x = padding + (width / (data.length - 1 || 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `${x},${y}`;
+            }).join(' ')}" 
+                fill="none" stroke="#00bcd4" stroke-width="2"/>
+            
+            ${data.map((d, i) => {
+                const x = padding + (width / (data.length - 1 || 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `<circle cx="${x}" cy="${y}" r="4" fill="#00bcd4" stroke="#1a2a3a" stroke-width="2"/>`;
+            }).join('')}
+            
+            ${data.map((d, i) => {
+                const x = padding + (width / (data.length - 1 || 1)) * i;
+                return `<text x="${x}" y="${height + padding + 25}" fill="#a7bed3" font-size="11" text-anchor="middle">${d.unit}</text>`;
+            }).join('')}
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+}
+
+// 渲染饼图（环形图）
+function renderPieChart(container, data) {
+    if (!data || data.length === 0) {
+        container.innerHTML = `
+            <div class="chart-placeholder">
+                <i class="fas fa-chart-area"></i>
+                <p>暂无数据</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const total = data.reduce((sum, d) => sum + d.usage, 0);
+    if (total === 0) {
+        container.innerHTML = `
+            <div class="chart-placeholder">
+                <i class="fas fa-chart-area"></i>
+                <p>暂无数据</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const centerX = 200;
+    const centerY = 200;
+    const outerRadius = 120;  // 外圆半径
+    const innerRadius = 70;    // 内圆半径，创建环形效果
+    
+    let currentAngle = -Math.PI / 2;
+    const colors = ['#00bcd4', '#4caf50', '#ff9800', '#f44336', '#9c27b0', '#2196f3'];
+    
+    // 计算图例需要的空间
+    const legendWidth = 180;
+    const legendHeight = data.length * 25;
+    const legendX = centerX + outerRadius + 40;
+    const legendY = centerY - legendHeight / 2;
+    
+    // 计算SVG总尺寸，确保包含环形图和图例
+    const svgWidth = Math.max(legendX + legendWidth, centerX + outerRadius + 20);
+    const svgHeight = Math.max(centerY + outerRadius + 20, legendY + legendHeight);
+    
+    // 辅助函数：计算弧上的点坐标
+    function getPoint(angle, radius) {
+        return {
+            x: centerX + radius * Math.cos(angle),
+            y: centerY + radius * Math.sin(angle)
+        };
+    }
+    
+    // 辅助函数：创建环形路径
+    function createDonutPath(startAngle, endAngle) {
+        const startOuter = getPoint(startAngle, outerRadius);
+        const endOuter = getPoint(endAngle, outerRadius);
+        const startInner = getPoint(startAngle, innerRadius);
+        const endInner = getPoint(endAngle, innerRadius);
+        
+        const largeArc = (endAngle - startAngle) > Math.PI ? 1 : 0;
+        
+        return `M ${startOuter.x} ${startOuter.y} 
+                A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${endOuter.x} ${endOuter.y}
+                L ${endInner.x} ${endInner.y}
+                A ${innerRadius} ${innerRadius} 0 ${largeArc} 0 ${startInner.x} ${startInner.y}
+                Z`;
+    }
+    
+    let svg = `
+        <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet" style="max-width: 100%;">
+            ${data.map((d, i) => {
+                const angle = (d.usage / total) * 2 * Math.PI;
+                const startAngle = currentAngle;
+                const endAngle = currentAngle + angle;
+                currentAngle = endAngle;
+                
+                return `
+                    <path d="${createDonutPath(startAngle, endAngle)}" 
+                        fill="${colors[i % colors.length]}" opacity="0.8">
+                        <title>${d.unit}: ${d.usage.toFixed(2)} kWh (${d.percentage.toFixed(1)}%)</title>
+                    </path>
+                `;
+            }).join('')}
+            
+            <!-- 中心圆和总能耗信息 -->
+            <circle cx="${centerX}" cy="${centerY}" r="${innerRadius}" fill="#1a2a3a"/>
+            <text x="${centerX}" y="${centerY - 15}" text-anchor="middle" fill="#00bcd4" font-size="20" font-weight="bold">总能耗</text>
+            <text x="${centerX}" y="${centerY + 10}" text-anchor="middle" fill="#e0e6ed" font-size="18">${total.toFixed(1)}</text>
+            <text x="${centerX}" y="${centerY + 28}" text-anchor="middle" fill="#a7bed3" font-size="14">kWh</text>
+            
+            <!-- 图例 -->
+            <g transform="translate(${legendX}, ${Math.max(legendY, 20)})">
+                ${data.map((d, i) => {
+                    const percent = d.percentage.toFixed(1);
+                    return `
+                        <g transform="translate(0, ${i * 25})">
+                            <rect width="15" height="15" fill="${colors[i % colors.length]}" opacity="0.8" rx="2"/>
+                            <text x="20" y="12" fill="#a7bed3" font-size="11">${d.unit}: ${d.usage.toFixed(1)} kWh (${percent}%)</text>
+                        </g>
+                    `;
+                }).join('')}
+            </g>
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+}
+
+// 更新数据表格
+function updateDataTable(data) {
+    const tbody = document.getElementById('table-body');
+    
+    if (data.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" style="text-align: center; color: #a7bed3; padding: 40px;">
+                    暂无数据
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = data.map(d => `
+        <tr>
+            <td>${d.unit}</td>
+            <td>${d.item}</td>
+            <td>${d.usage.toFixed(2)}</td>
+            <td>${d.coal.toFixed(4)}</td>
+            <td>${d.areaUsage.toFixed(2)}</td>
+            <td>${d.personUsage.toFixed(2)}</td>
+            <td>${d.carbon.toFixed(3)}</td>
+            <td>${d.percentage.toFixed(1)}</td>
+            <td>
+                <button class="view-detail-btn" onclick="showDetail('${d.unit}')">查看详情</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// 显示详情
+function showDetail(unitName) {
+    const unitData = currentData.find(d => d.unit === unitName);
+    if (!unitData) return;
+    
+    document.getElementById('modal-title').textContent = `${unitName} - 能源单元详情`;
+    document.getElementById('detail-usage').textContent = unitData.usage.toFixed(2);
+    document.getElementById('detail-coal').textContent = unitData.coal.toFixed(4);
+    document.getElementById('detail-area').textContent = unitData.areaUsage.toFixed(2);
+    document.getElementById('detail-person').textContent = unitData.personUsage.toFixed(2);
+    document.getElementById('detail-carbon').textContent = unitData.carbon.toFixed(3);
+    
+    // 渲染历史数据图表和表格
+    renderHistoryChart(unitData);
+    updateHistoryTable(unitData);
+    
+    // 生成关联设备数据
+    generateEquipmentData(unitName);
+    
+    document.getElementById('detail-modal').classList.add('active');
+}
+
+// 渲染历史数据图表
+function renderHistoryChart(unitData) {
+    const container = document.getElementById('history-chart');
+    const timeRange = document.getElementById('history-time-range').value;
+    const compareType = document.getElementById('history-compare').value;
+    
+    // 根据时间范围生成数据点
+    let dataPoints = 30;
+    if (timeRange === '7days') dataPoints = 7;
+    else if (timeRange === '30days') dataPoints = 30;
+    else if (timeRange === '90days') dataPoints = 90;
+    else if (timeRange === 'year') dataPoints = 365;
+    
+    // 生成历史数据
+    const historyData = Array.from({length: dataPoints}, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (dataPoints - 1 - i));
+        const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+        const usage = unitData.usage * (0.7 + Math.random() * 0.5);
+        const coal = (usage * 0.1229) / 1000;
+        const areaUsage = usage / unitData.area;
+        const personUsage = usage / unitData.personCount;
+        const carbon = (usage * 0.581) / 1000;
+        
+        return {
+            date: dateStr,
+            fullDate: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
+            usage: usage,
+            coal: coal,
+            areaUsage: areaUsage,
+            personUsage: personUsage,
+            carbon: carbon
+        };
+    });
+    
+    // 计算环比变化
+    historyData.forEach((d, i) => {
+        if (i > 0) {
+            const prevUsage = historyData[i - 1].usage;
+            d.change = ((d.usage - prevUsage) / prevUsage) * 100;
+        } else {
+            d.change = 0;
+        }
+    });
+    
+    // 保存历史数据供表格使用
+    window.currentHistoryData = historyData;
+    
+    // 生成对比数据（如果需要）
+    let compareData = null;
+    if (compareType === 'equipment' || compareType === 'period') {
+        compareData = historyData.map(d => ({
+            ...d,
+            compareUsage: d.usage * (0.85 + Math.random() * 0.15)
+        }));
+    }
+    
+    const allValues = historyData.map(d => d.usage);
+    if (compareData) {
+        allValues.push(...compareData.map(d => d.compareUsage));
+    }
+    const maxValue = Math.max(...allValues, 1);
+    
+    const height = 350;
+    const containerWidth = container.offsetWidth || container.clientWidth || 800;
+    const width = Math.max(containerWidth - 100, 600);
+    const padding = 60;
+    const svgWidth = width + padding * 2;
+    const svgHeight = height + padding * 2 + 30;
+    
+    let svg = `
+        <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet" style="max-width: 100%;">
+            <defs>
+                <linearGradient id="historyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#00bcd4;stop-opacity:0.8" />
+                    <stop offset="100%" style="stop-color:#00bcd4;stop-opacity:0.1" />
+                </linearGradient>
+            </defs>
+            
+            <!-- 网格线 -->
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                return `<line x1="${padding}" y1="${y}" x2="${width + padding}" y2="${y}" stroke="#3c5472" stroke-width="1" opacity="0.5"/>`;
+            }).join('')}
+            
+            <!-- Y轴标签 -->
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                const value = maxValue - (maxValue / 4) * i;
+                return `<text x="${padding - 15}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${value.toFixed(0)}</text>`;
+            }).join('')}
+            
+            <!-- Y轴标题 -->
+            <text x="15" y="${padding + height / 2}" fill="#a7bed3" font-size="12" text-anchor="middle" transform="rotate(-90, 15, ${padding + height / 2})">能耗 (kWh)</text>
+            
+            <!-- 对比数据线（如果有） -->
+            ${compareData ? `
+                <polyline points="${compareData.map((d, i) => {
+                    const x = padding + (width / (historyData.length - 1 || 1)) * i;
+                    const y = padding + height - ((d.compareUsage || 0) / maxValue) * height;
+                    return `${x},${y}`;
+                }).join(' ')}" 
+                    fill="none" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
+                ${compareData.map((d, i) => {
+                    const x = padding + (width / (historyData.length - 1 || 1)) * i;
+                    const y = padding + height - ((d.compareUsage || 0) / maxValue) * height;
+                    return `<circle cx="${x}" cy="${y}" r="3" fill="#ff9800"/>`;
+                }).join('')}
+            ` : ''}
+            
+            <!-- 当前数据线和填充 -->
+            <polygon points="${historyData.map((d, i) => {
+                const x = padding + (width / (historyData.length - 1 || 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `${x},${y}`;
+            }).join(' ')} ${padding + width},${padding + height} ${padding},${padding + height}" 
+                fill="url(#historyGradient)"/>
+            
+            <polyline points="${historyData.map((d, i) => {
+                const x = padding + (width / (historyData.length - 1 || 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `${x},${y}`;
+            }).join(' ')}" 
+                fill="none" stroke="#00bcd4" stroke-width="2"/>
+            
+            <!-- 数据点 -->
+            ${historyData.map((d, i) => {
+                const x = padding + (width / (historyData.length - 1 || 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `<circle cx="${x}" cy="${y}" r="4" fill="#00bcd4" stroke="#1a2a3a" stroke-width="2">
+                    <title>${d.fullDate}: ${d.usage.toFixed(2)} kWh</title>
+                </circle>`;
+            }).join('')}
+            
+            <!-- X轴标签 -->
+            ${historyData.map((d, i) => {
+                const x = padding + (width / (historyData.length - 1 || 1)) * i;
+                // 只显示部分标签，避免拥挤
+                const showLabel = i % Math.ceil(historyData.length / 10) === 0 || i === historyData.length - 1;
+                if (showLabel) {
+                    return `<text x="${x}" y="${height + padding + 25}" fill="#a7bed3" font-size="11" text-anchor="middle">${d.date}</text>`;
+                }
+                return '';
+            }).join('')}
+            
+            <!-- 图例（如果有对比数据） -->
+            ${compareData ? `
+                <g transform="translate(${width + padding - 150}, ${padding + 20})">
+                    <line x1="0" y1="0" x2="30" y2="0" stroke="#00bcd4" stroke-width="2"/>
+                    <text x="35" y="4" fill="#a7bed3" font-size="11">当前</text>
+                    <line x1="80" y1="0" x2="110" y2="0" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
+                    <text x="115" y="4" fill="#a7bed3" font-size="11">${compareType === 'equipment' ? '关联设备' : '同期'}</text>
+                </g>
+            ` : ''}
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+}
+
+// 更新历史数据表格
+function updateHistoryTable(unitData) {
+    const tbody = document.getElementById('history-table-body');
+    
+    if (!window.currentHistoryData || window.currentHistoryData.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; color: #a7bed3; padding: 40px;">
+                    暂无历史数据
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = window.currentHistoryData.map(d => `
+        <tr>
+            <td>${d.fullDate}</td>
+            <td>${d.usage.toFixed(2)}</td>
+            <td>${d.coal.toFixed(4)}</td>
+            <td>${d.areaUsage.toFixed(2)}</td>
+            <td>${d.personUsage.toFixed(2)}</td>
+            <td>${d.carbon.toFixed(3)}</td>
+            <td style="color: ${d.change >= 0 ? '#f44336' : '#4caf50'}">
+                ${d.change >= 0 ? '+' : ''}${d.change.toFixed(2)}%
+            </td>
+        </tr>
+    `).join('');
+}
+
+// 生成关联设备数据
+function generateEquipmentData(unitName) {
+    const equipmentTypes = ['设备A', '设备B', '设备C', '设备D', '设备E'];
+    const totalUsage = currentData.find(d => d.unit === unitName)?.usage || 0;
+    
+    const equipmentData = equipmentTypes.map((name, i) => {
+        const usage = totalUsage * (0.15 + Math.random() * 0.1);
+        return {
+            name: name,
+            type: '生产设备',
+            usage: usage,
+            percentage: (usage / totalUsage) * 100
+        };
+    });
+    
+    // 保存设备数据供详情使用
+    window.equipmentData = equipmentData;
+    window.currentUnitName = unitName;
+    
+    const tbody = document.getElementById('equipment-table-body');
+    tbody.innerHTML = equipmentData.map(d => `
+        <tr>
+            <td>${d.name}</td>
+            <td>${d.type}</td>
+            <td>${d.usage.toFixed(2)}</td>
+            <td>${d.percentage.toFixed(1)}</td>
+            <td>
+                <button class="view-detail-btn" onclick="showEquipmentDetail('${d.name}', ${d.usage}, ${d.percentage})">查看</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+// 显示设备详情
+function showEquipmentDetail(equipmentName, usage, percentage) {
+    const unitName = window.currentUnitName || '生产车间1';
+    
+    // 更新设备基本信息
+    document.getElementById('equipment-modal-title').textContent = `${equipmentName} - 设备详情`;
+    document.getElementById('equipment-name').textContent = equipmentName;
+    document.getElementById('equipment-type').textContent = '生产设备';
+    document.getElementById('equipment-unit').textContent = unitName;
+    document.getElementById('equipment-location').textContent = `${unitName} - 区域${Math.floor(Math.random() * 5) + 1}`;
+    document.getElementById('equipment-power').textContent = `${(usage * 0.8).toFixed(1)} kW`;
+    document.getElementById('equipment-runtime').textContent = `${Math.floor(Math.random() * 5000 + 1000)} 小时`;
+    
+    // 更新能耗数据
+    document.getElementById('equipment-current-usage').textContent = (usage * 0.1).toFixed(2);
+    document.getElementById('equipment-today-usage').textContent = usage.toFixed(2);
+    document.getElementById('equipment-month-usage').textContent = (usage * 30).toFixed(2);
+    document.getElementById('equipment-percentage').textContent = percentage.toFixed(1);
+    
+    // 保存当前设备数据
+    window.currentEquipment = {
+        name: equipmentName,
+        usage: usage,
+        percentage: percentage,
+        unit: unitName
+    };
+    
+    // 渲染能耗图表
+    renderEquipmentEnergyChart();
+    
+    // 渲染历史数据
+    renderEquipmentHistoryChart();
+    
+    // 显示模态框
+    document.getElementById('equipment-modal').classList.add('active');
+}
+
+// 渲染设备能耗图表（24小时趋势）
+function renderEquipmentEnergyChart() {
+    const container = document.getElementById('equipment-energy-chart');
+    const equipment = window.currentEquipment;
+    if (!equipment) return;
+    
+    // 生成24小时数据
+    const hourlyData = Array.from({length: 24}, (_, i) => {
+        const hour = i;
+        // 模拟一天中的能耗分布
+        let factor = 1.0;
+        if (hour >= 8 && hour <= 18) {
+            factor = 1.2 + (hour - 8) / 10 * 0.3;
+        } else if (hour >= 6 && hour <= 22) {
+            factor = 0.8 + Math.random() * 0.4;
+        } else {
+            factor = 0.3 + Math.random() * 0.3;
+        }
+        return {
+            hour: hour,
+            usage: (equipment.usage / 24) * factor * (0.9 + Math.random() * 0.2)
+        };
+    });
+    
+    const maxValue = Math.max(...hourlyData.map(d => d.usage), 1);
+    const height = 250;
+    const width = container.offsetWidth - 80 || 700;
+    const padding = 40;
+    
+    let svg = `
+        <svg width="100%" height="${height}" viewBox="0 0 ${width + padding * 2} ${height + padding * 2}">
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                return `<line x1="${padding}" y1="${y}" x2="${width + padding}" y2="${y}" stroke="#3c5472" stroke-width="1" opacity="0.5"/>`;
+            }).join('')}
+            
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                const value = maxValue - (maxValue / 4) * i;
+                return `<text x="${padding - 10}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${value.toFixed(1)}</text>`;
+            }).join('')}
+            
+            <polyline points="${hourlyData.map((d, i) => {
+                const x = padding + (width / (hourlyData.length - 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `${x},${y}`;
+            }).join(' ')}" 
+                fill="none" stroke="#00bcd4" stroke-width="2"/>
+            
+            ${hourlyData.map((d, i) => {
+                const x = padding + (width / (hourlyData.length - 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `<circle cx="${x}" cy="${y}" r="3" fill="#00bcd4"/>`;
+            }).join('')}
+            
+            ${hourlyData.map((d, i) => {
+                const x = padding + (width / (hourlyData.length - 1)) * i;
+                if (i % 4 === 0 || i === hourlyData.length - 1) {
+                    return `<text x="${x}" y="${height + padding + 15}" fill="#a7bed3" font-size="10" text-anchor="middle">${String(d.hour).padStart(2, '0')}:00</text>`;
+                }
+                return '';
+            }).join('')}
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+}
+
+// 渲染设备历史数据图表
+function renderEquipmentHistoryChart() {
+    const container = document.getElementById('equipment-history-chart');
+    const equipment = window.currentEquipment;
+    if (!equipment) return;
+    
+    const timeRange = document.getElementById('equipment-history-range').value;
+    let dataPoints = 30;
+    if (timeRange === '7days') dataPoints = 7;
+    else if (timeRange === '30days') dataPoints = 30;
+    else if (timeRange === '90days') dataPoints = 90;
+    
+    // 生成历史数据
+    const historyData = Array.from({length: dataPoints}, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (dataPoints - 1 - i));
+        const usage = equipment.usage * (0.7 + Math.random() * 0.5);
+        const runtime = 8 + Math.random() * 8; // 运行时长
+        const avgPower = usage / runtime; // 平均功率
+        
+        return {
+            date: `${date.getMonth() + 1}/${date.getDate()}`,
+            fullDate: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`,
+            usage: usage,
+            runtime: runtime,
+            avgPower: avgPower
+        };
+    });
+    
+    // 计算环比变化
+    historyData.forEach((d, i) => {
+        if (i > 0) {
+            const prevUsage = historyData[i - 1].usage;
+            d.change = ((d.usage - prevUsage) / prevUsage) * 100;
+        } else {
+            d.change = 0;
+        }
+    });
+    
+    window.currentEquipmentHistoryData = historyData;
+    
+    const maxValue = Math.max(...historyData.map(d => d.usage), 1);
+    const height = 250;
+    const containerWidth = container.offsetWidth || container.clientWidth || 700;
+    const width = Math.max(containerWidth - 100, 600);
+    const padding = 60;
+    const svgWidth = width + padding * 2;
+    const svgHeight = height + padding * 2 + 30;
+    
+    let svg = `
+        <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet" style="max-width: 100%;">
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                return `<line x1="${padding}" y1="${y}" x2="${width + padding}" y2="${y}" stroke="#3c5472" stroke-width="1" opacity="0.5"/>`;
+            }).join('')}
+            
+            ${Array.from({length: 5}, (_, i) => {
+                const y = padding + (height / 4) * i;
+                const value = maxValue - (maxValue / 4) * i;
+                return `<text x="${padding - 15}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${value.toFixed(0)}</text>`;
+            }).join('')}
+            
+            <polyline points="${historyData.map((d, i) => {
+                const x = padding + (width / (historyData.length - 1 || 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `${x},${y}`;
+            }).join(' ')}" 
+                fill="none" stroke="#00bcd4" stroke-width="2"/>
+            
+            ${historyData.map((d, i) => {
+                const x = padding + (width / (historyData.length - 1 || 1)) * i;
+                const y = padding + height - (d.usage / maxValue) * height;
+                return `<circle cx="${x}" cy="${y}" r="3" fill="#00bcd4"/>`;
+            }).join('')}
+            
+            ${historyData.map((d, i) => {
+                const x = padding + (width / (historyData.length - 1 || 1)) * i;
+                if (i % Math.ceil(historyData.length / 8) === 0 || i === historyData.length - 1) {
+                    return `<text x="${x}" y="${height + padding + 25}" fill="#a7bed3" font-size="11" text-anchor="middle">${d.date}</text>`;
+                }
+                return '';
+            }).join('')}
+        </svg>
+    `;
+    
+    container.innerHTML = svg;
+    
+    // 更新历史数据表格
+    updateEquipmentHistoryTable();
+}
+
+// 更新设备历史数据表格
+function updateEquipmentHistoryTable() {
+    const tbody = document.getElementById('equipment-history-table-body');
+    
+    if (!window.currentEquipmentHistoryData || window.currentEquipmentHistoryData.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; color: #a7bed3; padding: 40px;">
+                    暂无历史数据
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = window.currentEquipmentHistoryData.map(d => `
+        <tr>
+            <td>${d.fullDate}</td>
+            <td>${d.usage.toFixed(2)}</td>
+            <td>${d.runtime.toFixed(1)}</td>
+            <td>${d.avgPower.toFixed(2)}</td>
+            <td style="color: ${d.change >= 0 ? '#f44336' : '#4caf50'}">
+                ${d.change >= 0 ? '+' : ''}${d.change.toFixed(2)}%
+            </td>
+        </tr>
+    `).join('');
+}
+
+// 自动初始化
+function autoInitItemized() {
+    const container = document.querySelector('.itemized-energy-container');
+    if (container) {
+        initItemizedEnergy();
+    } else {
+        setTimeout(autoInitItemized, 100);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', autoInitItemized);
+} else {
+    setTimeout(autoInitItemized, 0);
+}
+window.initItemizedEnergy = initItemizedEnergy;
+window.showDetail = showDetail;
+window.showEquipmentDetail = showEquipmentDetail;
+
+// 自动初始化
+initItemizedEnergy();
+})();
+</script>
+</body>
+</html>

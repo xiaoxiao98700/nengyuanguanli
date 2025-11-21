@@ -1,0 +1,1590 @@
+<div class="statistical-report-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+
+        .statistical-report-container {
+            padding: 24px 28px 48px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+            color: #e0e6ed;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* 筛选区域 */
+        .filter-panel {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section-title {
+            font-size: 14px;
+            color: #8aa0bc;
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            color: #8aa0bc;
+        }
+
+        .time-input-groups {
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .time-input-group {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+        }
+
+        .time-input-group.active {
+            display: grid;
+        }
+
+        .filter-select,
+        .filter-input {
+            background-color: #152535;
+            border: 1px solid #2f4a66;
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #e6ecf3;
+            font-size: 14px;
+            transition: border 0.2s ease;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.2);
+        }
+
+        .time-granularity-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .time-granularity-btn {
+            border: none;
+            background: #1d3247;
+            color: #c7d5e5;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .time-granularity-btn.active {
+            background: linear-gradient(120deg, #00bcd4, #5ad8ff);
+            color: #052030;
+            font-weight: 600;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #24415c;
+        }
+
+        .action-button {
+            background: linear-gradient(120deg, #00bcd4, #5ad8ff);
+            border: none;
+            color: #052030;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.4);
+        }
+
+        .action-button.secondary {
+            background: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .action-button.secondary:hover {
+            background: #4a6a8a;
+            box-shadow: 0 4px 12px rgba(60, 84, 114, 0.4);
+        }
+
+        /* 统计概览 */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.energy {
+            background: linear-gradient(135deg, #00bcd4, #5ad8ff);
+            color: #052030;
+        }
+
+        .stat-icon.cost {
+            background: linear-gradient(135deg, #4caf50, #81c784);
+            color: #fff;
+        }
+
+        .stat-icon.coal {
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+            color: #fff;
+        }
+
+        .stat-icon.carbon {
+            background: linear-gradient(135deg, #9c27b0, #ba68c8);
+            color: #fff;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #8aa0bc;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e0e6ed;
+        }
+
+        .stat-unit {
+            font-size: 12px;
+            color: #8aa0bc;
+            margin-left: 4px;
+        }
+
+        /* 报表表格 */
+        .report-table-container {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            overflow-x: auto;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-button {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: #2a3d54;
+            border-color: #00bcd4;
+            color: #00bcd4;
+            transform: translateY(-1px);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            color: #1a2a3a;
+            border-color: #00bcd4;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+        }
+
+        .pagination-info {
+            color: #a7bed3;
+            font-size: 14px;
+            margin: 0 12px;
+            white-space: nowrap;
+        }
+
+        .pagination-jump {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .pagination-jump input {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .pagination-jump input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .pagination-jump button {
+            background: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-jump button:hover {
+            background: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .report-table thead {
+            background: linear-gradient(135deg, #1a2f47, #24415c);
+        }
+
+        .report-table th {
+            padding: 14px 12px;
+            text-align: left;
+            color: #00bcd4;
+            font-weight: 600;
+            border-bottom: 2px solid #00bcd4;
+            white-space: nowrap;
+        }
+
+        .report-table td {
+            padding: 12px;
+            border-bottom: 1px solid #2f4a66;
+            color: #e0e6ed;
+        }
+
+        .report-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .report-table tbody tr:hover {
+            background-color: rgba(0, 188, 212, 0.1);
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background-color: rgba(26, 45, 71, 0.3);
+        }
+
+        .number-value {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .trend-up {
+            color: #ff9800;
+        }
+
+        .trend-down {
+            color: #4caf50;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8aa0bc;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 12px;
+        }
+
+        .action-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .action-bar-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .info-text {
+            color: #8aa0bc;
+            font-size: 14px;
+        }
+    </style>
+
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-chart-bar"></i> 统计报表
+        </h2>
+        <p class="page-description">
+            按年、月、周、日、时或任意时间段以及订单、规格等定制自动生成能源统计报表，可以按组织架构（厂区、工艺、能耗设备）和能源类型选取展示。
+        </p>
+    </div>
+
+    <!-- 筛选区域 -->
+    <div class="filter-panel">
+        <!-- 时间维度 -->
+        <div class="filter-section">
+            <div class="filter-section-title">
+                <i class="fas fa-clock"></i> 时间维度
+            </div>
+            <div class="filter-grid">
+                <div class="filter-field full-width">
+                    <label class="filter-label">时间粒度</label>
+                    <div class="time-granularity-group">
+                        <button class="time-granularity-btn" data-granularity="year">年</button>
+                        <button class="time-granularity-btn" data-granularity="month">月</button>
+                        <button class="time-granularity-btn active" data-granularity="week">周</button>
+                        <button class="time-granularity-btn" data-granularity="day">日</button>
+                        <button class="time-granularity-btn" data-granularity="hour">时</button>
+                        <button class="time-granularity-btn" data-granularity="custom">自定义</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="time-input-groups">
+                <div class="time-input-group" data-granularity="year" id="time-input-year">
+                    <div class="filter-field">
+                        <label class="filter-label">开始年份</label>
+                        <select class="filter-select" id="year-start"></select>
+                    </div>
+                    <div class="filter-field">
+                        <label class="filter-label">结束年份</label>
+                        <select class="filter-select" id="year-end"></select>
+                    </div>
+                </div>
+
+                <div class="time-input-group" data-granularity="month" id="time-input-month">
+                    <div class="filter-field">
+                        <label class="filter-label">开始月份</label>
+                        <input type="month" class="filter-input" id="month-start">
+                    </div>
+                    <div class="filter-field">
+                        <label class="filter-label">结束月份</label>
+                        <input type="month" class="filter-input" id="month-end">
+                    </div>
+                </div>
+
+                <div class="time-input-group active" data-granularity="week" id="time-input-week">
+                    <div class="filter-field">
+                        <label class="filter-label">开始周</label>
+                        <input type="week" class="filter-input" id="week-start">
+                    </div>
+                    <div class="filter-field">
+                        <label class="filter-label">结束周</label>
+                        <input type="week" class="filter-input" id="week-end">
+                    </div>
+                </div>
+
+                <div class="time-input-group" data-granularity="day" id="time-input-day">
+                    <div class="filter-field">
+                        <label class="filter-label">开始日期</label>
+                        <input type="date" class="filter-input" id="day-start">
+                    </div>
+                    <div class="filter-field">
+                        <label class="filter-label">结束日期</label>
+                        <input type="date" class="filter-input" id="day-end">
+                    </div>
+                </div>
+
+                <div class="time-input-group" data-granularity="hour" id="time-input-hour">
+                    <div class="filter-field">
+                        <label class="filter-label">开始时间</label>
+                        <input type="datetime-local" class="filter-input" id="hour-start">
+                    </div>
+                    <div class="filter-field">
+                        <label class="filter-label">结束时间</label>
+                        <input type="datetime-local" class="filter-input" id="hour-end">
+                    </div>
+                </div>
+
+                <div class="time-input-group" data-granularity="custom" id="time-input-custom">
+                    <div class="filter-field">
+                        <label class="filter-label">自定义开始</label>
+                        <input type="datetime-local" class="filter-input" id="custom-start">
+                    </div>
+                    <div class="filter-field">
+                        <label class="filter-label">自定义结束</label>
+                        <input type="datetime-local" class="filter-input" id="custom-end">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 组织架构 -->
+        <div class="filter-section">
+            <div class="filter-section-title">
+                <i class="fas fa-sitemap"></i> 组织架构
+            </div>
+            <div class="filter-grid">
+                <div class="filter-field">
+                    <label class="filter-label">厂区</label>
+                    <select class="filter-select" id="factory-select">
+                        <option value="">全部厂区</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">工艺</label>
+                    <select class="filter-select" id="craft-select">
+                        <option value="">全部工艺</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">能耗设备</label>
+                    <select class="filter-select" id="equipment-select">
+                        <option value="">全部设备</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 能源类型 -->
+        <div class="filter-section">
+            <div class="filter-section-title">
+                <i class="fas fa-bolt"></i> 能源类型
+            </div>
+            <div class="filter-grid">
+                <div class="filter-field">
+                    <label class="filter-label">能源类型</label>
+                    <select class="filter-select" id="energy-type-select">
+                        <option value="">全部能源</option>
+                        <option value="electricity">电</option>
+                        <option value="water">水</option>
+                        <option value="gas">天然气</option>
+                        <option value="steam">蒸汽</option>
+                        <option value="compressed-air">压缩空气</option>
+                        <option value="nitrogen">氮气</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 业务维度 -->
+        <div class="filter-section">
+            <div class="filter-section-title">
+                <i class="fas fa-shopping-cart"></i> 业务维度
+            </div>
+            <div class="filter-grid">
+                <div class="filter-field">
+                    <label class="filter-label">订单号</label>
+                    <input type="text" class="filter-input" id="order-number" placeholder="请输入订单号">
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">产品规格</label>
+                    <input type="text" class="filter-input" id="product-spec" placeholder="请输入产品规格">
+                </div>
+                <div class="filter-field">
+                    <label class="filter-label">产品名称</label>
+                    <input type="text" class="filter-input" id="product-name" placeholder="请输入产品名称">
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="filter-actions">
+            <button class="action-button" onclick="generateReport()">
+                <i class="fas fa-magic"></i> 生成报表
+            </button>
+            <button class="action-button secondary" onclick="resetFilter()">
+                <i class="fas fa-redo"></i> 重置
+            </button>
+            <button class="action-button secondary" onclick="exportReport()">
+                <i class="fas fa-download"></i> 导出
+            </button>
+        </div>
+    </div>
+
+    <!-- 统计概览 -->
+    <div class="stats-overview" id="stats-overview">
+        <!-- 统计卡片将通过JavaScript动态生成 -->
+    </div>
+
+    <!-- 操作栏 -->
+    <div class="action-bar">
+        <div class="action-bar-left">
+            <span class="info-text" id="data-info">请选择筛选条件并生成报表</span>
+        </div>
+        <div class="action-bar-right">
+            <button class="action-button secondary" onclick="exportReport('excel')">
+                <i class="fas fa-file-excel"></i> 导出Excel
+            </button>
+            <button class="action-button secondary" onclick="exportReport('pdf')">
+                <i class="fas fa-file-pdf"></i> 导出PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- 报表表格 -->
+    <div class="report-table-container">
+        <table class="report-table">
+            <thead id="report-table-head">
+                <!-- 表头将通过JavaScript动态生成 -->
+            </thead>
+            <tbody id="report-table-body">
+                <tr>
+                    <td colspan="100" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>请选择筛选条件并生成报表</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination" style="display: none;">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // 防止重复加载
+        if (window.__statisticalReportModuleLoaded) {
+            return;
+        }
+        window.__statisticalReportModuleLoaded = true;
+
+        // 层级结构数据
+        const hierarchy = {
+            factories: [
+                { id: 'factory-1', name: '制造一厂' },
+                { id: 'factory-2', name: '制造二厂' }
+            ],
+            crafts: [
+                { id: 'craft-1', name: '注塑工艺', factoryId: 'factory-1' },
+                { id: 'craft-2', name: '冲压工艺', factoryId: 'factory-1' },
+                { id: 'craft-3', name: '装配工艺', factoryId: 'factory-1' },
+                { id: 'craft-4', name: '包装工艺', factoryId: 'factory-2' }
+            ],
+            equipments: [
+                { id: 'eq-1', name: '1#主变', code: 'EQ-TR-01', craftId: 'craft-1' },
+                { id: 'eq-2', name: '注塑机群A', code: 'EQ-INJ-12', craftId: 'craft-1' },
+                { id: 'eq-3', name: '冲压机组', code: 'EQ-PRS-04', craftId: 'craft-2' },
+                { id: 'eq-4', name: '空压站', code: 'EQ-CMP-01', craftId: 'craft-1' },
+                { id: 'eq-5', name: '循环水泵组', code: 'EQ-PUMP-02', craftId: 'craft-1' }
+            ]
+        };
+
+        // 能源类型配置
+        const energyTypes = {
+            electricity: { name: '电', unit: 'kWh', price: 0.65, coalFactor: 0.1229 },
+            water: { name: '水', unit: 'm³', price: 3.0, coalFactor: 0.0857 },
+            gas: { name: '天然气', unit: 'Nm³', price: 3.5, coalFactor: 1.33 },
+            steam: { name: '蒸汽', unit: 't', price: 180, coalFactor: 0.1286 },
+            'compressed-air': { name: '压缩空气', unit: 'Nm³', price: 0.1, coalFactor: 0.04 },
+            nitrogen: { name: '氮气', unit: 'Nm³', price: 0.8, coalFactor: 0.15 }
+        };
+
+        // 订单和产品数据（扩展）
+        const orders = [
+            { orderNo: 'ORD-2024-001', productName: '产品A', productSpec: 'A-100x200', factoryId: 'factory-1', craftId: 'craft-1' },
+            { orderNo: 'ORD-2024-002', productName: '产品B', productSpec: 'B-150x250', factoryId: 'factory-1', craftId: 'craft-2' },
+            { orderNo: 'ORD-2024-003', productName: '产品C', productSpec: 'C-200x300', factoryId: 'factory-1', craftId: 'craft-1' },
+            { orderNo: 'ORD-2024-004', productName: '产品D', productSpec: 'D-120x180', factoryId: 'factory-2', craftId: 'craft-4' },
+            { orderNo: 'ORD-2024-005', productName: '产品E', productSpec: 'E-180x220', factoryId: 'factory-1', craftId: 'craft-1' },
+            { orderNo: 'ORD-2024-006', productName: '产品F', productSpec: 'F-160x240', factoryId: 'factory-1', craftId: 'craft-2' },
+            { orderNo: 'ORD-2024-007', productName: '产品G', productSpec: 'G-140x200', factoryId: 'factory-1', craftId: 'craft-3' },
+            { orderNo: 'ORD-2024-008', productName: '产品H', productSpec: 'H-200x300', factoryId: 'factory-2', craftId: 'craft-4' }
+        ];
+
+        // 设备能耗基准配置（不同设备、不同能源类型的基准值）
+        const equipmentEnergyBase = {
+            'eq-1': { // 1#主变
+                electricity: { base: 5000, variation: 0.15 },
+                water: { base: 0, variation: 0 },
+                gas: { base: 0, variation: 0 },
+                steam: { base: 0, variation: 0 },
+                'compressed-air': { base: 0, variation: 0 },
+                nitrogen: { base: 0, variation: 0 }
+            },
+            'eq-2': { // 注塑机群A
+                electricity: { base: 3200, variation: 0.20 },
+                water: { base: 120, variation: 0.15 },
+                gas: { base: 80, variation: 0.25 },
+                steam: { base: 2.5, variation: 0.20 },
+                'compressed-air': { base: 450, variation: 0.18 },
+                nitrogen: { base: 0, variation: 0 }
+            },
+            'eq-3': { // 冲压机组
+                electricity: { base: 2800, variation: 0.18 },
+                water: { base: 85, variation: 0.20 },
+                gas: { base: 120, variation: 0.22 },
+                steam: { base: 0, variation: 0 },
+                'compressed-air': { base: 380, variation: 0.15 },
+                nitrogen: { base: 280, variation: 0.25 }
+            },
+            'eq-4': { // 空压站
+                electricity: { base: 1800, variation: 0.15 },
+                water: { base: 45, variation: 0.18 },
+                gas: { base: 0, variation: 0 },
+                steam: { base: 0, variation: 0 },
+                'compressed-air': { base: 0, variation: 0 }, // 空压站是产生压缩空气的，不消耗
+                nitrogen: { base: 0, variation: 0 }
+            },
+            'eq-5': { // 循环水泵组
+                electricity: { base: 650, variation: 0.12 },
+                water: { base: 0, variation: 0 }, // 水泵是循环水的，不消耗水
+                gas: { base: 0, variation: 0 },
+                steam: { base: 0, variation: 0 },
+                'compressed-air': { base: 0, variation: 0 },
+                nitrogen: { base: 0, variation: 0 }
+            }
+        };
+
+        let currentGranularity = 'week';
+        let reportData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const pageSize = 10; // 每页显示10条数据
+
+        const factorySelect = document.getElementById('factory-select');
+        const craftSelect = document.getElementById('craft-select');
+        const equipmentSelect = document.getElementById('equipment-select');
+        const energyTypeSelect = document.getElementById('energy-type-select');
+        const orderNumberInput = document.getElementById('order-number');
+        const productSpecInput = document.getElementById('product-spec');
+        const productNameInput = document.getElementById('product-name');
+        const reportTableHead = document.getElementById('report-table-head');
+        const reportTableBody = document.getElementById('report-table-body');
+        const statsOverview = document.getElementById('stats-overview');
+        const dataInfo = document.getElementById('data-info');
+
+        const timeInputs = {
+            year: {
+                container: document.getElementById('time-input-year'),
+                start: document.getElementById('year-start'),
+                end: document.getElementById('year-end')
+            },
+            month: {
+                container: document.getElementById('time-input-month'),
+                start: document.getElementById('month-start'),
+                end: document.getElementById('month-end')
+            },
+            week: {
+                container: document.getElementById('time-input-week'),
+                start: document.getElementById('week-start'),
+                end: document.getElementById('week-end')
+            },
+            day: {
+                container: document.getElementById('time-input-day'),
+                start: document.getElementById('day-start'),
+                end: document.getElementById('day-end')
+            },
+            hour: {
+                container: document.getElementById('time-input-hour'),
+                start: document.getElementById('hour-start'),
+                end: document.getElementById('hour-end')
+            },
+            custom: {
+                container: document.getElementById('time-input-custom'),
+                start: document.getElementById('custom-start'),
+                end: document.getElementById('custom-end')
+            }
+        };
+
+        let currentStartTime = null;
+        let currentEndTime = null;
+        let currentStartISO = '';
+        let currentEndISO = '';
+
+        // 初始化
+        function init() {
+            // 初始化选择器
+            initSelectors();
+            
+            // 初始化时间粒度按钮
+            initTimeGranularityButtons();
+            
+            // 初始化时间输入
+            populateYearOptions();
+            setDefaultTimeInputs();
+            showTimeInputGroup(currentGranularity);
+        }
+
+        // 初始化选择器
+        function initSelectors() {
+            // 厂区
+            factorySelect.innerHTML = '<option value="">全部厂区</option>' +
+                hierarchy.factories.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
+
+            // 工艺
+            craftSelect.innerHTML = '<option value="">全部工艺</option>' +
+                hierarchy.crafts.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+            // 设备
+            equipmentSelect.innerHTML = '<option value="">全部设备</option>' +
+                hierarchy.equipments.map(eq => `<option value="${eq.id}">${eq.name} (${eq.code})</option>`).join('');
+
+            // 绑定事件
+            factorySelect.addEventListener('change', updateCraftOptions);
+            craftSelect.addEventListener('change', updateEquipmentOptions);
+        }
+
+        // 更新工艺选项
+        function updateCraftOptions() {
+            const factoryId = factorySelect.value;
+            const crafts = factoryId
+                ? hierarchy.crafts.filter(c => c.factoryId === factoryId)
+                : hierarchy.crafts;
+            
+            craftSelect.innerHTML = '<option value="">全部工艺</option>' +
+                crafts.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            
+            craftSelect.value = '';
+            updateEquipmentOptions();
+        }
+
+        // 更新设备选项
+        function updateEquipmentOptions() {
+            const craftId = craftSelect.value;
+            const equipments = craftId
+                ? hierarchy.equipments.filter(eq => eq.craftId === craftId)
+                : factorySelect.value
+                    ? hierarchy.equipments.filter(eq => {
+                        const craft = hierarchy.crafts.find(c => c.id === eq.craftId);
+                        return craft && craft.factoryId === factorySelect.value;
+                    })
+                    : hierarchy.equipments;
+            
+            equipmentSelect.innerHTML = '<option value="">全部设备</option>' +
+                equipments.map(eq => `<option value="${eq.id}">${eq.name} (${eq.code})</option>`).join('');
+        }
+        function pad(num) {
+            return String(num).padStart(2, '0');
+        }
+
+        function formatMonth(date) {
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}`;
+        }
+
+        function getWeekString(date) {
+            const temp = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = temp.getUTCDay() || 7;
+            temp.setUTCDate(temp.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(temp.getUTCFullYear(), 0, 1));
+            const weekNo = Math.ceil((((temp - yearStart) / 86400000) + 1) / 7);
+            return `${temp.getUTCFullYear()}-W${pad(weekNo)}`;
+        }
+
+        function weekStringToDate(value) {
+            if (!value) return null;
+            const [yearPart, weekPart] = value.split('-W');
+            if (!yearPart || !weekPart) return null;
+            const year = parseInt(yearPart, 10);
+            const week = parseInt(weekPart, 10);
+            if (isNaN(year) || isNaN(week)) return null;
+            const simple = new Date(Date.UTC(year, 0, 1 + (week - 1) * 7));
+            const dayOfWeek = simple.getUTCDay() || 7;
+            simple.setUTCDate(simple.getUTCDate() + 1 - dayOfWeek);
+            return new Date(simple.getTime());
+        }
+
+        function populateYearOptions() {
+            const currentYear = new Date().getFullYear();
+            const years = [];
+            for (let y = currentYear - 5; y <= currentYear; y++) {
+                years.push(`<option value="${y}">${y}年</option>`);
+            }
+            timeInputs.year.start.innerHTML = years.join('');
+            timeInputs.year.end.innerHTML = years.join('');
+        }
+
+        function setDefaultTimeInputs() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            timeInputs.year.start.value = currentYear - 1;
+            timeInputs.year.end.value = currentYear;
+
+            const monthStartDate = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+            timeInputs.month.start.value = formatMonth(monthStartDate);
+            timeInputs.month.end.value = formatMonth(now);
+
+            const weekStartDate = new Date(now.getTime() - 28 * 24 * 60 * 60 * 1000);
+            timeInputs.week.start.value = getWeekString(weekStartDate);
+            timeInputs.week.end.value = getWeekString(now);
+
+            const dayStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            timeInputs.day.start.value = dayStart.toISOString().slice(0, 10);
+            timeInputs.day.end.value = now.toISOString().slice(0, 10);
+
+            const hourStart = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            const hourStartStr = hourStart.toISOString().slice(0, 16);
+            const hourEndStr = now.toISOString().slice(0, 16);
+            timeInputs.hour.start.value = hourStartStr;
+            timeInputs.hour.end.value = hourEndStr;
+            timeInputs.custom.start.value = hourStartStr;
+            timeInputs.custom.end.value = hourEndStr;
+        }
+
+        function showTimeInputGroup(granularity) {
+            Object.keys(timeInputs).forEach(key => {
+                const group = timeInputs[key].container;
+                if (!group) return;
+                if (key === granularity) {
+                    group.classList.add('active');
+                } else {
+                    group.classList.remove('active');
+                }
+            });
+        }
+
+        function updateCurrentTimeRange() {
+            let start = null;
+            let end = null;
+
+            switch (currentGranularity) {
+                case 'year': {
+                    const startYear = parseInt(timeInputs.year.start.value, 10);
+                    const endYear = parseInt(timeInputs.year.end.value, 10);
+                    if (isNaN(startYear) || isNaN(endYear)) {
+                        alert('请选择完整的年份范围');
+                        return false;
+                    }
+                    start = new Date(startYear, 0, 1, 0, 0, 0);
+                    end = new Date(endYear, 11, 31, 23, 59, 59, 999);
+                    break;
+                }
+                case 'month': {
+                    const startValue = timeInputs.month.start.value;
+                    const endValue = timeInputs.month.end.value;
+                    if (!startValue || !endValue) {
+                        alert('请选择完整的月份范围');
+                        return false;
+                    }
+                    const [startYear, startMonth] = startValue.split('-').map(Number);
+                    const [endYear, endMonth] = endValue.split('-').map(Number);
+                    if (isNaN(startYear) || isNaN(startMonth) || isNaN(endYear) || isNaN(endMonth)) {
+                        alert('月份格式不正确');
+                        return false;
+                    }
+                    start = new Date(startYear, startMonth - 1, 1, 0, 0, 0);
+                    end = new Date(endYear, endMonth, 0, 23, 59, 59, 999);
+                    break;
+                }
+                case 'week': {
+                    const startWeek = weekStringToDate(timeInputs.week.start.value);
+                    const endWeek = weekStringToDate(timeInputs.week.end.value);
+                    if (!startWeek || !endWeek) {
+                        alert('请选择完整的周范围');
+                        return false;
+                    }
+                    start = new Date(startWeek.getFullYear(), startWeek.getMonth(), startWeek.getDate(), 0, 0, 0);
+                    end = new Date(endWeek.getFullYear(), endWeek.getMonth(), endWeek.getDate() + 6, 23, 59, 59, 999);
+                    break;
+                }
+                case 'day': {
+                    const startValue = timeInputs.day.start.value;
+                    const endValue = timeInputs.day.end.value;
+                    if (!startValue || !endValue) {
+                        alert('请选择完整的日期范围');
+                        return false;
+                    }
+                    start = new Date(`${startValue}T00:00:00`);
+                    end = new Date(`${endValue}T23:59:59`);
+                    break;
+                }
+                case 'hour': {
+                    const startValue = timeInputs.hour.start.value;
+                    const endValue = timeInputs.hour.end.value;
+                    if (!startValue || !endValue) {
+                        alert('请选择完整的时间范围');
+                        return false;
+                    }
+                    start = new Date(startValue);
+                    end = new Date(endValue);
+                    break;
+                }
+                case 'custom':
+                default: {
+                    const startValue = timeInputs.custom.start.value;
+                    const endValue = timeInputs.custom.end.value;
+                    if (!startValue || !endValue) {
+                        alert('请选择完整的自定义时间范围');
+                        return false;
+                    }
+                    start = new Date(startValue);
+                    end = new Date(endValue);
+                    break;
+                }
+            }
+
+            if (start > end) {
+                alert('开始时间不能晚于结束时间');
+                return false;
+            }
+
+            currentStartTime = start;
+            currentEndTime = end;
+            currentStartISO = start.toISOString();
+            currentEndISO = end.toISOString();
+            return true;
+        }
+
+        // 初始化时间粒度按钮
+        function initTimeGranularityButtons() {
+            document.querySelectorAll('.time-granularity-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.time-granularity-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentGranularity = this.dataset.granularity;
+                    showTimeInputGroup(currentGranularity);
+                });
+            });
+        }
+
+        // 生成样例数据
+        function generateSampleData() {
+            if (!currentStartTime || !currentEndTime) {
+                return [];
+            }
+            const data = [];
+            const startTime = new Date(currentStartTime);
+            const endTime = new Date(currentEndTime);
+            
+            // 根据时间粒度确定数据点间隔和格式化函数
+            let interval, formatFunc, aggregateFunc;
+            switch (currentGranularity) {
+                case 'year':
+                    interval = 365 * 24 * 60 * 60 * 1000; // 年
+                    formatFunc = (d) => d.getFullYear() + '年';
+                    aggregateFunc = (base) => base * 365 * 24; // 年数据需要聚合（base是每小时，年=365天*24小时）
+                    break;
+                case 'month':
+                    interval = 30 * 24 * 60 * 60 * 1000; // 月（简化，实际月份天数不同）
+                    formatFunc = (d) => d.getFullYear() + '年' + (d.getMonth() + 1) + '月';
+                    // 月份需要特殊处理，因为每个月天数不同
+                    aggregateFunc = (base, date) => {
+                        const year = date.getFullYear();
+                        const month = date.getMonth();
+                        const daysInMonth = new Date(year, month + 1, 0).getDate();
+                        return base * daysInMonth * 24; // 月数据需要聚合（base是每小时，月=天数*24小时）
+                    };
+                    break;
+                case 'week':
+                    interval = 7 * 24 * 60 * 60 * 1000; // 周
+                    formatFunc = (d) => getWeekString(d);
+                    aggregateFunc = (base) => base * 7 * 24; // 周数据需要聚合（base是每小时，周=7天*24小时）
+                    break;
+                case 'day':
+                    interval = 24 * 60 * 60 * 1000; // 日
+                    formatFunc = (d) => d.toISOString().slice(0, 10);
+                    aggregateFunc = (base) => base * 24; // 日数据需要聚合（假设base是每小时）
+                    break;
+                case 'hour':
+                    interval = 60 * 60 * 1000; // 时
+                    formatFunc = (d) => d.toISOString().slice(0, 13) + ':00';
+                    aggregateFunc = (base) => base; // 小时数据直接使用
+                    break;
+                default:
+                    interval = 24 * 60 * 60 * 1000;
+                    formatFunc = (d) => d.toISOString().slice(0, 10);
+                    aggregateFunc = (base) => base * 24;
+            }
+
+            // 生成每个时间点的数据
+            for (let time = new Date(startTime); time <= endTime; time = new Date(time.getTime() + interval)) {
+                const timeLabel = formatFunc(time);
+                
+                // 为每个厂区生成数据
+                hierarchy.factories.forEach(factory => {
+                    // 为每个工艺生成数据
+                    hierarchy.crafts.filter(c => c.factoryId === factory.id).forEach(craft => {
+                        // 为每个设备生成数据
+                        hierarchy.equipments.filter(eq => eq.craftId === craft.id).forEach(equipment => {
+                            // 为每个能源类型生成数据
+                            Object.keys(energyTypes).forEach(energyType => {
+                                const energyConfig = energyTypes[energyType];
+                                
+                                // 获取该设备该能源类型的基准配置
+                                const energyBase = equipmentEnergyBase[equipment.id]?.[energyType];
+                                
+                                // 如果该设备不消耗该能源类型，跳过
+                                if (!energyBase || energyBase.base === 0) {
+                                    return;
+                                }
+                                
+                                // 根据基准值和波动范围生成能耗值
+                                const variation = (Math.random() * 2 - 1) * energyBase.variation; // -variation 到 +variation
+                                const baseConsumption = energyBase.base * (1 + variation);
+                                
+                                // 根据时间粒度聚合（月份需要传入date参数）
+                                const consumption = currentGranularity === 'month'
+                                    ? parseFloat((aggregateFunc(baseConsumption, time)).toFixed(2))
+                                    : parseFloat((aggregateFunc(baseConsumption)).toFixed(2));
+                                
+                                // 计算成本、标煤、碳排放
+                                const cost = parseFloat((consumption * energyConfig.price).toFixed(2));
+                                const coal = parseFloat((consumption * energyConfig.coalFactor).toFixed(2));
+                                
+                                // 碳排放计算（简化：电0.5kg/kWh，其他能源根据类型不同）
+                                let carbonFactor = 0.5;
+                                if (energyType === 'gas') carbonFactor = 1.96; // 天然气
+                                else if (energyType === 'steam') carbonFactor = 0.18; // 蒸汽
+                                else if (energyType === 'water') carbonFactor = 0.0002; // 水
+                                const carbon = parseFloat((consumption * carbonFactor).toFixed(2));
+
+                                // 根据设备和工艺关联订单（更合理的关联逻辑）
+                                const relatedOrders = orders.filter(o => 
+                                    (o.factoryId === factory.id || !o.factoryId) && 
+                                    (o.craftId === craft.id || !o.craftId)
+                                );
+                                const relatedOrder = relatedOrders.length > 0 
+                                    ? relatedOrders[Math.floor(Math.random() * relatedOrders.length)]
+                                    : orders[Math.floor(Math.random() * orders.length)];
+
+                                data.push({
+                                    timeLabel: timeLabel,
+                                    timestamp: time.toISOString(),
+                                    energyType: energyType,
+                                    energyName: energyConfig.name,
+                                    energyUnit: energyConfig.unit,
+                                    factoryId: factory.id,
+                                    factoryName: factory.name,
+                                    craftId: craft.id,
+                                    craftName: craft.name,
+                                    equipmentId: equipment.id,
+                                    equipmentName: equipment.name,
+                                    equipmentCode: equipment.code,
+                                    consumption: consumption,
+                                    cost: cost,
+                                    coal: coal,
+                                    carbon: carbon,
+                                    orderNo: relatedOrder.orderNo,
+                                    productName: relatedOrder.productName,
+                                    productSpec: relatedOrder.productSpec
+                                });
+                            });
+                        });
+                    });
+                });
+            }
+
+            return data;
+        }
+
+        // 生成报表
+        window.generateReport = function() {
+            currentPage = 1; // 重置到第一页
+            if (!updateCurrentTimeRange()) {
+                return;
+            }
+
+            // 生成样例数据
+            reportData = generateSampleData();
+
+            // 应用筛选
+            applyFilters();
+
+            // 渲染统计概览
+            renderStatsOverview();
+
+            // 渲染报表表格
+            renderReportTable();
+
+            // 更新数据信息
+            dataInfo.textContent = `共 ${filteredData.length} 条记录`;
+        };
+
+        // 应用筛选
+        function applyFilters() {
+            filteredData = reportData.filter(record => {
+                if (factorySelect.value && record.factoryId !== factorySelect.value) return false;
+                if (craftSelect.value && record.craftId !== craftSelect.value) return false;
+                if (equipmentSelect.value && record.equipmentId !== equipmentSelect.value) return false;
+                if (energyTypeSelect.value && record.energyType !== energyTypeSelect.value) return false;
+                if (orderNumberInput.value && !record.orderNo.includes(orderNumberInput.value)) return false;
+                if (productSpecInput.value && !record.productSpec.includes(productSpecInput.value)) return false;
+                if (productNameInput.value && !record.productName.includes(productNameInput.value)) return false;
+                if (currentStartISO && record.timestamp < currentStartISO) return false;
+                if (currentEndISO && record.timestamp > currentEndISO) return false;
+                return true;
+            });
+        }
+
+        // 渲染统计概览
+        function renderStatsOverview() {
+            if (filteredData.length === 0) {
+                statsOverview.innerHTML = '';
+                return;
+            }
+
+            const totalConsumption = filteredData.reduce((sum, r) => sum + r.consumption, 0);
+            const totalCost = filteredData.reduce((sum, r) => sum + r.cost, 0);
+            const totalCoal = filteredData.reduce((sum, r) => sum + r.coal, 0);
+            const totalCarbon = filteredData.reduce((sum, r) => sum + r.carbon, 0);
+
+            statsOverview.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon energy">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">总能耗</div>
+                        <div class="stat-value">${totalConsumption.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">（各能源单位）</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon cost">
+                        <i class="fas fa-yen-sign"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">总成本</div>
+                        <div class="stat-value">¥${totalCost.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">元</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon coal">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">标煤当量</div>
+                        <div class="stat-value">${totalCoal.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">kg</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon carbon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">碳排放</div>
+                        <div class="stat-value">${totalCarbon.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">kg CO₂</span></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染报表表格（带分页）
+        function renderReportTable() {
+            const pagination = document.getElementById('pagination');
+            
+            if (filteredData.length === 0) {
+                reportTableHead.innerHTML = '';
+                reportTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="100" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>暂无数据</p>
+                        </td>
+                    </tr>
+                `;
+                if (pagination) pagination.style.display = 'none';
+                return;
+            }
+
+            // 计算分页
+            const totalRecords = filteredData.length;
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            
+            // 如果当前页超出范围，重置到第一页
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = 1;
+            }
+
+            // 计算当前页的数据范围
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalRecords);
+            const currentPageData = filteredData.slice(startIndex, endIndex);
+
+            if (pagination) pagination.style.display = 'flex';
+
+            // 根据时间粒度生成表头
+            const columns = ['时间', '厂区', '工艺', '设备名称', '设备编码', '能源类型', '能耗', '单位', '成本(元)', '标煤(kg)', '碳排放(kg)', '订单号', '产品名称', '产品规格'];
+            
+            reportTableHead.innerHTML = `
+                <tr>
+                    ${columns.map(col => `<th>${col}</th>`).join('')}
+                </tr>
+            `;
+
+            // 渲染当前页数据
+            reportTableBody.innerHTML = currentPageData.map((record, index) => {
+                const globalIndex = startIndex + index;
+                return `
+                <tr>
+                    <td>${record.timeLabel}</td>
+                    <td>${record.factoryName}</td>
+                    <td>${record.craftName}</td>
+                    <td>${record.equipmentName}</td>
+                    <td>${record.equipmentCode}</td>
+                    <td>${record.energyName}</td>
+                    <td class="number-value">${record.consumption.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td>${record.energyUnit}</td>
+                    <td class="number-value">${record.cost.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td class="number-value">${record.coal.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td class="number-value">${record.carbon.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                    <td>${record.orderNo}</td>
+                    <td>${record.productName}</td>
+                    <td>${record.productSpec}</td>
+                </tr>
+            `;
+            }).join('');
+
+            renderPagination(totalPages, totalRecords, startIndex + 1, endIndex);
+        }
+
+        // 渲染分页控件
+        function renderPagination(totalPages, totalRecords, startRecord, endRecord) {
+            const pagination = document.getElementById('pagination');
+            if (!pagination) return;
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            let html = '';
+
+            // 上一页按钮
+            html += `<button class="pagination-button" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i> 上一页
+            </button>`;
+
+            // 页码按钮
+            const maxVisiblePages = 7;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            // 第一页
+            if (startPage > 1) {
+                html += `<button class="pagination-button" onclick="goToPage(1)">1</button>`;
+                if (startPage > 2) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+            }
+
+            // 中间页码
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-button ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            // 最后一页
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+                html += `<button class="pagination-button" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            // 下一页按钮
+            html += `<button class="pagination-button" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                下一页 <i class="fas fa-chevron-right"></i>
+            </button>`;
+
+            // 分页信息
+            html += `<span class="pagination-info">共 ${totalRecords} 条，第 ${startRecord}-${endRecord} 条</span>`;
+
+            // 跳转输入
+            html += `<div class="pagination-jump">
+                <span style="color: #a7bed3; font-size: 13px;">跳至</span>
+                <input type="number" id="page-jump-input" min="1" max="${totalPages}" value="${currentPage}" onkeypress="handlePageJump(event)">
+                <span style="color: #a7bed3; font-size: 13px;">页</span>
+                <button onclick="jumpToPage()">确定</button>
+            </div>`;
+
+            pagination.innerHTML = html;
+        }
+
+        // 跳转到指定页
+        window.goToPage = function(page) {
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderReportTable();
+            
+            // 滚动到表格顶部
+            const tableContainer = document.querySelector('.report-table-container');
+            if (tableContainer) {
+                tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        };
+
+        // 处理跳转输入框的Enter键
+        window.handlePageJump = function(event) {
+            if (event.key === 'Enter') {
+                jumpToPage();
+            }
+        };
+
+        // 跳转到指定页（通过输入框）
+        window.jumpToPage = function() {
+            const input = document.getElementById('page-jump-input');
+            if (!input) return;
+            
+            const targetPage = parseInt(input.value);
+            if (isNaN(targetPage) || targetPage < 1) {
+                alert('请输入有效的页码');
+                return;
+            }
+
+            const totalPages = Math.ceil(filteredData.length / pageSize);
+            
+            if (targetPage > totalPages) {
+                alert(`页码不能超过 ${totalPages}`);
+                input.value = currentPage;
+                return;
+            }
+
+            goToPage(targetPage);
+        };
+
+        // 重置筛选
+        window.resetFilter = function() {
+            factorySelect.value = '';
+            craftSelect.value = '';
+            equipmentSelect.value = '';
+            energyTypeSelect.value = '';
+            orderNumberInput.value = '';
+            productSpecInput.value = '';
+            productNameInput.value = '';
+            
+            setDefaultTimeInputs();
+            
+            document.querySelectorAll('.time-granularity-btn').forEach(btn => {
+                if (btn.dataset.granularity === 'week') {
+                    btn.classList.add('active');
+                    currentGranularity = 'week';
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            showTimeInputGroup('week');
+            
+            reportData = [];
+            filteredData = [];
+            statsOverview.innerHTML = '';
+            reportTableHead.innerHTML = '';
+            reportTableBody.innerHTML = `
+                <tr>
+                    <td colspan="100" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>请选择筛选条件并生成报表</p>
+                    </td>
+                </tr>
+            `;
+            dataInfo.textContent = '请选择筛选条件并生成报表';
+
+            currentStartTime = null;
+            currentEndTime = null;
+            currentStartISO = '';
+            currentEndISO = '';
+        };
+
+        // 导出报表
+        window.exportReport = function(format = 'excel') {
+            if (filteredData.length === 0) {
+                alert('暂无数据可导出');
+                return;
+            }
+
+            if (format === 'excel') {
+                // 生成CSV格式
+                const columns = ['时间', '厂区', '工艺', '设备名称', '设备编码', '能源类型', '能耗', '单位', '成本(元)', '标煤(kg)', '碳排放(kg)', '订单号', '产品名称', '产品规格'];
+                const rows = filteredData.map(record => [
+                    record.timeLabel,
+                    record.factoryName,
+                    record.craftName,
+                    record.equipmentName,
+                    record.equipmentCode,
+                    record.energyName,
+                    record.consumption.toFixed(2),
+                    record.energyUnit,
+                    record.cost.toFixed(2),
+                    record.coal.toFixed(2),
+                    record.carbon.toFixed(2),
+                    record.orderNo,
+                    record.productName,
+                    record.productSpec
+                ]);
+
+                const csvContent = [columns, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `统计报表_${new Date().toISOString().slice(0, 10)}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('PDF导出功能开发中...');
+            }
+        };
+
+        // 确保初始化
+        function ensureInit() {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        }
+
+        ensureInit();
+    })();
+</script>

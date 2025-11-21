@@ -1,0 +1,2566 @@
+<div class="product-unit-consumption-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+        
+        .product-unit-consumption-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            font-size: 14px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* Tab导航样式 */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #3c5472;
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            color: #a7bed3;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+
+        .tab-button:hover {
+            color: #00bcd4;
+        }
+
+        .tab-button.active {
+            color: #00bcd4;
+            border-bottom-color: #00bcd4;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            color: #a7bed3;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .filter-select, .filter-input {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .filter-input {
+            cursor: text;
+        }
+
+        .filter-select:hover, .filter-input:focus {
+            border-color: #00bcd4;
+            outline: none;
+        }
+
+        .query-button, .export-button, .add-button, .save-button {
+            background-color: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .query-button:hover, .add-button:hover, .save-button:hover {
+            background-color: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .export-button {
+            background-color: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .export-button:hover {
+            background-color: #4a6a8a;
+        }
+
+        /* 功能模块区域 */
+        .function-module {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .function-module:hover {
+            border-color: #00bcd4;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.2);
+        }
+
+        .module-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3c5472;
+        }
+
+        .module-icon {
+            font-size: 24px;
+            color: #00bcd4;
+        }
+
+        .module-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #e0e6ed;
+            margin: 0;
+        }
+
+        .module-description {
+            color: #a7bed3;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            height: 300px;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5d7d9a;
+            font-style: italic;
+        }
+
+        /* 数据表格 */
+        .data-table-container {
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #3c5472;
+            padding: 10px 12px;
+            text-align: left;
+        }
+
+        .data-table th {
+            background-color: #3c5472;
+            color: #e0e6ed;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #1a2a3a;
+        }
+
+        .data-table tr:hover {
+            background-color: #3c5472;
+        }
+
+        .data-table td {
+            color: #a7bed3;
+        }
+
+        /* 指标设定表单 */
+        .indicator-form {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-item label {
+            color: #a7bed3;
+            font-size: 13px;
+        }
+
+        .form-item input,
+        .form-item select {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-item input:focus,
+        .form-item select:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* 指标列表 */
+        .indicator-list {
+            margin-top: 20px;
+        }
+
+        .indicator-item {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .indicator-info {
+            flex: 1;
+        }
+
+        .indicator-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #e0e6ed;
+            margin-bottom: 5px;
+        }
+
+        .indicator-details {
+            font-size: 12px;
+            color: #a7bed3;
+        }
+
+        .indicator-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-button, .delete-button {
+            background-color: #3c5472;
+            border: none;
+            color: #e0e6ed;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-button:hover {
+            background-color: #00bcd4;
+        }
+
+        .delete-button:hover {
+            background-color: #e74c3c;
+        }
+
+        /* 编辑模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999999 !important;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex !important;
+        }
+
+        .modal-dialog {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            position: relative;
+            margin: auto;
+            z-index: 1000000;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3c5472;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e0e6ed;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #a7bed3;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background-color: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 15px;
+            border-top: 1px solid #3c5472;
+        }
+
+        .cancel-button {
+            background-color: #3c5472;
+            border: none;
+            color: #e0e6ed;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .cancel-button:hover {
+            background-color: #4a6a8a;
+        }
+
+        /* 统计卡片 */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #a7bed3;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00bcd4;
+            margin-bottom: 5px;
+        }
+
+        .stat-unit {
+            font-size: 11px;
+            color: #5d7d9a;
+        }
+
+        /* 排名列表 */
+        .ranking-list {
+            margin-top: 15px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .ranking-item:hover {
+            border-color: #00bcd4;
+            background-color: #213245;
+        }
+
+        .ranking-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #3c5472;
+            color: #e0e6ed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .ranking-number.top1 {
+            background-color: #ffd700;
+            color: #1a2a3a;
+        }
+
+        .ranking-number.top2 {
+            background-color: #c0c0c0;
+            color: #1a2a3a;
+        }
+
+        .ranking-number.top3 {
+            background-color: #cd7f32;
+            color: #1a2a3a;
+        }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #e0e6ed;
+            margin-bottom: 5px;
+        }
+
+        .ranking-value {
+            font-size: 12px;
+            color: #a7bed3;
+        }
+
+        .ranking-consumption {
+            font-size: 16px;
+            font-weight: bold;
+            color: #00bcd4;
+            margin-left: 15px;
+        }
+
+        /* 对标分析区域 */
+        .benchmark-analysis {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .benchmark-card {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .benchmark-card-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #e0e6ed;
+            margin-bottom: 10px;
+        }
+
+        .benchmark-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00bcd4;
+            margin-bottom: 5px;
+        }
+
+        .benchmark-unit {
+            font-size: 12px;
+            color: #a7bed3;
+        }
+
+        .benchmark-status {
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .benchmark-status.normal {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .benchmark-status.warning {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .benchmark-status.danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .benchmark-analysis {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+
+            .filter-select, .filter-input {
+                width: 100%;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-calculator"></i>
+            产品单耗管理
+        </h2>
+        <p class="page-description">通过指标设定、单耗监测、报表分析、对标管理和排名功能，全面管理产品单位能耗</p>
+    </div>
+
+    <!-- Tab导航 -->
+    <div class="tab-nav">
+        <button class="tab-button active" onclick="openTab(event, 'indicator-setting')">
+            <i class="fas fa-bullseye"></i> 指标设定
+        </button>
+        <button class="tab-button" onclick="openTab(event, 'monitoring')">
+            <i class="fas fa-chart-line"></i> 单耗监测
+        </button>
+        <button class="tab-button" onclick="openTab(event, 'report')">
+            <i class="fas fa-table"></i> ECC单耗报表
+        </button>
+        <button class="tab-button" onclick="openTab(event, 'benchmarking')">
+            <i class="fas fa-balance-scale"></i> 单耗对标
+        </button>
+        <button class="tab-button" onclick="openTab(event, 'ranking')">
+            <i class="fas fa-trophy"></i> 单耗排名
+        </button>
+    </div>
+
+    <!-- Tab 1: 指标设定 -->
+    <div id="indicator-setting" class="tab-content active">
+        <div class="function-module">
+            <div class="module-header">
+                <i class="fas fa-bullseye module-icon"></i>
+                <h3 class="module-title">指标设定</h3>
+            </div>
+            <p class="module-description">
+                可以手动建立年度、季度、月度单位能耗考核指标，可以参考国家标准、行业标准、企业历史标准。
+            </p>
+
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>能源成本中心：</label>
+                        <select class="filter-select">
+                            <option>全部ECC</option>
+                            <option>生产车间A</option>
+                            <option>生产车间B</option>
+                            <option>生产车间C</option>
+                            <option>包装线</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>产品类型：</label>
+                        <select class="filter-select">
+                            <option>全部产品</option>
+                            <option>产品A</option>
+                            <option>产品B</option>
+                            <option>产品C</option>
+                        </select>
+                    </div>
+                    <button class="query-button">
+                        <i class="fas fa-search"></i>
+                        查询
+                    </button>
+                    <button class="add-button" onclick="openAddIndicatorModal()">
+                        <i class="fas fa-plus"></i>
+                        新增指标
+                    </button>
+                </div>
+            </div>
+
+            <!-- 指标列表 -->
+            <div class="indicator-list">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px; margin-bottom: 15px;">
+                    <h4 style="color: #e0e6ed; font-size: 16px; margin: 0;">
+                        <i class="fas fa-list"></i> 已设定指标列表
+                    </h4>
+                    <button class="export-button" onclick="exportTemplate()">
+                        <i class="fas fa-file-export"></i>
+                        导出模板
+                    </button>
+                </div>
+                <div class="indicator-item" data-indicator-id="1" 
+                     data-name="生产车间A - 产品A - 2024年度指标"
+                     data-ecc="生产车间A"
+                     data-product="产品A"
+                     data-period="年度"
+                     data-year="2024"
+                     data-value="1.15"
+                     data-standard="国家标准"
+                     data-standard-value="1.20"
+                     data-remarks="">
+                    <div class="indicator-info">
+                        <div class="indicator-name">生产车间A - 产品A - 2024年度指标</div>
+                        <div class="indicator-details">
+                            指标值: 1.15 kWh/件 | 参考标准: 国家标准 (1.20 kWh/件) | 周期: 年度
+                        </div>
+                    </div>
+                    <div class="indicator-actions">
+                        <button class="edit-button" onclick="openEditModal(this)">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="delete-button" onclick="deleteIndicator(this)">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                <div class="indicator-item" data-indicator-id="2"
+                     data-name="生产车间B - 产品B - 2024年Q1季度指标"
+                     data-ecc="生产车间B"
+                     data-product="产品B"
+                     data-period="季度"
+                     data-year="2024"
+                     data-value="1.08"
+                     data-standard="行业标准"
+                     data-standard-value="1.10"
+                     data-remarks="">
+                    <div class="indicator-info">
+                        <div class="indicator-name">生产车间B - 产品B - 2024年Q1季度指标</div>
+                        <div class="indicator-details">
+                            指标值: 1.08 kWh/件 | 参考标准: 行业标准 (1.10 kWh/件) | 周期: 季度
+                        </div>
+                    </div>
+                    <div class="indicator-actions">
+                        <button class="edit-button" onclick="openEditModal(this)">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="delete-button" onclick="deleteIndicator(this)">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                <div class="indicator-item" data-indicator-id="3"
+                     data-name="生产车间C - 产品C - 2024年3月月度指标"
+                     data-ecc="生产车间C"
+                     data-product="产品C"
+                     data-period="月度"
+                     data-year="2024"
+                     data-value="0.95"
+                     data-standard="企业历史标准"
+                     data-standard-value="1.00"
+                     data-remarks="">
+                    <div class="indicator-info">
+                        <div class="indicator-name">生产车间C - 产品C - 2024年3月月度指标</div>
+                        <div class="indicator-details">
+                            指标值: 0.95 kWh/件 | 参考标准: 企业历史标准 (1.00 kWh/件) | 周期: 月度
+                        </div>
+                    </div>
+                    <div class="indicator-actions">
+                        <button class="edit-button" onclick="openEditModal(this)">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="delete-button" onclick="deleteIndicator(this)">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                <div class="indicator-item" data-indicator-id="4"
+                     data-name="包装线 - 产品A - 2024年度指标"
+                     data-ecc="包装线"
+                     data-product="产品A"
+                     data-period="年度"
+                     data-year="2024"
+                     data-value="0.90"
+                     data-standard="行业标准"
+                     data-standard-value="0.95"
+                     data-remarks="包装线优化后指标">
+                    <div class="indicator-info">
+                        <div class="indicator-name">包装线 - 产品A - 2024年度指标</div>
+                        <div class="indicator-details">
+                            指标值: 0.90 kWh/件 | 参考标准: 行业标准 (0.95 kWh/件) | 周期: 年度
+                        </div>
+                    </div>
+                    <div class="indicator-actions">
+                        <button class="edit-button" onclick="openEditModal(this)">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="delete-button" onclick="deleteIndicator(this)">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                <div class="indicator-item" data-indicator-id="5"
+                     data-name="生产车间A - 产品B - 2024年Q2季度指标"
+                     data-ecc="生产车间A"
+                     data-product="产品B"
+                     data-period="季度"
+                     data-year="2024"
+                     data-value="1.12"
+                     data-standard="国家标准"
+                     data-standard-value="1.15"
+                     data-remarks="">
+                    <div class="indicator-info">
+                        <div class="indicator-name">生产车间A - 产品B - 2024年Q2季度指标</div>
+                        <div class="indicator-details">
+                            指标值: 1.12 kWh/件 | 参考标准: 国家标准 (1.15 kWh/件) | 周期: 季度
+                        </div>
+                    </div>
+                    <div class="indicator-actions">
+                        <button class="edit-button" onclick="openEditModal(this)">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="delete-button" onclick="deleteIndicator(this)">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                <div class="indicator-item" data-indicator-id="6"
+                     data-name="生产车间B - 产品C - 2024年4月月度指标"
+                     data-ecc="生产车间B"
+                     data-product="产品C"
+                     data-period="月度"
+                     data-year="2024"
+                     data-value="0.98"
+                     data-standard="企业历史标准"
+                     data-standard-value="1.05"
+                     data-remarks="">
+                    <div class="indicator-info">
+                        <div class="indicator-name">生产车间B - 产品C - 2024年4月月度指标</div>
+                        <div class="indicator-details">
+                            指标值: 0.98 kWh/件 | 参考标准: 企业历史标准 (1.05 kWh/件) | 周期: 月度
+                        </div>
+                    </div>
+                    <div class="indicator-actions">
+                        <button class="edit-button" onclick="openEditModal(this)">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="delete-button" onclick="deleteIndicator(this)">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                <div class="indicator-item" data-indicator-id="7"
+                     data-name="仓储物流中心 - 产品D - 2024年Q3季度指标"
+                     data-ecc="仓储物流中心"
+                     data-product="产品D"
+                     data-period="季度"
+                     data-year="2024"
+                     data-value="0.88"
+                     data-standard="行业标准"
+                     data-standard-value="0.95"
+                     data-remarks="新增物流系统后指标">
+                    <div class="indicator-info">
+                        <div class="indicator-name">仓储物流中心 - 产品D - 2024年Q3季度指标</div>
+                        <div class="indicator-details">
+                            指标值: 0.88 kWh/件 | 参考标准: 行业标准 (0.95 kWh/件) | 周期: 季度
+                        </div>
+                    </div>
+                    <div class="indicator-actions">
+                        <button class="edit-button" onclick="openEditModal(this)">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="delete-button" onclick="deleteIndicator(this)">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+                <div class="indicator-item" data-indicator-id="8"
+                     data-name="生活配套区 - 产品E - 2024年度指标"
+                     data-ecc="生活配套区"
+                     data-product="产品E"
+                     data-period="年度"
+                     data-year="2024"
+                     data-value="0.72"
+                     data-standard="企业历史标准"
+                     data-standard-value="0.80"
+                     data-remarks="">
+                    <div class="indicator-info">
+                        <div class="indicator-name">生活配套区 - 产品E - 2024年度指标</div>
+                        <div class="indicator-details">
+                            指标值: 0.72 kWh/件 | 参考标准: 企业历史标准 (0.80 kWh/件) | 周期: 年度
+                        </div>
+                    </div>
+                    <div class="indicator-actions">
+                        <button class="edit-button" onclick="openEditModal(this)">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="delete-button" onclick="deleteIndicator(this)">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 2: 单耗监测 -->
+    <div id="monitoring" class="tab-content">
+        <div class="function-module">
+            <div class="module-header">
+                <i class="fas fa-chart-line module-icon"></i>
+                <h3 class="module-title">单耗监测</h3>
+            </div>
+            <p class="module-description">
+                通过各个ECC的能源消耗量和产量(MES系统对接)计算出单位产品能耗(单位产值能耗)，对单耗进行监测分析。
+            </p>
+
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>能源成本中心：</label>
+                        <select class="filter-select">
+                            <option>全部ECC</option>
+                            <option>生产车间A</option>
+                            <option>生产车间B</option>
+                            <option>生产车间C</option>
+                            <option>包装线</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>产品类型：</label>
+                        <select class="filter-select">
+                            <option>全部产品</option>
+                            <option>产品A</option>
+                            <option>产品B</option>
+                            <option>产品C</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>时间范围：</label>
+                        <select class="filter-select">
+                            <option>今日</option>
+                            <option>本周</option>
+                            <option>本月</option>
+                            <option>本季度</option>
+                            <option>自定义</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>开始日期：</label>
+                        <input type="date" class="filter-input">
+                    </div>
+                    <div class="filter-item">
+                        <label>结束日期：</label>
+                        <input type="date" class="filter-input">
+                    </div>
+                    <button class="query-button">
+                        <i class="fas fa-search"></i>
+                        查询
+                    </button>
+                    <button class="export-button">
+                        <i class="fas fa-file-export"></i>
+                        导出
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-label">当前单位能耗</div>
+                    <div class="stat-value">1.18</div>
+                    <div class="stat-unit">kWh/件</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">累计产量</div>
+                    <div class="stat-value">12,580</div>
+                    <div class="stat-unit">件</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">累计能耗</div>
+                    <div class="stat-value">14,844</div>
+                    <div class="stat-unit">kWh</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">同比变化</div>
+                    <div class="stat-value" style="color: #4caf50;">-5.2%</div>
+                    <div class="stat-unit">较去年同期</div>
+                </div>
+            </div>
+
+            <!-- 单耗趋势图 -->
+            <div class="chart-container" id="monitoring-trend-chart"></div>
+
+            <!-- 监测数据表 -->
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>能源成本中心</th>
+                            <th>产品类型</th>
+                            <th>产量（件）</th>
+                            <th>能耗（kWh）</th>
+                            <th>单位能耗（kWh/件）</th>
+                            <th>单位产值能耗（kWh/元）</th>
+                            <th>状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024-03-15</td>
+                            <td>生产车间A</td>
+                            <td>产品A</td>
+                            <td>1,250</td>
+                            <td>1,437.5</td>
+                            <td>1.15</td>
+                            <td>0.023</td>
+                            <td style="color: #4caf50;">正常</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-15</td>
+                            <td>生产车间B</td>
+                            <td>产品B</td>
+                            <td>980</td>
+                            <td>1,058.4</td>
+                            <td>1.08</td>
+                            <td>0.021</td>
+                            <td style="color: #4caf50;">正常</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-15</td>
+                            <td>生产车间C</td>
+                            <td>产品C</td>
+                            <td>1,520</td>
+                            <td>1,444.0</td>
+                            <td>0.95</td>
+                            <td>0.019</td>
+                            <td style="color: #4caf50;">正常</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-14</td>
+                            <td>生产车间A</td>
+                            <td>产品A</td>
+                            <td>1,180</td>
+                            <td>1,416.0</td>
+                            <td>1.20</td>
+                            <td>0.024</td>
+                            <td style="color: #f39c12;">偏高</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-14</td>
+                            <td>包装线</td>
+                            <td>产品A</td>
+                            <td>1,250</td>
+                            <td>1,187.5</td>
+                            <td>0.95</td>
+                            <td>0.019</td>
+                            <td style="color: #4caf50;">正常</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-13</td>
+                            <td>生产车间A</td>
+                            <td>产品A</td>
+                            <td>1,280</td>
+                            <td>1,459.2</td>
+                            <td>1.14</td>
+                            <td>0.023</td>
+                            <td style="color: #4caf50;">正常</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-13</td>
+                            <td>生产车间B</td>
+                            <td>产品B</td>
+                            <td>950</td>
+                            <td>1,026.0</td>
+                            <td>1.08</td>
+                            <td>0.021</td>
+                            <td style="color: #4caf50;">正常</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-13</td>
+                            <td>生产车间C</td>
+                            <td>产品C</td>
+                            <td>1,480</td>
+                            <td>1,406.0</td>
+                            <td>0.95</td>
+                            <td>0.019</td>
+                            <td style="color: #4caf50;">正常</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-12</td>
+                            <td>生产车间A</td>
+                            <td>产品B</td>
+                            <td>840</td>
+                            <td>940.8</td>
+                            <td>1.12</td>
+                            <td>0.022</td>
+                            <td style="color: #4caf50;">正常</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-12</td>
+                            <td>包装线</td>
+                            <td>产品A</td>
+                            <td>1,180</td>
+                            <td>1,121.0</td>
+                            <td>0.95</td>
+                            <td>0.019</td>
+                            <td style="color: #4caf50;">正常</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-11</td>
+                            <td>生产车间B</td>
+                            <td>产品C</td>
+                            <td>1,120</td>
+                            <td>1,097.6</td>
+                            <td>0.98</td>
+                            <td>0.020</td>
+                            <td style="color: #4caf50;">正常</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 3: ECC单耗报表 -->
+    <div id="report" class="tab-content">
+        <div class="function-module">
+            <div class="module-header">
+                <i class="fas fa-table module-icon"></i>
+                <h3 class="module-title">ECC单耗报表</h3>
+            </div>
+            <p class="module-description">
+                通过表格的报表形式呈现出各种能源消耗与产量的关系，并形成相应的报表，最小的查询单位为日。
+            </p>
+
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>能源成本中心：</label>
+                        <select class="filter-select">
+                            <option>全部ECC</option>
+                            <option>生产车间A</option>
+                            <option>生产车间B</option>
+                            <option>生产车间C</option>
+                            <option>包装线</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>产品类型：</label>
+                        <select class="filter-select">
+                            <option>全部产品</option>
+                            <option>产品A</option>
+                            <option>产品B</option>
+                            <option>产品C</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>报表类型：</label>
+                        <select class="filter-select">
+                            <option>日报表</option>
+                            <option>周报表</option>
+                            <option>月报表</option>
+                            <option>季度报表</option>
+                            <option>年报表</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>开始日期：</label>
+                        <input type="date" class="filter-input">
+                    </div>
+                    <div class="filter-item">
+                        <label>结束日期：</label>
+                        <input type="date" class="filter-input">
+                    </div>
+                    <button class="query-button">
+                        <i class="fas fa-search"></i>
+                        查询
+                    </button>
+                    <button class="export-button">
+                        <i class="fas fa-file-export"></i>
+                        导出报表
+                    </button>
+                </div>
+            </div>
+
+            <!-- 报表数据表 -->
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>能源成本中心</th>
+                            <th>产品类型</th>
+                            <th>电力消耗（kWh）</th>
+                            <th>天然气消耗（m³）</th>
+                            <th>水消耗（m³）</th>
+                            <th>总能耗（kWh当量）</th>
+                            <th>产量（件）</th>
+                            <th>单位产品能耗（kWh/件）</th>
+                            <th>单位产值能耗（kWh/元）</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024-03-15</td>
+                            <td>生产车间A</td>
+                            <td>产品A</td>
+                            <td>1,200.5</td>
+                            <td>150.2</td>
+                            <td>85.5</td>
+                            <td>1,437.5</td>
+                            <td>1,250</td>
+                            <td>1.15</td>
+                            <td>0.023</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-15</td>
+                            <td>生产车间B</td>
+                            <td>产品B</td>
+                            <td>950.8</td>
+                            <td>120.5</td>
+                            <td>72.3</td>
+                            <td>1,058.4</td>
+                            <td>980</td>
+                            <td>1.08</td>
+                            <td>0.021</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-15</td>
+                            <td>生产车间C</td>
+                            <td>产品C</td>
+                            <td>1,180.2</td>
+                            <td>95.8</td>
+                            <td>68.2</td>
+                            <td>1,444.0</td>
+                            <td>1,520</td>
+                            <td>0.95</td>
+                            <td>0.019</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-14</td>
+                            <td>生产车间A</td>
+                            <td>产品A</td>
+                            <td>1,180.0</td>
+                            <td>148.5</td>
+                            <td>84.2</td>
+                            <td>1,416.0</td>
+                            <td>1,180</td>
+                            <td>1.20</td>
+                            <td>0.024</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-14</td>
+                            <td>生产车间B</td>
+                            <td>产品B</td>
+                            <td>920.5</td>
+                            <td>118.2</td>
+                            <td>70.8</td>
+                            <td>1,025.8</td>
+                            <td>950</td>
+                            <td>1.08</td>
+                            <td>0.021</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-14</td>
+                            <td>包装线</td>
+                            <td>产品A</td>
+                            <td>1,050.0</td>
+                            <td>45.2</td>
+                            <td>35.5</td>
+                            <td>1,187.5</td>
+                            <td>1,250</td>
+                            <td>0.95</td>
+                            <td>0.019</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-13</td>
+                            <td>生产车间A</td>
+                            <td>产品A</td>
+                            <td>1,220.8</td>
+                            <td>152.3</td>
+                            <td>86.1</td>
+                            <td>1,462.5</td>
+                            <td>1,280</td>
+                            <td>1.14</td>
+                            <td>0.023</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-13</td>
+                            <td>生产车间C</td>
+                            <td>产品C</td>
+                            <td>1,150.5</td>
+                            <td>92.5</td>
+                            <td>66.8</td>
+                            <td>1,406.0</td>
+                            <td>1,480</td>
+                            <td>0.95</td>
+                            <td>0.019</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-12</td>
+                            <td>生产车间A</td>
+                            <td>产品B</td>
+                            <td>750.0</td>
+                            <td>95.2</td>
+                            <td>60.5</td>
+                            <td>940.8</td>
+                            <td>840</td>
+                            <td>1.12</td>
+                            <td>0.022</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-12</td>
+                            <td>包装线</td>
+                            <td>产品A</td>
+                            <td>1,000.0</td>
+                            <td>40.5</td>
+                            <td>35.0</td>
+                            <td>1,121.0</td>
+                            <td>1,180</td>
+                            <td>0.95</td>
+                            <td>0.019</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-11</td>
+                            <td>生产车间B</td>
+                            <td>产品C</td>
+                            <td>980.0</td>
+                            <td>75.2</td>
+                            <td>55.8</td>
+                            <td>1,097.6</td>
+                            <td>1,120</td>
+                            <td>0.98</td>
+                            <td>0.020</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-11</td>
+                            <td>生产车间A</td>
+                            <td>产品A</td>
+                            <td>1,220.0</td>
+                            <td>152.0</td>
+                            <td>86.0</td>
+                            <td>1,462.5</td>
+                            <td>1,280</td>
+                            <td>1.14</td>
+                            <td>0.023</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-10</td>
+                            <td>生产车间C</td>
+                            <td>产品C</td>
+                            <td>1,140.0</td>
+                            <td>90.0</td>
+                            <td>65.0</td>
+                            <td>1,392.0</td>
+                            <td>1,460</td>
+                            <td>0.95</td>
+                            <td>0.019</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 汇总统计 -->
+            <div class="stats-cards" style="margin-top: 20px;">
+                <div class="stat-card">
+                    <div class="stat-label">平均单位能耗</div>
+                    <div class="stat-value">1.06</div>
+                    <div class="stat-unit">kWh/件</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">总产量</div>
+                    <div class="stat-value">13,150</div>
+                    <div class="stat-unit">件</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">总能耗</div>
+                    <div class="stat-value">13,939</div>
+                    <div class="stat-unit">kWh当量</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">平均单位产值能耗</div>
+                    <div class="stat-value">0.021</div>
+                    <div class="stat-unit">kWh/元</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 4: 单耗对标 -->
+    <div id="benchmarking" class="tab-content">
+        <div class="function-module">
+            <div class="module-header">
+                <i class="fas fa-balance-scale module-icon"></i>
+                <h3 class="module-title">单耗对标</h3>
+            </div>
+            <p class="module-description">
+                通过实际单位能耗与设定的单耗标准对标，发现异常原因并及时改进。
+            </p>
+
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>能源成本中心：</label>
+                        <select class="filter-select">
+                            <option>全部ECC</option>
+                            <option>生产车间A</option>
+                            <option>生产车间B</option>
+                            <option>生产车间C</option>
+                            <option>包装线</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>产品类型：</label>
+                        <select class="filter-select">
+                            <option>全部产品</option>
+                            <option>产品A</option>
+                            <option>产品B</option>
+                            <option>产品C</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>时间范围：</label>
+                        <select class="filter-select">
+                            <option>本月</option>
+                            <option>本季度</option>
+                            <option>本年度</option>
+                            <option>自定义</option>
+                        </select>
+                    </div>
+                    <button class="query-button">
+                        <i class="fas fa-search"></i>
+                        查询
+                    </button>
+                </div>
+            </div>
+
+            <!-- 对标分析卡片 -->
+            <div class="benchmark-analysis">
+                <div class="benchmark-card">
+                    <div class="benchmark-card-title">实际单位能耗</div>
+                    <div class="benchmark-value">1.18</div>
+                    <div class="benchmark-unit">kWh/件</div>
+                    <div class="benchmark-status warning">较标准值偏高2.6%</div>
+                </div>
+                <div class="benchmark-card">
+                    <div class="benchmark-card-title">设定标准值</div>
+                    <div class="benchmark-value">1.15</div>
+                    <div class="benchmark-unit">kWh/件</div>
+                    <div class="benchmark-status normal">标准值</div>
+                </div>
+                <div class="benchmark-card">
+                    <div class="benchmark-card-title">偏差率</div>
+                    <div class="benchmark-value" style="color: #f39c12;">+2.6%</div>
+                    <div class="benchmark-unit">超出标准</div>
+                    <div class="benchmark-status warning">需要改进</div>
+                </div>
+                <div class="benchmark-card">
+                    <div class="benchmark-card-title">最优值</div>
+                    <div class="benchmark-value" style="color: #4caf50;">1.08</div>
+                    <div class="benchmark-unit">kWh/件</div>
+                    <div class="benchmark-status normal">历史最优</div>
+                </div>
+            </div>
+
+            <!-- 对标趋势图 -->
+            <div class="chart-container" id="benchmarking-trend-chart" style="margin-top: 20px;"></div>
+
+            <!-- 对标数据表 -->
+            <div class="data-table-container" style="margin-top: 20px;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>能源成本中心</th>
+                            <th>产品类型</th>
+                            <th>实际单位能耗（kWh/件）</th>
+                            <th>设定标准值（kWh/件）</th>
+                            <th>最优值（kWh/件）</th>
+                            <th>偏差率</th>
+                            <th>对标状态</th>
+                            <th>异常原因</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024-03-15</td>
+                            <td>生产车间A</td>
+                            <td>产品A</td>
+                            <td>1.15</td>
+                            <td>1.15</td>
+                            <td>1.08</td>
+                            <td style="color: #4caf50;">0.0%</td>
+                            <td style="color: #4caf50;">正常</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-15</td>
+                            <td>生产车间B</td>
+                            <td>产品B</td>
+                            <td>1.08</td>
+                            <td>1.10</td>
+                            <td>1.05</td>
+                            <td style="color: #4caf50;">-1.8%</td>
+                            <td style="color: #4caf50;">优秀</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-15</td>
+                            <td>生产车间C</td>
+                            <td>产品C</td>
+                            <td>0.95</td>
+                            <td>1.00</td>
+                            <td>0.92</td>
+                            <td style="color: #4caf50;">-5.0%</td>
+                            <td style="color: #4caf50;">优秀</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-14</td>
+                            <td>生产车间A</td>
+                            <td>产品A</td>
+                            <td>1.20</td>
+                            <td>1.15</td>
+                            <td>1.08</td>
+                            <td style="color: #f39c12;">+4.3%</td>
+                            <td style="color: #f39c12;">偏高</td>
+                            <td>设备故障导致能耗增加</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-14</td>
+                            <td>包装线</td>
+                            <td>产品A</td>
+                            <td>0.95</td>
+                            <td>1.00</td>
+                            <td>0.90</td>
+                            <td style="color: #4caf50;">-5.0%</td>
+                            <td style="color: #4caf50;">优秀</td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>2024-03-13</td>
+                            <td>生产车间A</td>
+                            <td>产品A</td>
+                            <td>1.14</td>
+                            <td>1.15</td>
+                            <td>1.08</td>
+                            <td style="color: #4caf50;">-0.9%</td>
+                            <td style="color: #4caf50;">正常</td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 异常分析区域 -->
+            <div style="margin-top: 20px; padding: 15px; background-color: #1a2a3a; border: 1px solid #3c5472; border-radius: 6px;">
+                <h4 style="color: #e0e6ed; margin-bottom: 15px; font-size: 14px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #f39c12;"></i> 异常原因分析
+                </h4>
+                <div style="color: #a7bed3; font-size: 13px; line-height: 1.8;">
+                    <p><strong>2024-03-14 生产车间A 产品A：</strong>设备故障导致能耗增加，建议及时维修设备，预计可降低能耗3-5%。</p>
+                    <p><strong>改进建议：</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>加强设备日常维护，减少故障率</li>
+                        <li>优化生产流程，提高设备运行效率</li>
+                        <li>加强操作人员培训，规范操作流程</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 5: 单耗排名 -->
+    <div id="ranking" class="tab-content">
+        <div class="function-module">
+            <div class="module-header">
+                <i class="fas fa-trophy module-icon"></i>
+                <h3 class="module-title">单耗排名</h3>
+            </div>
+            <p class="module-description">
+                实现生产同类产品的能源成本中心单位能耗排名。
+            </p>
+
+            <!-- 筛选区域 -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-item">
+                        <label>产品类型：</label>
+                        <select class="filter-select">
+                            <option>产品A</option>
+                            <option>产品B</option>
+                            <option>产品C</option>
+                            <option>全部产品</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>排名周期：</label>
+                        <select class="filter-select">
+                            <option>本月</option>
+                            <option>本季度</option>
+                            <option>本年度</option>
+                            <option>自定义</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label>开始日期：</label>
+                        <input type="date" class="filter-input">
+                    </div>
+                    <div class="filter-item">
+                        <label>结束日期：</label>
+                        <input type="date" class="filter-input">
+                    </div>
+                    <button class="query-button">
+                        <i class="fas fa-search"></i>
+                        查询
+                    </button>
+                    <button class="export-button">
+                        <i class="fas fa-file-export"></i>
+                        导出
+                    </button>
+                </div>
+            </div>
+
+            <!-- 排名统计 -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-label">最优单位能耗</div>
+                    <div class="stat-value" style="color: #4caf50;">0.95</div>
+                    <div class="stat-unit">kWh/件</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">平均单位能耗</div>
+                    <div class="stat-value">1.08</div>
+                    <div class="stat-unit">kWh/件</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">最差单位能耗</div>
+                    <div class="stat-value" style="color: #f39c12;">1.20</div>
+                    <div class="stat-unit">kWh/件</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">参与排名ECC数</div>
+                    <div class="stat-value">5</div>
+                    <div class="stat-unit">个</div>
+                </div>
+            </div>
+
+            <!-- 排名分布图 -->
+            <div class="chart-container" id="ranking-distribution-chart"></div>
+
+            <!-- 排名列表 -->
+            <div class="ranking-list">
+                <h4 style="color: #e0e6ed; margin-bottom: 15px; font-size: 16px;">
+                    <i class="fas fa-list-ol"></i> 产品A - 单位能耗排名（2024年3月）
+                </h4>
+                <div class="ranking-item">
+                    <div class="ranking-number top1">1</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">生产车间C</div>
+                        <div class="ranking-value">产品类型: 产品A | 产量: 45,600件 | 总能耗: 43,320 kWh</div>
+                    </div>
+                    <div class="ranking-consumption">0.95 kWh/件</div>
+                </div>
+                <div class="ranking-item">
+                    <div class="ranking-number top2">2</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">包装线</div>
+                        <div class="ranking-value">产品类型: 产品A | 产量: 37,500件 | 总能耗: 35,625 kWh</div>
+                    </div>
+                    <div class="ranking-consumption">0.95 kWh/件</div>
+                </div>
+                <div class="ranking-item">
+                    <div class="ranking-number top3">3</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">生产车间A</div>
+                        <div class="ranking-value">产品类型: 产品A | 产量: 36,900件 | 总能耗: 42,435 kWh</div>
+                    </div>
+                    <div class="ranking-consumption">1.15 kWh/件</div>
+                </div>
+                <div class="ranking-item">
+                    <div class="ranking-number">4</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">生产车间B</div>
+                        <div class="ranking-value">产品类型: 产品A | 产量: 29,400件 | 总能耗: 34,020 kWh</div>
+                    </div>
+                    <div class="ranking-consumption">1.16 kWh/件</div>
+                </div>
+                <div class="ranking-item">
+                    <div class="ranking-number">5</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">生产车间D</div>
+                        <div class="ranking-value">产品类型: 产品A | 产量: 28,200件 | 总能耗: 33,840 kWh</div>
+                    </div>
+                    <div class="ranking-consumption">1.20 kWh/件</div>
+                </div>
+            </div>
+
+            <!-- 产品B排名 -->
+            <div class="ranking-list" style="margin-top: 30px;">
+                <h4 style="color: #e0e6ed; margin-bottom: 15px; font-size: 16px;">
+                    <i class="fas fa-list-ol"></i> 产品B - 单位能耗排名（2024年3月）
+                </h4>
+                <div class="ranking-item">
+                    <div class="ranking-number top1">1</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">生产车间B</div>
+                        <div class="ranking-value">产品类型: 产品B | 产量: 29,400件 | 总能耗: 31,752 kWh</div>
+                    </div>
+                    <div class="ranking-consumption">1.08 kWh/件</div>
+                </div>
+                <div class="ranking-item">
+                    <div class="ranking-number top2">2</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">生产车间C</div>
+                        <div class="ranking-value">产品类型: 产品B | 产量: 27,600件 | 总能耗: 30,360 kWh</div>
+                    </div>
+                    <div class="ranking-consumption">1.10 kWh/件</div>
+                </div>
+                <div class="ranking-item">
+                    <div class="ranking-number top3">3</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">生产车间A</div>
+                        <div class="ranking-value">产品类型: 产品B | 产量: 25,200件 | 总能耗: 28,350 kWh</div>
+                    </div>
+                    <div class="ranking-consumption">1.13 kWh/件</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新增指标模态框 -->
+<div id="addIndicatorModal" class="modal-overlay">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-plus-circle"></i>
+                新增指标
+            </h3>
+            <button class="modal-close" onclick="closeAddIndicatorModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="indicator-form">
+                <div class="form-grid">
+                    <div class="form-item">
+                        <label>指标名称：</label>
+                        <input type="text" id="add-indicator-name" placeholder="请输入指标名称">
+                    </div>
+                    <div class="form-item">
+                        <label>能源成本中心：</label>
+                        <select id="add-indicator-ecc">
+                            <option>请选择</option>
+                            <option>生产车间A</option>
+                            <option>生产车间B</option>
+                            <option>生产车间C</option>
+                            <option>包装线</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>产品类型：</label>
+                        <select id="add-indicator-product">
+                            <option>请选择</option>
+                            <option>产品A</option>
+                            <option>产品B</option>
+                            <option>产品C</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>指标周期：</label>
+                        <select id="add-indicator-period">
+                            <option>年度</option>
+                            <option>季度</option>
+                            <option>月度</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>指标年份：</label>
+                        <input type="number" id="add-indicator-year" value="2024" min="2020" max="2030">
+                    </div>
+                    <div class="form-item">
+                        <label>指标值（kWh/件）：</label>
+                        <input type="number" id="add-indicator-value" step="0.01" placeholder="请输入指标值">
+                    </div>
+                    <div class="form-item">
+                        <label>参考标准：</label>
+                        <select id="add-indicator-standard">
+                            <option>国家标准</option>
+                            <option>行业标准</option>
+                            <option>企业历史标准</option>
+                            <option>自定义</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>标准值（kWh/件）：</label>
+                        <input type="number" id="add-indicator-standard-value" step="0.01" placeholder="参考标准值">
+                    </div>
+                    <div class="form-item">
+                        <label>备注：</label>
+                        <input type="text" id="add-indicator-remarks" placeholder="请输入备注信息">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel-button" onclick="closeAddIndicatorModal()">
+                <i class="fas fa-times"></i>
+                取消
+            </button>
+            <button class="save-button" onclick="saveNewIndicator()">
+                <i class="fas fa-save"></i>
+                保存指标
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑指标模态框 -->
+<div id="editIndicatorModal" class="modal-overlay">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-edit"></i>
+                编辑指标
+            </h3>
+            <button class="modal-close" onclick="closeEditModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="indicator-form">
+                <div class="form-grid">
+                    <div class="form-item">
+                        <label>指标名称：</label>
+                        <input type="text" id="edit-indicator-name" placeholder="请输入指标名称">
+                    </div>
+                    <div class="form-item">
+                        <label>能源成本中心：</label>
+                        <select id="edit-indicator-ecc">
+                            <option>请选择</option>
+                            <option>生产车间A</option>
+                            <option>生产车间B</option>
+                            <option>生产车间C</option>
+                            <option>包装线</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>产品类型：</label>
+                        <select id="edit-indicator-product">
+                            <option>请选择</option>
+                            <option>产品A</option>
+                            <option>产品B</option>
+                            <option>产品C</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>指标周期：</label>
+                        <select id="edit-indicator-period">
+                            <option>年度</option>
+                            <option>季度</option>
+                            <option>月度</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>指标年份：</label>
+                        <input type="number" id="edit-indicator-year" min="2020" max="2030">
+                    </div>
+                    <div class="form-item">
+                        <label>指标值（kWh/件）：</label>
+                        <input type="number" id="edit-indicator-value" step="0.01" placeholder="请输入指标值">
+                    </div>
+                    <div class="form-item">
+                        <label>参考标准：</label>
+                        <select id="edit-indicator-standard">
+                            <option>国家标准</option>
+                            <option>行业标准</option>
+                            <option>企业历史标准</option>
+                            <option>自定义</option>
+                        </select>
+                    </div>
+                    <div class="form-item">
+                        <label>标准值（kWh/件）：</label>
+                        <input type="number" id="edit-indicator-standard-value" step="0.01" placeholder="参考标准值">
+                    </div>
+                    <div class="form-item">
+                        <label>备注：</label>
+                        <input type="text" id="edit-indicator-remarks" placeholder="请输入备注信息">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="cancel-button" onclick="closeEditModal()">
+                <i class="fas fa-times"></i>
+                取消
+            </button>
+            <button class="save-button" onclick="saveEditedIndicator()">
+                <i class="fas fa-save"></i>
+                保存修改
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 确保函数在全局作用域中可用
+    (function() {
+        // Tab切换功能
+        window.openTab = function(evt, tabName) {
+            var i, tabcontent, tablinks;
+            
+            // 获取当前容器
+            const container = evt.currentTarget.closest('.product-unit-consumption-container');
+            if (!container) return;
+            
+            // 隐藏所有tab内容
+            tabcontent = container.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            
+            // 移除所有tab按钮的active状态
+            tablinks = container.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            
+            // 显示当前tab内容
+            document.getElementById(tabName).classList.add("active");
+            
+            // 激活当前tab按钮
+            evt.currentTarget.classList.add("active");
+        };
+
+        // 当前编辑的指标项
+        let currentEditingItem = null;
+        let indicatorIdCounter = 9; // 用于生成新指标ID
+
+        // 打开新增指标模态框
+        window.openAddIndicatorModal = function() {
+            // 清空表单
+            document.getElementById('add-indicator-name').value = '';
+            document.getElementById('add-indicator-ecc').value = '请选择';
+            document.getElementById('add-indicator-product').value = '请选择';
+            document.getElementById('add-indicator-period').value = '年度';
+            document.getElementById('add-indicator-year').value = 2024;
+            document.getElementById('add-indicator-value').value = '';
+            document.getElementById('add-indicator-standard').value = '国家标准';
+            document.getElementById('add-indicator-standard-value').value = '';
+            document.getElementById('add-indicator-remarks').value = '';
+            
+            // 显示模态框
+            document.getElementById('addIndicatorModal').classList.add('active');
+        };
+
+        // 关闭新增指标模态框
+        window.closeAddIndicatorModal = function() {
+            document.getElementById('addIndicatorModal').classList.remove('active');
+        };
+
+        // 保存新指标
+        window.saveNewIndicator = function() {
+            // 获取表单数据
+            const name = document.getElementById('add-indicator-name').value;
+            const ecc = document.getElementById('add-indicator-ecc').value;
+            const product = document.getElementById('add-indicator-product').value;
+            const period = document.getElementById('add-indicator-period').value;
+            const year = document.getElementById('add-indicator-year').value;
+            const value = document.getElementById('add-indicator-value').value;
+            const standard = document.getElementById('add-indicator-standard').value;
+            const standardValue = document.getElementById('add-indicator-standard-value').value;
+            const remarks = document.getElementById('add-indicator-remarks').value;
+
+            // 验证必填项
+            if (!name || ecc === '请选择' || product === '请选择' || !value) {
+                alert('请填写所有必填项！');
+                return;
+            }
+
+            // 生成指标名称（如果用户没有填写）
+            const indicatorName = name || `${ecc} - ${product} - ${year}年${period === '年度' ? '' : period}指标`;
+
+            // 创建新的指标项
+            const indicatorList = document.querySelector('.indicator-list');
+            const newIndicatorItem = document.createElement('div');
+            newIndicatorItem.className = 'indicator-item';
+            newIndicatorItem.setAttribute('data-indicator-id', indicatorIdCounter++);
+            newIndicatorItem.setAttribute('data-name', indicatorName);
+            newIndicatorItem.setAttribute('data-ecc', ecc);
+            newIndicatorItem.setAttribute('data-product', product);
+            newIndicatorItem.setAttribute('data-period', period);
+            newIndicatorItem.setAttribute('data-year', year);
+            newIndicatorItem.setAttribute('data-value', value);
+            newIndicatorItem.setAttribute('data-standard', standard);
+            newIndicatorItem.setAttribute('data-standard-value', standardValue);
+            newIndicatorItem.setAttribute('data-remarks', remarks);
+
+            newIndicatorItem.innerHTML = `
+                <div class="indicator-info">
+                    <div class="indicator-name">${indicatorName}</div>
+                    <div class="indicator-details">
+                        指标值: ${value} kWh/件 | 参考标准: ${standard} ${standardValue ? '(' + standardValue + ' kWh/件)' : ''} | 周期: ${period}
+                    </div>
+                </div>
+                <div class="indicator-actions">
+                    <button class="edit-button" onclick="openEditModal(this)">
+                        <i class="fas fa-edit"></i> 编辑
+                    </button>
+                    <button class="delete-button" onclick="deleteIndicator(this)">
+                        <i class="fas fa-trash"></i> 删除
+                    </button>
+                </div>
+            `;
+
+            // 插入到列表开头
+            const firstItem = indicatorList.querySelector('.indicator-item');
+            if (firstItem) {
+                indicatorList.insertBefore(newIndicatorItem, firstItem);
+            } else {
+                indicatorList.appendChild(newIndicatorItem);
+            }
+
+            // 关闭模态框
+            closeAddIndicatorModal();
+
+            // 显示成功提示
+            alert('指标添加成功！');
+        };
+
+        // 导出模板
+        window.exportTemplate = function() {
+            alert('导出模板功能开发中...');
+        };
+
+        // 打开编辑模态框
+        window.openEditModal = function(button) {
+        const indicatorItem = button.closest('.indicator-item');
+        currentEditingItem = indicatorItem;
+        
+        // 获取指标数据
+        const name = indicatorItem.getAttribute('data-name');
+        const ecc = indicatorItem.getAttribute('data-ecc');
+        const product = indicatorItem.getAttribute('data-product');
+        const period = indicatorItem.getAttribute('data-period');
+        const year = indicatorItem.getAttribute('data-year');
+        const value = indicatorItem.getAttribute('data-value');
+        const standard = indicatorItem.getAttribute('data-standard');
+        const standardValue = indicatorItem.getAttribute('data-standard-value');
+        const remarks = indicatorItem.getAttribute('data-remarks') || '';
+
+        // 填充表单数据
+        document.getElementById('edit-indicator-name').value = name;
+        document.getElementById('edit-indicator-ecc').value = ecc;
+        document.getElementById('edit-indicator-product').value = product;
+        document.getElementById('edit-indicator-period').value = period;
+        document.getElementById('edit-indicator-year').value = year;
+        document.getElementById('edit-indicator-value').value = value;
+        document.getElementById('edit-indicator-standard').value = standard;
+        document.getElementById('edit-indicator-standard-value').value = standardValue;
+        document.getElementById('edit-indicator-remarks').value = remarks;
+
+        // 显示模态框
+        document.getElementById('editIndicatorModal').classList.add('active');
+    }
+
+        // 关闭编辑模态框
+        window.closeEditModal = function() {
+            document.getElementById('editIndicatorModal').classList.remove('active');
+            currentEditingItem = null;
+        };
+
+        // 保存编辑后的指标
+        window.saveEditedIndicator = function() {
+        if (!currentEditingItem) return;
+
+        // 获取表单数据
+        const name = document.getElementById('edit-indicator-name').value;
+        const ecc = document.getElementById('edit-indicator-ecc').value;
+        const product = document.getElementById('edit-indicator-product').value;
+        const period = document.getElementById('edit-indicator-period').value;
+        const year = document.getElementById('edit-indicator-year').value;
+        const value = document.getElementById('edit-indicator-value').value;
+        const standard = document.getElementById('edit-indicator-standard').value;
+        const standardValue = document.getElementById('edit-indicator-standard-value').value;
+        const remarks = document.getElementById('edit-indicator-remarks').value;
+
+        // 验证必填项
+        if (!name || !ecc || !product || !value) {
+            alert('请填写所有必填项！');
+            return;
+        }
+
+        // 更新指标项的数据属性
+        currentEditingItem.setAttribute('data-name', name);
+        currentEditingItem.setAttribute('data-ecc', ecc);
+        currentEditingItem.setAttribute('data-product', product);
+        currentEditingItem.setAttribute('data-period', period);
+        currentEditingItem.setAttribute('data-year', year);
+        currentEditingItem.setAttribute('data-value', value);
+        currentEditingItem.setAttribute('data-standard', standard);
+        currentEditingItem.setAttribute('data-standard-value', standardValue);
+        currentEditingItem.setAttribute('data-remarks', remarks);
+
+        // 更新显示内容
+        const indicatorName = currentEditingItem.querySelector('.indicator-name');
+        const indicatorDetails = currentEditingItem.querySelector('.indicator-details');
+        
+        indicatorName.textContent = name;
+        indicatorDetails.textContent = `指标值: ${value} kWh/件 | 参考标准: ${standard} (${standardValue} kWh/件) | 周期: ${period}`;
+
+        // 关闭模态框
+        closeEditModal();
+
+        // 显示成功提示（实际项目中可以使用更好的提示方式）
+        alert('指标修改成功！');
+    }
+
+        // 删除指标
+        window.deleteIndicator = function(button) {
+            if (!confirm('确定要删除该指标吗？')) {
+                return;
+            }
+
+            const indicatorItem = button.closest('.indicator-item');
+            indicatorItem.remove();
+
+            // 显示成功提示
+            alert('指标删除成功！');
+        };
+
+        // 点击模态框外部关闭
+        document.addEventListener('click', function(event) {
+            const editModal = document.getElementById('editIndicatorModal');
+            const addModal = document.getElementById('addIndicatorModal');
+            
+            if (editModal && event.target === editModal) {
+                window.closeEditModal();
+            }
+            if (addModal && event.target === addModal) {
+                window.closeAddIndicatorModal();
+            }
+        });
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const editModal = document.getElementById('editIndicatorModal');
+                const addModal = document.getElementById('addIndicatorModal');
+                
+                if (editModal && editModal.classList.contains('active')) {
+                    window.closeEditModal();
+                }
+                if (addModal && addModal.classList.contains('active')) {
+                    window.closeAddIndicatorModal();
+                }
+            }
+        });
+
+        // 页面加载完成后初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPage);
+        } else {
+            initPage();
+        }
+
+        function initPage() {
+            // 确保所有函数都已定义
+            console.log('产品单耗管理页面已初始化');
+            
+            // 初始化图表
+            initCharts();
+        }
+
+        // 初始化图表
+        function initCharts() {
+            // 生成样例数据
+            const monitoringData = generateMonitoringData();
+            const benchmarkingData = generateBenchmarkingData();
+            const rankingData = generateRankingData();
+
+            // 渲染图表
+            renderMonitoringTrendChart(monitoringData);
+            renderBenchmarkingTrendChart(benchmarkingData);
+            renderRankingDistributionChart(rankingData);
+        }
+
+        // 生成单耗监测数据（30天）
+        function generateMonitoringData() {
+            const data = [];
+            const now = new Date();
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(now);
+                date.setDate(date.getDate() - i);
+                const day = date.getDate();
+                const month = date.getMonth() + 1;
+                
+                // 模拟产量和能耗数据
+                const output = 1000 + Math.random() * 500;
+                const energy = 1100 + Math.random() * 400;
+                const unitConsumption = energy / output;
+                
+                data.push({
+                    date: `${month}/${day}`,
+                    output: output,
+                    energy: energy,
+                    unitConsumption: unitConsumption
+                });
+            }
+            return data;
+        }
+
+        // 生成单耗对标数据（30天）
+        function generateBenchmarkingData() {
+            const data = [];
+            const now = new Date();
+            for (let i = 29; i >= 0; i--) {
+                const date = new Date(now);
+                date.setDate(date.getDate() - i);
+                const day = date.getDate();
+                const month = date.getMonth() + 1;
+                
+                // 模拟实际值、标准值、最优值
+                const standard = 1.15;
+                const optimal = 1.08;
+                const actual = standard + (Math.random() - 0.5) * 0.15;
+                
+                data.push({
+                    date: `${month}/${day}`,
+                    actual: actual,
+                    standard: standard,
+                    optimal: optimal
+                });
+            }
+            return data;
+        }
+
+        // 生成排名分布数据
+        function generateRankingData() {
+            return [
+                { name: '生产车间C', value: 0.95 },
+                { name: '包装线', value: 0.95 },
+                { name: '生产车间A', value: 1.15 },
+                { name: '生产车间B', value: 1.16 },
+                { name: '生产车间D', value: 1.20 }
+            ];
+        }
+
+        // 渲染单耗监测趋势图
+        function renderMonitoringTrendChart(data) {
+            const container = document.getElementById('monitoring-trend-chart');
+            if (!container) return;
+
+            const containerWidth = container.offsetWidth || container.clientWidth || 800;
+            const containerHeight = 300;
+            const padding = { top: 20, right: 20, bottom: 40, left: 60 };
+            const width = containerWidth - padding.left - padding.right;
+            const height = containerHeight - padding.top - padding.bottom;
+
+            const maxOutput = Math.max(...data.map(d => d.output));
+            const maxEnergy = Math.max(...data.map(d => d.energy));
+            const maxValue = Math.max(maxOutput, maxEnergy);
+            const yScale = height / maxValue;
+
+            let svg = `
+                <svg width="100%" height="100%" viewBox="0 0 ${containerWidth} ${containerHeight}" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <linearGradient id="outputGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00bcd4;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#00bcd4;stop-opacity:0.05" />
+                        </linearGradient>
+                        <linearGradient id="energyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ff9800;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#ff9800;stop-opacity:0.05" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- Y轴网格线 -->
+                    ${Array.from({length: 6}, (_, i) => {
+                        const y = padding.top + (height / 5) * i;
+                        const value = maxValue - (maxValue / 5) * i;
+                        return `<line x1="${padding.left}" y1="${y}" x2="${padding.left + width}" y2="${y}" stroke="#3c5472" stroke-width="1" opacity="0.5"/>`;
+                    }).join('')}
+                    
+                    <!-- Y轴标签 -->
+                    ${Array.from({length: 6}, (_, i) => {
+                        const y = padding.top + (height / 5) * i;
+                        const value = maxValue - (maxValue / 5) * i;
+                        return `<text x="${padding.left - 10}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${value.toFixed(0)}</text>`;
+                    }).join('')}
+                    
+                    <!-- 产量填充区域 -->
+                    <path d="M ${padding.left},${padding.top + height} 
+                        ${data.map((d, i) => {
+                            const x = padding.left + (width / (data.length - 1)) * i;
+                            const y = padding.top + height - d.output * yScale;
+                            return `L ${x},${y}`;
+                        }).join(' ')} 
+                        L ${padding.left + width},${padding.top + height} Z" 
+                        fill="url(#outputGradient)" stroke="none"/>
+                    
+                    <!-- 能耗填充区域 -->
+                    <path d="M ${padding.left},${padding.top + height} 
+                        ${data.map((d, i) => {
+                            const x = padding.left + (width / (data.length - 1)) * i;
+                            const y = padding.top + height - d.energy * yScale;
+                            return `L ${x},${y}`;
+                        }).join(' ')} 
+                        L ${padding.left + width},${padding.top + height} Z" 
+                        fill="url(#energyGradient)" stroke="none"/>
+                    
+                    <!-- 产量线 -->
+                    <polyline points="${data.map((d, i) => {
+                        const x = padding.left + (width / (data.length - 1)) * i;
+                        const y = padding.top + height - d.output * yScale;
+                        return `${x},${y}`;
+                    }).join(' ')}" 
+                        fill="none" stroke="#00bcd4" stroke-width="2"/>
+                    
+                    <!-- 能耗线 -->
+                    <polyline points="${data.map((d, i) => {
+                        const x = padding.left + (width / (data.length - 1)) * i;
+                        const y = padding.top + height - d.energy * yScale;
+                        return `${x},${y}`;
+                    }).join(' ')}" 
+                        fill="none" stroke="#ff9800" stroke-width="2"/>
+                    
+                    <!-- 数据点 -->
+                    ${data.filter((d, i) => i % 5 === 0).map((d, i) => {
+                        const idx = i * 5;
+                        const x = padding.left + (width / (data.length - 1)) * idx;
+                        const y1 = padding.top + height - d.output * yScale;
+                        const y2 = padding.top + height - d.energy * yScale;
+                        return `
+                            <circle cx="${x}" cy="${y1}" r="3" fill="#00bcd4" stroke="#1a2a3a" stroke-width="1"/>
+                            <circle cx="${x}" cy="${y2}" r="3" fill="#ff9800" stroke="#1a2a3a" stroke-width="1"/>
+                        `;
+                    }).join('')}
+                    
+                    <!-- X轴标签 -->
+                    ${data.filter((d, i) => i % 5 === 0 || i === data.length - 1).map((d, i) => {
+                        const idx = i * 5;
+                        const x = padding.left + (width / (data.length - 1)) * idx;
+                        return `<text x="${x}" y="${height + padding.top + 20}" fill="#a7bed3" font-size="10" text-anchor="middle">${d.date}</text>`;
+                    }).join('')}
+                    
+                    <!-- 图例 -->
+                    <g transform="translate(${containerWidth - 200}, ${padding.top + 10})">
+                        <line x1="0" y1="0" x2="30" y2="0" stroke="#00bcd4" stroke-width="2"/>
+                        <text x="35" y="4" fill="#a7bed3" font-size="11">产量</text>
+                        <line x1="0" y1="20" x2="30" y2="20" stroke="#ff9800" stroke-width="2"/>
+                        <text x="35" y="24" fill="#a7bed3" font-size="11">能耗</text>
+                    </g>
+                </svg>
+            `;
+
+            container.innerHTML = svg;
+        }
+
+        // 渲染单耗对标趋势图
+        function renderBenchmarkingTrendChart(data) {
+            const container = document.getElementById('benchmarking-trend-chart');
+            if (!container) return;
+
+            const containerWidth = container.offsetWidth || container.clientWidth || 800;
+            const containerHeight = 300;
+            const padding = { top: 20, right: 20, bottom: 40, left: 60 };
+            const width = containerWidth - padding.left - padding.right;
+            const height = containerHeight - padding.top - padding.bottom;
+
+            const maxValue = Math.max(...data.map(d => Math.max(d.actual, d.standard, d.optimal)));
+            const minValue = Math.min(...data.map(d => Math.min(d.actual, d.standard, d.optimal)));
+            const valueRange = maxValue - minValue;
+            const yScale = height / valueRange;
+
+            let svg = `
+                <svg width="100%" height="100%" viewBox="0 0 ${containerWidth} ${containerHeight}" preserveAspectRatio="xMidYMid meet">
+                    <!-- Y轴网格线 -->
+                    ${Array.from({length: 6}, (_, i) => {
+                        const y = padding.top + (height / 5) * i;
+                        const value = maxValue - (valueRange / 5) * i;
+                        return `<line x1="${padding.left}" y1="${y}" x2="${padding.left + width}" y2="${y}" stroke="#3c5472" stroke-width="1" opacity="0.5"/>`;
+                    }).join('')}
+                    
+                    <!-- Y轴标签 -->
+                    ${Array.from({length: 6}, (_, i) => {
+                        const y = padding.top + (height / 5) * i;
+                        const value = maxValue - (valueRange / 5) * i;
+                        return `<text x="${padding.left - 10}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${value.toFixed(2)}</text>`;
+                    }).join('')}
+                    
+                    <!-- 最优值线 -->
+                    <polyline points="${data.map((d, i) => {
+                        const x = padding.left + (width / (data.length - 1)) * i;
+                        const y = padding.top + height - (d.optimal - minValue) * yScale;
+                        return `${x},${y}`;
+                    }).join(' ')}" 
+                        fill="none" stroke="#4caf50" stroke-width="2" stroke-dasharray="3,3"/>
+                    
+                    <!-- 标准值线 -->
+                    <polyline points="${data.map((d, i) => {
+                        const x = padding.left + (width / (data.length - 1)) * i;
+                        const y = padding.top + height - (d.standard - minValue) * yScale;
+                        return `${x},${y}`;
+                    }).join(' ')}" 
+                        fill="none" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
+                    
+                    <!-- 实际值线 -->
+                    <polyline points="${data.map((d, i) => {
+                        const x = padding.left + (width / (data.length - 1)) * i;
+                        const y = padding.top + height - (d.actual - minValue) * yScale;
+                        return `${x},${y}`;
+                    }).join(' ')}" 
+                        fill="none" stroke="#00bcd4" stroke-width="2"/>
+                    
+                    <!-- 数据点 -->
+                    ${data.filter((d, i) => i % 5 === 0).map((d, i) => {
+                        const idx = i * 5;
+                        const x = padding.left + (width / (data.length - 1)) * idx;
+                        const y = padding.top + height - (d.actual - minValue) * yScale;
+                        return `<circle cx="${x}" cy="${y}" r="3" fill="#00bcd4" stroke="#1a2a3a" stroke-width="1"/>`;
+                    }).join('')}
+                    
+                    <!-- X轴标签 -->
+                    ${data.filter((d, i) => i % 5 === 0 || i === data.length - 1).map((d, i) => {
+                        const idx = i * 5;
+                        const x = padding.left + (width / (data.length - 1)) * idx;
+                        return `<text x="${x}" y="${height + padding.top + 20}" fill="#a7bed3" font-size="10" text-anchor="middle">${d.date}</text>`;
+                    }).join('')}
+                    
+                    <!-- 图例 -->
+                    <g transform="translate(${containerWidth - 200}, ${padding.top + 10})">
+                        <line x1="0" y1="0" x2="30" y2="0" stroke="#00bcd4" stroke-width="2"/>
+                        <text x="35" y="4" fill="#a7bed3" font-size="11">实际值</text>
+                        <line x1="0" y1="20" x2="30" y2="20" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
+                        <text x="35" y="24" fill="#a7bed3" font-size="11">标准值</text>
+                        <line x1="0" y1="40" x2="30" y2="40" stroke="#4caf50" stroke-width="2" stroke-dasharray="3,3"/>
+                        <text x="35" y="44" fill="#a7bed3" font-size="11">最优值</text>
+                    </g>
+                </svg>
+            `;
+
+            container.innerHTML = svg;
+        }
+
+        // 渲染排名分布图
+        function renderRankingDistributionChart(data) {
+            const container = document.getElementById('ranking-distribution-chart');
+            if (!container) return;
+
+            const containerWidth = container.offsetWidth || container.clientWidth || 800;
+            const containerHeight = 300;
+            const padding = { top: 20, right: 20, bottom: 60, left: 60 };
+            const width = containerWidth - padding.left - padding.right;
+            const height = containerHeight - padding.top - padding.bottom;
+
+            const maxValue = Math.max(...data.map(d => d.value));
+            const minValue = Math.min(...data.map(d => d.value));
+            const valueRange = maxValue - minValue;
+            const barWidth = width / data.length * 0.7;
+            const barGap = width / data.length * 0.3;
+
+            let svg = `
+                <svg width="100%" height="100%" viewBox="0 0 ${containerWidth} ${containerHeight}" preserveAspectRatio="xMidYMid meet">
+                    <!-- Y轴网格线 -->
+                    ${Array.from({length: 6}, (_, i) => {
+                        const y = padding.top + (height / 5) * i;
+                        const value = maxValue - (valueRange / 5) * i;
+                        return `<line x1="${padding.left}" y1="${y}" x2="${padding.left + width}" y2="${y}" stroke="#3c5472" stroke-width="1" opacity="0.5"/>`;
+                    }).join('')}
+                    
+                    <!-- Y轴标签 -->
+                    ${Array.from({length: 6}, (_, i) => {
+                        const y = padding.top + (height / 5) * i;
+                        const value = maxValue - (valueRange / 5) * i;
+                        return `<text x="${padding.left - 10}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${value.toFixed(2)}</text>`;
+                    }).join('')}
+                    
+                    <!-- 柱状图 -->
+                    ${data.map((d, i) => {
+                        const x = padding.left + (width / data.length) * i + barGap / 2;
+                        const barHeight = ((d.value - minValue) / valueRange) * height;
+                        const y = padding.top + height - barHeight;
+                        const color = d.value <= 0.98 ? '#4caf50' : d.value <= 1.10 ? '#ff9800' : '#f44336';
+                        return `
+                            <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" 
+                                fill="${color}" opacity="0.8" rx="2">
+                                <title>${d.name}: ${d.value.toFixed(2)} kWh/件</title>
+                            </rect>
+                            <text x="${x + barWidth / 2}" y="${y - 5}" fill="#a7bed3" font-size="10" text-anchor="middle">${d.value.toFixed(2)}</text>
+                        `;
+                    }).join('')}
+                    
+                    <!-- X轴标签 -->
+                    ${data.map((d, i) => {
+                        const x = padding.left + (width / data.length) * i + width / data.length / 2;
+                        return `<text x="${x}" y="${height + padding.top + 20}" fill="#a7bed3" font-size="10" text-anchor="middle" transform="rotate(-45, ${x}, ${height + padding.top + 20})">${d.name}</text>`;
+                    }).join('')}
+                    
+                    <!-- Y轴标题 -->
+                    <text x="${padding.left - 30}" y="${padding.top + height / 2}" fill="#a7bed3" font-size="12" text-anchor="middle" transform="rotate(-90, ${padding.left - 30}, ${padding.top + height / 2})">单位能耗 (kWh/件)</text>
+                </svg>
+            `;
+
+            container.innerHTML = svg;
+        }
+    })();
+</script>

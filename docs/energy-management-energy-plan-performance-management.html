@@ -1,0 +1,1368 @@
+<div class="energy-plan-performance-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+        
+        .energy-plan-performance-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            font-size: 14px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* Tab导航样式 */
+        .tab-nav {
+            display: flex;
+            border-bottom: 2px solid #3c5472;
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            color: #a7bed3;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+
+        .tab-button:hover {
+            color: #00bcd4;
+        }
+
+        .tab-button.active {
+            color: #00bcd4;
+            border-bottom-color: #00bcd4;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            color: #a7bed3;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .filter-select, .filter-input {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .filter-input {
+            cursor: text;
+        }
+
+        .filter-select:hover, .filter-input:focus {
+            border-color: #00bcd4;
+            outline: none;
+        }
+
+        .action-button {
+            background-color: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            background-color: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .action-button.secondary {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+
+        .action-button.secondary:hover {
+            background-color: #27ae60;
+        }
+
+        .action-button.primary {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .action-button.primary:hover {
+            background-color: #2980b9;
+        }
+
+        .action-button.warning {
+            background-color: #9b59b6;
+            color: #fff;
+        }
+
+        .action-button.warning:hover {
+            background-color: #8e44ad;
+        }
+
+        .action-button:disabled {
+            background-color: #95a5a6;
+            color: #fff;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* 表格样式 */
+        .plan-table-container {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .table-title {
+            color: #e0e6ed;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-title i {
+            color: #00bcd4;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 1000px;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #3c5472;
+            padding: 10px 12px;
+            text-align: left;
+        }
+
+        .data-table th {
+            background-color: #3c5472;
+            color: #e0e6ed;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #1a2a3a;
+        }
+
+        .data-table tr:hover {
+            background-color: #213245;
+        }
+
+        .data-table td {
+            color: #a7bed3;
+        }
+
+        .data-table tfoot tr {
+            background-color: rgba(0, 188, 212, 0.1);
+            font-weight: bold;
+        }
+
+        .data-table tfoot td {
+            color: #00bcd4;
+            font-size: 16px;
+        }
+
+        .plan-input {
+            width: 100px;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .plan-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 5px rgba(0, 188, 212, 0.3);
+        }
+
+        .plan-input:disabled {
+            background-color: #2a3d54;
+            color: #5d7d9a;
+            cursor: not-allowed;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-saved {
+            color: #2ecc71;
+        }
+
+        .status-pending {
+            color: #f39c12;
+        }
+
+        .status-unsaved {
+            color: #e74c3c;
+        }
+
+        .status-submitted {
+            color: #3498db;
+        }
+
+        /* 使用说明 */
+        .instructions {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: rgba(0, 188, 212, 0.1);
+            border-left: 3px solid #00bcd4;
+            border-radius: 4px;
+        }
+
+        .instructions-title {
+            color: #00bcd4;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .instructions-content {
+            color: #a7bed3;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            height: 450px;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .chart-wrapper {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: visible;
+            min-height: 400px;
+        }
+        
+        .chart-wrapper svg {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .chart-y-axis {
+            position: absolute;
+            left: 0;
+            top: 40px;
+            bottom: 60px;
+            width: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #a7bed3;
+            text-align: right;
+            padding-right: 10px;
+            box-sizing: border-box;
+        }
+
+        .chart-area {
+            position: absolute;
+            left: 60px;
+            right: 20px;
+            top: 40px;
+            bottom: 60px;
+            border-left: 1px solid #3c5472;
+            border-bottom: 1px solid #3c5472;
+            box-sizing: border-box;
+        }
+
+        .chart-grid-line {
+            position: absolute;
+            width: 100%;
+            height: 1px;
+            background-color: #314a60;
+        }
+
+        .chart-bar-group {
+            position: absolute;
+            bottom: 0;
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 100%;
+        }
+
+        .chart-bar {
+            position: relative;
+            border-radius: 2px 2px 0 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 30px;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+            transform: translateY(-2px);
+        }
+
+        .chart-bar-plan {
+            background: linear-gradient(180deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .chart-bar-actual {
+            background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .chart-bar-actual.exceeded {
+            background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .chart-x-axis {
+            position: absolute;
+            left: 60px;
+            right: 20px;
+            bottom: 10px;
+            height: 50px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            font-size: 12px;
+            color: #a7bed3;
+            border-top: 1px solid #3c5472;
+            padding-top: 10px;
+            box-sizing: border-box;
+        }
+
+        .chart-x-label {
+            text-align: center;
+            flex: 1;
+        }
+
+        .chart-x-label-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        .chart-x-label-value {
+            font-size: 11px;
+            color: #7a8fa3;
+        }
+
+        .chart-legend {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #2a3d54;
+            padding: 8px 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.2);
+            font-size: 12px;
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+        }
+
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chart-legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #a7bed3;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00bcd4;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.success {
+            color: #2ecc71;
+        }
+
+        .stat-value.danger {
+            color: #e74c3c;
+        }
+
+        .stat-unit {
+            font-size: 11px;
+            color: #5d7d9a;
+        }
+
+        /* 分析建议 */
+        .analysis-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .analysis-title {
+            color: #e0e6ed;
+            font-size: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .suggestion-box {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: rgba(231, 76, 60, 0.1);
+            border-left: 3px solid #e74c3c;
+            border-radius: 4px;
+        }
+
+        .suggestion-title {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .suggestion-content {
+            color: #a7bed3;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-item {
+                width: 100%;
+            }
+
+            .filter-select, .filter-input {
+                width: 100%;
+            }
+
+            .data-table {
+                font-size: 12px;
+            }
+
+            .plan-input {
+                width: 80px;
+            }
+        }
+    </style>
+
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-calendar-check"></i>
+            能源计划实绩管理
+        </h2>
+        <p class="page-description">
+            以工序为单位制定能源计划，支持日、周、月、年计划管理，并提供计划与实绩的对比分析，助力能源管理精细化。
+        </p>
+    </div>
+
+    <!-- Tab导航 -->
+    <div class="tab-nav">
+        <button class="tab-button active" onclick="openPlanTab(event, 'energy-plan-tab')">
+            <i class="fas fa-clipboard-list"></i> 能源计划
+        </button>
+        <button class="tab-button" onclick="openPlanTab(event, 'energy-performance-tab')">
+            <i class="fas fa-chart-line"></i> 能源实绩
+        </button>
+    </div>
+
+    <!-- Tab 1: 能源计划 -->
+    <div id="energy-plan-tab" class="tab-content active">
+        <!-- 筛选和操作栏 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>ECC选择：</label>
+                    <select class="filter-select" id="ecc-select">
+                <option>生产车间A</option>
+                <option>生产车间B</option>
+                <option>生产车间C</option>
+                        <option>包装线</option>
+                <option>辅助设施</option>
+            </select>
+                </div>
+                <div class="filter-item">
+                    <label>计划类型：</label>
+                    <select class="filter-select" id="plan-type-select">
+                <option value="daily">日计划</option>
+                <option value="weekly">周计划</option>
+                <option value="monthly" selected>月计划</option>
+                <option value="yearly">年计划</option>
+            </select>
+                </div>
+                <div class="filter-item">
+                    <label>时间选择：</label>
+                    <input type="date" class="filter-input" id="plan-date-input" value="2024-10-01">
+                </div>
+                <button class="action-button" onclick="queryPlan()">
+                <i class="fas fa-search"></i> 查询
+            </button>
+                <button class="action-button secondary" onclick="generatePlanSuggestion()">
+                <i class="fas fa-magic"></i> 生成建议值
+            </button>
+                <button class="action-button primary" onclick="savePlan()">
+                <i class="fas fa-save"></i> 保存
+            </button>
+                <button class="action-button warning" onclick="submitPlan()">
+                <i class="fas fa-paper-plane"></i> 提交
+            </button>
+            </div>
+        </div>
+
+        <!-- 计划制定表格 -->
+        <div class="plan-table-container">
+            <div class="table-title">
+                <i class="fas fa-table"></i>
+                <span id="plan-table-title">能源计划制定（2024年10月）</span>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="data-table" id="plan-table">
+                    <thead>
+                        <tr>
+                            <th>工序名称</th>
+                            <th>电力 (MWh)</th>
+                            <th>蒸汽 (t)</th>
+                            <th>压缩空气 (m³)</th>
+                            <th>水 (m³)</th>
+                            <th>天然气 (m³)</th>
+                            <th>总能耗 (tce)</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="plan-table-body">
+                        <!-- 数据行将通过JavaScript动态生成 -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td>合计</td>
+                            <td id="total-electricity">0</td>
+                            <td id="total-steam">0</td>
+                            <td id="total-air">0</td>
+                            <td id="total-water">0</td>
+                            <td id="total-gas">0</td>
+                            <td id="total-energy">0</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <!-- 使用说明 -->
+            <div class="instructions">
+                <div class="instructions-title">使用说明：</div>
+                <div class="instructions-content">
+                    1. 点击"生成建议值"按钮，系统将根据生产计划自动计算各工序的能源计划建议值；<br>
+                    2. 您可以根据实际情况修改建议值；<br>
+                    3. 修改后点击"保存"按钮保存计划，或点击"提交"按钮提交审核；<br>
+                    4. 已提交的计划将被锁定，无法再次修改。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab 2: 能源实绩 -->
+    <div id="energy-performance-tab" class="tab-content">
+        <!-- 筛选条件栏 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-item">
+                    <label>ECC选择：</label>
+                    <select class="filter-select" id="performance-ecc-select">
+                <option>生产车间A</option>
+                <option>生产车间B</option>
+                <option>生产车间C</option>
+                        <option>包装线</option>
+                <option>辅助设施</option>
+            </select>
+                </div>
+                <div class="filter-item">
+                    <label>对比周期：</label>
+                    <select class="filter-select" id="comparison-period-select">
+                <option value="month" selected>月</option>
+                <option value="year">年</option>
+            </select>
+                </div>
+                <div class="filter-item">
+                    <label>时间选择：</label>
+                    <input type="month" class="filter-input" id="performance-month-input" value="2024-10">
+                </div>
+                <button class="action-button" onclick="queryPerformance()">
+                <i class="fas fa-search"></i> 查询
+            </button>
+                <button class="action-button secondary" onclick="exportReport()">
+                <i class="fas fa-download"></i> 导出报表
+            </button>
+            </div>
+        </div>
+
+        <!-- 计划实绩对比图表 -->
+        <div class="plan-table-container">
+            <div class="table-title">
+                <i class="fas fa-chart-bar"></i>
+                <span id="comparison-chart-title">计划实绩对比分析（2024年10月）</span>
+            </div>
+            <div class="chart-container">
+                <div style="font-weight: bold; text-align: center; margin-bottom: 10px; color: #00bcd4; font-size: 14px;">
+                    计划 vs 实绩对比图 (tce)
+                </div>
+                <div class="chart-wrapper" id="comparison-chart-wrapper">
+                    <!-- 图表内容将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 计划实绩详细数据表格 -->
+        <div class="plan-table-container">
+            <div class="table-title">
+                <i class="fas fa-table"></i> 计划实绩详细数据
+            </div>
+            <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>工序名称</th>
+                        <th>计划值 (tce)</th>
+                        <th>实绩值 (tce)</th>
+                        <th>差异 (tce)</th>
+                        <th>差异率 (%)</th>
+                        <th>完成率 (%)</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                    <tbody id="performance-table-body">
+                        <!-- 数据行将通过JavaScript动态生成 -->
+                </tbody>
+                <tfoot>
+                        <tr>
+                        <td>合计</td>
+                            <td id="total-plan-value">0</td>
+                            <td id="total-actual-value">0</td>
+                            <td id="total-difference">0</td>
+                            <td id="total-difference-rate">0%</td>
+                            <td id="total-completion-rate">0%</td>
+                            <td id="total-status">-</td>
+                    </tr>
+                </tfoot>
+            </table>
+            </div>
+        </div>
+
+        <!-- 分析总结 -->
+        <div class="analysis-section">
+            <div class="analysis-title">
+                <i class="fas fa-chart-line"></i> 分析总结
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">总完成率</div>
+                    <div class="stat-value success" id="overall-completion-rate">0%</div>
+                    <div class="stat-unit" id="energy-saved">-</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">达标工序</div>
+                    <div class="stat-value success" id="qualified-processes">0/0</div>
+                    <div class="stat-unit">工序达标率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">超标工序</div>
+                    <div class="stat-value danger" id="exceeded-processes">0/0</div>
+                    <div class="stat-unit">需重点关注</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">节能潜力</div>
+                    <div class="stat-value" id="energy-potential">0 tce</div>
+                    <div class="stat-unit">超标工序可优化空间</div>
+                </div>
+            </div>
+            <!-- 建议措施 -->
+            <div class="suggestion-box" id="suggestion-box">
+                <div class="suggestion-title">优化建议：</div>
+                <div class="suggestion-content" id="suggestion-content">
+                    <!-- 建议内容将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 确保函数在全局作用域中可用
+    (function() {
+        // 计划数据
+        const planData = [
+            {
+                process: '原料预处理',
+                electricity: 1250,
+                steam: 85,
+                air: 12500,
+                water: 3200,
+                gas: 0,
+                status: '已保存',
+                locked: false
+            },
+            {
+                process: '主加工工序',
+                electricity: 2850,
+                steam: 180,
+                air: 28500,
+                water: 5800,
+                gas: 0,
+                status: '待提交',
+                locked: false
+            },
+            {
+                process: '精加工工序',
+                electricity: 1250,
+                steam: 95,
+                air: 15200,
+                water: 2800,
+                gas: 0,
+                status: '未保存',
+                locked: false
+            },
+            {
+                process: '质量检测',
+                electricity: 580,
+                steam: 25,
+                air: 5200,
+                water: 1200,
+                gas: 0,
+                status: '已提交',
+                locked: true
+            },
+            {
+                process: '包装工序',
+                electricity: 420,
+                steam: 15,
+                air: 3200,
+                water: 800,
+                gas: 0,
+                status: '已保存',
+                locked: false
+            },
+            {
+                process: '仓储物流',
+                electricity: 610,
+                steam: 0,
+                air: 1850,
+                water: 450,
+                gas: 0,
+                status: '已保存',
+                locked: false
+            },
+            {
+                process: '生活配套',
+                electricity: 280,
+                steam: 10,
+                air: 960,
+                water: 520,
+                gas: 0,
+                status: '未保存',
+                locked: false
+            }
+        ];
+
+        // 实绩数据（补充更多样例数据）
+        const performanceData = [
+            { process: '原料预处理', plan: 285.6, actual: 300.0 },
+            { process: '主加工工序', plan: 652.3, actual: 630.0 },
+            { process: '精加工工序', plan: 298.5, actual: 320.0 },
+            { process: '质量检测', plan: 142.8, actual: 130.0 },
+            { process: '包装工序', plan: 98.2, actual: 90.0 },
+            { process: '仓储管理', plan: 85.5, actual: 82.0 },
+            { process: '设备维护', plan: 65.2, actual: 68.5 },
+            { process: '辅助设施', plan: 45.3, actual: 43.8 },
+            { process: '仓储物流', plan: 72.5, actual: 68.4 },
+            { process: '生活配套', plan: 38.4, actual: 36.1 }
+        ];
+
+        // 能源转换系数（示例值）
+        const conversionFactors = {
+            electricity: 0.1229, // MWh to tce
+            steam: 0.129,        // t to tce
+            air: 0.04,           // m³ to tce (压缩空气)
+            water: 0.000257,     // m³ to tce
+            gas: 1.33            // m³ to tce (天然气)
+        };
+
+        // Tab切换功能
+        window.openPlanTab = function(evt, tabName) {
+            var i, tabcontent, tablinks;
+            
+            const container = evt.currentTarget.closest('.energy-plan-performance-container');
+            if (!container) return;
+            
+            tabcontent = container.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            
+            tablinks = container.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+
+            // 如果切换到实绩tab，更新数据
+            if (tabName === 'energy-performance-tab') {
+                setTimeout(() => {
+                    updatePerformanceData();
+                }, 50);
+            }
+        };
+
+        // 计算总能耗
+        function calculateTotalEnergy(electricity, steam, air, water, gas) {
+            return (
+                electricity * conversionFactors.electricity +
+                steam * conversionFactors.steam +
+                air * conversionFactors.air +
+                water * conversionFactors.water +
+                gas * conversionFactors.gas
+            ).toFixed(1);
+        }
+
+        // 更新合计行
+        function updateTotals() {
+            const rows = document.querySelectorAll('#plan-table-body tr');
+            let totalElectricity = 0;
+            let totalSteam = 0;
+            let totalAir = 0;
+            let totalWater = 0;
+            let totalGas = 0;
+            let totalEnergy = 0;
+
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('.plan-input');
+                if (inputs.length >= 5) {
+                    totalElectricity += parseFloat(inputs[0].value) || 0;
+                    totalSteam += parseFloat(inputs[1].value) || 0;
+                    totalAir += parseFloat(inputs[2].value) || 0;
+                    totalWater += parseFloat(inputs[3].value) || 0;
+                    totalGas += parseFloat(inputs[4].value) || 0;
+                }
+            });
+
+            totalEnergy = parseFloat(calculateTotalEnergy(totalElectricity, totalSteam, totalAir, totalWater, totalGas));
+
+            document.getElementById('total-electricity').textContent = totalElectricity.toLocaleString();
+            document.getElementById('total-steam').textContent = totalSteam.toLocaleString();
+            document.getElementById('total-air').textContent = totalAir.toLocaleString();
+            document.getElementById('total-water').textContent = totalWater.toLocaleString();
+            document.getElementById('total-gas').textContent = totalGas.toLocaleString();
+            document.getElementById('total-energy').textContent = totalEnergy.toLocaleString();
+        }
+
+        // 渲染计划表格
+        function renderPlanTable() {
+            const tbody = document.getElementById('plan-table-body');
+            tbody.innerHTML = '';
+
+            planData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                const totalEnergy = calculateTotalEnergy(
+                    item.electricity,
+                    item.steam,
+                    item.air,
+                    item.water,
+                    item.gas
+                );
+
+                row.innerHTML = `
+                    <td>${item.process}</td>
+                    <td>
+                        <input type="number" class="plan-input" value="${item.electricity}" 
+                               data-process="${item.process}" data-energy="electricity" 
+                               ${item.locked ? 'disabled' : ''} 
+                               onchange="updateRowTotal(this); updateTotals();">
+                    </td>
+                    <td>
+                        <input type="number" class="plan-input" value="${item.steam}" 
+                               data-process="${item.process}" data-energy="steam" 
+                               ${item.locked ? 'disabled' : ''} 
+                               onchange="updateRowTotal(this); updateTotals();">
+                    </td>
+                    <td>
+                        <input type="number" class="plan-input" value="${item.air}" 
+                               data-process="${item.process}" data-energy="air" 
+                               ${item.locked ? 'disabled' : ''} 
+                               onchange="updateRowTotal(this); updateTotals();">
+                    </td>
+                    <td>
+                        <input type="number" class="plan-input" value="${item.water}" 
+                               data-process="${item.process}" data-energy="water" 
+                               ${item.locked ? 'disabled' : ''} 
+                               onchange="updateRowTotal(this); updateTotals();">
+                    </td>
+                    <td>
+                        <input type="number" class="plan-input" value="${item.gas}" 
+                               data-process="${item.process}" data-energy="gas" 
+                               ${item.locked ? 'disabled' : ''} 
+                               onchange="updateRowTotal(this); updateTotals();">
+                    </td>
+                    <td class="row-total" style="color: #00bcd4; font-weight: bold;">${totalEnergy}</td>
+                    <td>
+                        <span class="status-badge status-${getStatusClass(item.status)}">${item.status}</span>
+                    </td>
+                    <td>
+                        ${item.locked ? 
+                            '<button class="action-button" disabled><i class="fas fa-lock"></i> 已锁定</button>' :
+                            '<button class="action-button primary" onclick="editProcess(this)"><i class="fas fa-edit"></i> 编辑</button>'
+                        }
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            updateTotals();
+        }
+
+        // 更新行总能耗
+        window.updateRowTotal = function(input) {
+            const row = input.closest('tr');
+            const inputs = row.querySelectorAll('.plan-input');
+            const electricity = parseFloat(inputs[0].value) || 0;
+            const steam = parseFloat(inputs[1].value) || 0;
+            const air = parseFloat(inputs[2].value) || 0;
+            const water = parseFloat(inputs[3].value) || 0;
+            const gas = parseFloat(inputs[4].value) || 0;
+            
+            const total = calculateTotalEnergy(electricity, steam, air, water, gas);
+            row.querySelector('.row-total').textContent = total;
+        };
+
+        // 获取状态样式类
+        function getStatusClass(status) {
+            if (status === '已保存') return 'saved';
+            if (status === '待提交') return 'pending';
+            if (status === '未保存') return 'unsaved';
+            if (status === '已提交') return 'submitted';
+            return 'saved';
+        }
+
+        // 渲染对比图表（使用SVG优化）
+        function renderComparisonChart() {
+            const wrapper = document.getElementById('comparison-chart-wrapper');
+            if (!wrapper) return;
+
+            // 计算最大值用于缩放
+            const maxValue = Math.max(...performanceData.map(d => Math.max(d.plan, d.actual)));
+            const chartMax = Math.ceil(maxValue / 100) * 100; // 向上取整到100
+            
+            // 获取容器尺寸
+            const containerWidth = wrapper.offsetWidth || wrapper.clientWidth || 900;
+            const containerHeight = 400;
+            const padding = { top: 20, right: 20, bottom: 80, left: 70 };
+            const width = containerWidth - padding.left - padding.right;
+            const height = containerHeight - padding.top - padding.bottom;
+
+            // 计算柱状图参数
+            const processCount = performanceData.length;
+            const barWidth = Math.max(25, Math.min(35, width / processCount / 3));
+            const barGap = 8;
+            const groupWidth = barWidth * 2 + barGap;
+            const groupGap = (width - groupWidth * processCount) / (processCount - 1);
+
+            // 生成SVG
+            let svg = `
+                <svg width="100%" height="100%" viewBox="0 0 ${containerWidth} ${containerHeight}" preserveAspectRatio="xMidYMid meet">
+                    <!-- Y轴网格线 -->
+                    ${Array.from({length: 5}, (_, i) => {
+                        const y = padding.top + (height / 4) * i;
+                        const value = chartMax - (chartMax / 4) * i;
+                        return `
+                            <line x1="${padding.left}" y1="${y}" x2="${padding.left + width}" y2="${y}" 
+                                stroke="#3c5472" stroke-width="1" opacity="0.5"/>
+                            <text x="${padding.left - 10}" y="${y + 5}" fill="#a7bed3" font-size="12" text-anchor="end">${value.toFixed(0)}</text>
+                        `;
+                    }).join('')}
+                    
+                    <!-- Y轴标题 -->
+                    <text x="${padding.left - 40}" y="${padding.top + height / 2}" fill="#a7bed3" font-size="13" 
+                        text-anchor="middle" transform="rotate(-90, ${padding.left - 40}, ${padding.top + height / 2})">能耗 (tce)</text>
+                    
+                    <!-- 柱状图 -->
+                    ${performanceData.map((item, index) => {
+                        const x = padding.left + index * (groupWidth + groupGap) + groupGap / 2;
+                        const planHeight = (item.plan / chartMax) * height;
+                        const actualHeight = (item.actual / chartMax) * height;
+                        const isExceeded = item.actual > item.plan;
+                        const planY = padding.top + height - planHeight;
+                        const actualY = padding.top + height - actualHeight;
+                        
+                        return `
+                            <!-- 计划柱 -->
+                            <rect x="${x}" y="${planY}" width="${barWidth}" height="${planHeight}" 
+                                fill="#3498db" opacity="0.9" rx="2">
+                                <title>计划: ${item.plan.toFixed(1)} tce</title>
+                            </rect>
+                            
+                            <!-- 实绩柱 -->
+                            <rect x="${x + barWidth + barGap}" y="${actualY}" width="${barWidth}" height="${actualHeight}" 
+                                fill="${isExceeded ? '#e74c3c' : '#2ecc71'}" opacity="0.9" rx="2">
+                                <title>实绩: ${item.actual.toFixed(1)} tce ${isExceeded ? '(超标)' : '(达标)'}</title>
+                            </rect>
+                            
+                            <!-- 数值标签 -->
+                            <text x="${x + barWidth / 2}" y="${planY - 5}" fill="#3498db" font-size="10" 
+                                text-anchor="middle" font-weight="bold">${item.plan.toFixed(1)}</text>
+                            <text x="${x + barWidth + barGap + barWidth / 2}" y="${actualY - 5}" 
+                                fill="${isExceeded ? '#e74c3c' : '#2ecc71'}" font-size="10" 
+                                text-anchor="middle" font-weight="bold">${item.actual.toFixed(1)}</text>
+                            
+                            <!-- X轴标签 -->
+                            <text x="${x + groupWidth / 2}" y="${height + padding.top + 20}" fill="#a7bed3" 
+                                font-size="11" text-anchor="middle" font-weight="bold">${item.process}</text>
+                            <text x="${x + groupWidth / 2}" y="${height + padding.top + 35}" fill="#8aa0bc" 
+                                font-size="10" text-anchor="middle">计划: ${item.plan.toFixed(1)}</text>
+                            <text x="${x + groupWidth / 2}" y="${height + padding.top + 50}" 
+                                fill="${isExceeded ? '#e74c3c' : '#2ecc71'}" font-size="10" 
+                                text-anchor="middle">实绩: ${item.actual.toFixed(1)}</text>
+                        `;
+                    }).join('')}
+                    
+                    <!-- 图例 -->
+                    <g transform="translate(${containerWidth - 200}, ${padding.top + 10})">
+                        <rect x="0" y="0" width="15" height="15" fill="#3498db" rx="2"/>
+                        <text x="20" y="12" fill="#a7bed3" font-size="12">计划</text>
+                        
+                        <rect x="0" y="25" width="15" height="15" fill="#2ecc71" rx="2"/>
+                        <text x="20" y="37" fill="#a7bed3" font-size="12">实绩（达标）</text>
+                        
+                        <rect x="0" y="50" width="15" height="15" fill="#e74c3c" rx="2"/>
+                        <text x="20" y="62" fill="#a7bed3" font-size="12">实绩（超标）</text>
+                    </g>
+                </svg>
+            `;
+
+            wrapper.innerHTML = svg;
+        }
+
+        // 更新实绩数据
+        function updatePerformanceData() {
+            const tbody = document.getElementById('performance-table-body');
+            tbody.innerHTML = '';
+
+            let totalPlan = 0;
+            let totalActual = 0;
+            let qualifiedCount = 0;
+            let exceededCount = 0;
+            let energyPotential = 0;
+            const suggestions = [];
+
+            performanceData.forEach(item => {
+                const difference = item.actual - item.plan;
+                const differenceRate = ((difference / item.plan) * 100).toFixed(1);
+                const completionRate = ((item.actual / item.plan) * 100).toFixed(1);
+                const isExceeded = item.actual > item.plan;
+                
+                if (isExceeded) {
+                    exceededCount++;
+                    energyPotential += difference;
+                    suggestions.push(`${item.process}：实绩超出计划 ${Math.abs(differenceRate)}%，建议检查设备运行效率，优化工艺参数。`);
+                } else {
+                    qualifiedCount++;
+                }
+
+                totalPlan += item.plan;
+                totalActual += item.actual;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.process}</td>
+                    <td style="color: #3498db; font-weight: bold;">${item.plan.toFixed(1)}</td>
+                    <td style="color: ${isExceeded ? '#e74c3c' : '#2ecc71'}; font-weight: bold;">${item.actual.toFixed(1)}</td>
+                    <td style="color: ${isExceeded ? '#e74c3c' : '#2ecc71'};">${difference > 0 ? '+' : ''}${difference.toFixed(1)}</td>
+                    <td style="color: ${isExceeded ? '#e74c3c' : '#2ecc71'};">${differenceRate > 0 ? '+' : ''}${differenceRate}%</td>
+                    <td style="color: ${isExceeded ? '#e74c3c' : '#2ecc71'};">${completionRate}%</td>
+                    <td><span style="color: ${isExceeded ? '#e74c3c' : '#2ecc71'};">${isExceeded ? '⚠ 超标' : '✓ 达标'}</span></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            const totalDifference = totalActual - totalPlan;
+            const totalDifferenceRate = ((totalDifference / totalPlan) * 100).toFixed(1);
+            const totalCompletionRate = ((totalActual / totalPlan) * 100).toFixed(1);
+            const overallStatus = totalActual <= totalPlan ? '✓ 总体达标' : '⚠ 总体超标';
+
+            document.getElementById('total-plan-value').textContent = totalPlan.toFixed(1);
+            document.getElementById('total-actual-value').textContent = totalActual.toFixed(1);
+            document.getElementById('total-difference').textContent = totalDifference > 0 ? '+' + totalDifference.toFixed(1) : totalDifference.toFixed(1);
+            document.getElementById('total-difference-rate').textContent = totalDifferenceRate > 0 ? '+' + totalDifferenceRate + '%' : totalDifferenceRate + '%';
+            document.getElementById('total-completion-rate').textContent = totalCompletionRate + '%';
+            document.getElementById('total-status').innerHTML = `<span style="color: ${totalActual <= totalPlan ? '#2ecc71' : '#e74c3c'}">${overallStatus}</span>`;
+
+            // 更新统计卡片
+            document.getElementById('overall-completion-rate').textContent = totalCompletionRate + '%';
+            document.getElementById('energy-saved').textContent = totalDifference < 0 ? `较计划节省 ${Math.abs(totalDifference).toFixed(1)} tce` : `较计划超出 ${totalDifference.toFixed(1)} tce`;
+            document.getElementById('qualified-processes').textContent = `${qualifiedCount}/${performanceData.length}`;
+            document.getElementById('exceeded-processes').textContent = `${exceededCount}/${performanceData.length}`;
+            document.getElementById('energy-potential').textContent = energyPotential.toFixed(1) + ' tce';
+
+            // 更新建议内容
+            const suggestionContent = document.getElementById('suggestion-content');
+            if (suggestions.length > 0) {
+                suggestionContent.innerHTML = suggestions.map((s, i) => `${i + 1}. <strong>${s}</strong>`).join('<br>');
+            } else {
+                suggestionContent.innerHTML = '所有工序均达标，继续保持！';
+            }
+
+            // 渲染图表
+            renderComparisonChart();
+        }
+
+        // 查询计划
+        window.queryPlan = function() {
+            const ecc = document.getElementById('ecc-select').value;
+            const planType = document.getElementById('plan-type-select').value;
+            const date = document.getElementById('plan-date-input').value;
+            
+            // 更新表格标题
+            const dateObj = new Date(date);
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth() + 1;
+            document.getElementById('plan-table-title').textContent = `能源计划制定（${year}年${month}月）`;
+            
+            alert(`查询条件：\nECC: ${ecc}\n计划类型: ${planType}\n时间: ${date}`);
+        };
+
+        // 生成建议值
+        window.generatePlanSuggestion = function() {
+    alert('系统正在根据生产计划计算能源计划建议值...\n\n建议值已自动填充到表格中，您可以根据实际情况进行修改。');
+    // 这里可以添加实际的计算逻辑
+        };
+
+// 保存计划
+        window.savePlan = function() {
+    alert('能源计划已保存成功！');
+            // 更新状态
+            planData.forEach(item => {
+                if (item.status === '未保存') {
+                    item.status = '已保存';
+}
+            });
+            renderPlanTable();
+        };
+
+// 提交计划
+        window.submitPlan = function() {
+    if (confirm('确定要提交能源计划吗？提交后将无法再次修改。')) {
+        alert('能源计划已提交成功，等待审核！');
+                // 更新状态
+                planData.forEach(item => {
+                    if (item.status === '待提交' || item.status === '已保存') {
+                        item.status = '已提交';
+                        item.locked = true;
+                    }
+                });
+                renderPlanTable();
+            }
+        };
+
+        // 编辑工序
+        window.editProcess = function(button) {
+            const row = button.closest('tr');
+            const inputs = row.querySelectorAll('.plan-input');
+            inputs.forEach(input => {
+                input.disabled = false;
+                input.style.borderColor = '#00bcd4';
+            });
+            button.innerHTML = '<i class="fas fa-check"></i> 完成';
+            button.onclick = function() {
+                inputs.forEach(input => {
+                    input.disabled = true;
+                    input.style.borderColor = '#3c5472';
+                });
+                button.innerHTML = '<i class="fas fa-edit"></i> 编辑';
+                button.onclick = function() { editProcess(this); };
+            };
+        };
+
+        // 查询实绩
+        window.queryPerformance = function() {
+            const ecc = document.getElementById('performance-ecc-select').value;
+            const period = document.getElementById('comparison-period-select').value;
+            const month = document.getElementById('performance-month-input').value;
+            
+            const dateObj = new Date(month + '-01');
+            const year = dateObj.getFullYear();
+            const monthNum = dateObj.getMonth() + 1;
+            document.getElementById('comparison-chart-title').textContent = `计划实绩对比分析（${year}年${monthNum}月）`;
+            
+            updatePerformanceData();
+        };
+
+        // 初始化时渲染图表
+        function initPerformanceTab() {
+            updatePerformanceData();
+        }
+
+        // 导出报表
+        window.exportReport = function() {
+            alert('报表导出功能开发中...');
+        };
+
+        // 初始化页面
+        function initPage() {
+            renderPlanTable();
+            // 延迟初始化实绩tab，确保DOM已加载
+            setTimeout(() => {
+                if (document.getElementById('energy-performance-tab').classList.contains('active')) {
+                    initPerformanceTab();
+                }
+            }, 100);
+            console.log('能源计划实绩管理页面已初始化');
+        }
+
+        // 页面加载完成后初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPage);
+        } else {
+            initPage();
+        }
+    })();
+</script>

@@ -1,0 +1,3077 @@
+<div class="sub-menu-content-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+        
+        .kpi-model-config-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Tab导航 */
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3c5472;
+            padding-bottom: 0;
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: #a7bed3;
+            padding: 12px 24px;
+            font-size: 15px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .tab-button:hover {
+            color: #00bcd4;
+            background: rgba(0, 188, 212, 0.1);
+        }
+
+        .tab-button.active {
+            color: #00bcd4;
+            border-bottom-color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .tab-button i {
+            font-size: 16px;
+        }
+
+        /* Tab内容 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            border: none;
+            color: #1a2a3a;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.2);
+        }
+
+        .action-button:hover {
+            background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+        }
+
+        .action-button.secondary {
+            background: linear-gradient(135deg, #3c5472 0%, #2a3d54 100%);
+            color: #e0e6ed;
+            box-shadow: 0 2px 8px rgba(60, 84, 114, 0.2);
+        }
+
+        .action-button.secondary:hover {
+            background: linear-gradient(135deg, #4a6a8a 0%, #3c5472 100%);
+            box-shadow: 0 4px 12px rgba(60, 84, 114, 0.3);
+        }
+
+        .action-button.danger {
+            background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
+        }
+
+        .action-button.danger:hover {
+            background: linear-gradient(135deg, #e53935 0%, #d32f2f 100%);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        /* 搜索框 */
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 15px 10px 40px;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a7bed3;
+        }
+
+        /* 表格 */
+        .data-table-container {
+            background: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #1a2a3a 0%, #2a3d54 100%);
+        }
+
+        .data-table th {
+            padding: 14px 12px;
+            text-align: left;
+            color: #e0e6ed;
+            font-weight: 600;
+            border-bottom: 2px solid #3c5472;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px;
+            color: #a7bed3;
+            border-bottom: 1px solid #3c5472;
+        }
+
+        .data-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(0, 188, 212, 0.1);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-button {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: #2a3d54;
+            border-color: #00bcd4;
+            color: #00bcd4;
+            transform: translateY(-1px);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            color: #1a2a3a;
+            border-color: #00bcd4;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+        }
+
+        .pagination-info {
+            color: #a7bed3;
+            font-size: 14px;
+            margin: 0 12px;
+            white-space: nowrap;
+        }
+
+        .pagination-jump {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .pagination-jump input {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .pagination-jump input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .pagination-jump button {
+            background: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-jump button:hover {
+            background: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.enabled {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .status-badge.disabled {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+            border: 1px solid #9e9e9e;
+        }
+
+        /* 操作按钮 */
+        .action-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-link {
+            color: #00bcd4;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+        }
+
+        .action-link:hover {
+            background: rgba(0, 188, 212, 0.2);
+            color: #00e5ff;
+        }
+
+        .action-link.danger {
+            color: #f44336;
+        }
+
+        .action-link.danger:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #ff5252;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999999 !important;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex !important;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%);
+            border: 1px solid #3c5472;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+            position: relative;
+            margin: auto;
+            z-index: 1000000;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #3c5472;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #1a2a3a 0%, #2a3d54 100%);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            color: #00bcd4;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #a7bed3;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            color: #a7bed3;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #f44336;
+        }
+
+        .form-input,
+        .form-select {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+        }
+
+        .form-textarea {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+        }
+
+        .form-actions {
+            padding: 20px 24px;
+            border-top: 1px solid #3c5472;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a7bed3;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #3c5472;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+    </style>
+
+    <div class="kpi-model-config-container">
+        <div class="page-header">
+            <h2 class="page-title">
+                <i class="fas fa-cube"></i> KPI模型配置
+            </h2>
+            <p class="page-description">
+                实现对本系统的工序、设备、仪表、物资以及彼此之间关系的配置，为能源核算和分析提供基础数据支撑。
+            </p>
+        </div>
+
+        <!-- Tab导航 -->
+        <div class="tab-nav">
+            <button class="tab-button active" onclick="switchTab('factory', event)">
+                <i class="fas fa-building"></i> 厂区配置
+            </button>
+            <button class="tab-button" onclick="switchTab('workshop', event)">
+                <i class="fas fa-industry"></i> 车间配置
+            </button>
+            <button class="tab-button" onclick="switchTab('production-line', event)">
+                <i class="fas fa-stream"></i> 产线配置
+            </button>
+            <button class="tab-button" onclick="switchTab('craft', event)">
+                <i class="fas fa-flask"></i> 工艺配置
+            </button>
+            <button class="tab-button" onclick="switchTab('process', event)">
+                <i class="fas fa-project-diagram"></i> 工序配置
+            </button>
+            <button class="tab-button" onclick="switchTab('equipment', event)">
+                <i class="fas fa-cogs"></i> 设备配置
+            </button>
+            <button class="tab-button" onclick="switchTab('meter', event)">
+                <i class="fas fa-tachometer-alt"></i> 计量仪表配置
+            </button>
+        </div>
+
+        <!-- 厂区配置 -->
+        <div id="tab-factory" class="tab-content active">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showFactoryForm()">
+                        <i class="fas fa-plus"></i> 新增厂区
+                    </button>
+                    <button class="action-button secondary" onclick="exportFactory()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importFactory()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-factory" placeholder="搜索厂区编码、名称..." oninput="filterFactory()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>厂区ID</th>
+                            <th>厂区编码</th>
+                            <th>厂区名称</th>
+                            <th>关联ECC</th>
+                            <th>负责人</th>
+                            <th>联系电话</th>
+                            <th>描述</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="factory-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                <!-- 分页控件 -->
+                <div class="pagination" id="factory-pagination" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 车间配置 -->
+        <div id="tab-workshop" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showWorkshopForm()">
+                        <i class="fas fa-plus"></i> 新增车间
+                    </button>
+                    <button class="action-button secondary" onclick="exportWorkshop()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importWorkshop()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-workshop" placeholder="搜索车间编码、名称..." oninput="filterWorkshop()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>车间ID</th>
+                            <th>车间编码</th>
+                            <th>车间名称</th>
+                            <th>所属厂区</th>
+                            <th>关联ECC</th>
+                            <th>负责人</th>
+                            <th>联系电话</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workshop-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                <!-- 分页控件 -->
+                <div class="pagination" id="workshop-pagination" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 产线配置 -->
+        <div id="tab-production-line" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showProductionLineForm()">
+                        <i class="fas fa-plus"></i> 新增产线
+                    </button>
+                    <button class="action-button secondary" onclick="exportProductionLine()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importProductionLine()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-production-line" placeholder="搜索产线编码、名称..." oninput="filterProductionLine()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>产线ID</th>
+                            <th>产线编码</th>
+                            <th>产线名称</th>
+                            <th>所属车间</th>
+                            <th>关联ECC</th>
+                            <th>负责人</th>
+                            <th>联系电话</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="production-line-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                <!-- 分页控件 -->
+                <div class="pagination" id="productionLine-pagination" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 工艺配置 -->
+        <div id="tab-craft" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showCraftForm()">
+                        <i class="fas fa-plus"></i> 新增工艺
+                    </button>
+                    <button class="action-button secondary" onclick="exportCraft()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importCraft()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-craft" placeholder="搜索工艺编码、名称..." oninput="filterCraft()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>工艺ID</th>
+                            <th>工艺编码</th>
+                            <th>工艺名称</th>
+                            <th>所属产线</th>
+                            <th>工艺描述</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="craft-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                <!-- 分页控件 -->
+                <div class="pagination" id="craft-pagination" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 工序配置 -->
+        <div id="tab-process" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showProcessForm()">
+                        <i class="fas fa-plus"></i> 新增工序
+                    </button>
+                    <button class="action-button secondary" onclick="exportProcess()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importProcess()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-process" placeholder="搜索工序编码、名称..." oninput="filterProcess()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>工序ID</th>
+                            <th>工序编码</th>
+                            <th>工序名称</th>
+                            <th>所属工艺</th>
+                            <th>关联ECC</th>
+                            <th>工序描述</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="process-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                <!-- 分页控件 -->
+                <div class="pagination" id="process-pagination" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 设备配置 -->
+        <div id="tab-equipment" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showEquipmentForm()">
+                        <i class="fas fa-plus"></i> 新增设备
+                    </button>
+                    <button class="action-button secondary" onclick="exportEquipment()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importEquipment()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-equipment" placeholder="搜索设备编码、名称..." oninput="filterEquipment()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>设备ID</th>
+                            <th>设备编码</th>
+                            <th>设备名称</th>
+                            <th>设备类型</th>
+                            <th>所属工序</th>
+                            <th>关联ECC</th>
+                            <th>额定功率(kW)</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="equipment-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+                <!-- 分页控件 -->
+                <div class="pagination" id="equipment-pagination" style="display: none;">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 计量仪表配置 -->
+        <div id="tab-meter" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showMeterForm()">
+                        <i class="fas fa-plus"></i> 新增仪表
+                    </button>
+                    <button class="action-button secondary" onclick="exportMeter()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importMeter()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-meter" placeholder="搜索仪表编码、名称..." oninput="filterMeter()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>仪表ID</th>
+                            <th>仪表编码</th>
+                            <th>仪表名称</th>
+                            <th>仪表类型</th>
+                            <th>所属设备</th>
+                            <th>监测参数</th>
+                            <th>计量单位</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="meter-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 厂区配置模态框 -->
+    <div class="modal-overlay" id="factory-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-building"></i> <span id="factory-modal-title">新增厂区</span>
+                </h3>
+                <button class="modal-close" onclick="closeFactoryModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="factory-form" onsubmit="saveFactory(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">厂区编码</label>
+                            <input type="text" class="form-input" id="factory-code" required placeholder="如：FACT-001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">厂区名称</label>
+                            <input type="text" class="form-input" id="factory-name" required placeholder="如：XX制造有限公司">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">关联ECC</label>
+                            <select class="form-select" id="factory-ecc">
+                                <option value="">请选择ECC（可选）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">负责人</label>
+                            <input type="text" class="form-input" id="factory-manager" placeholder="请输入负责人姓名">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">联系电话</label>
+                            <input type="text" class="form-input" id="factory-phone" placeholder="请输入联系电话">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">描述</label>
+                            <textarea class="form-textarea" id="factory-description" placeholder="请输入厂区描述（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeFactoryModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 车间配置模态框 -->
+    <div class="modal-overlay" id="workshop-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-industry"></i> <span id="workshop-modal-title">新增车间</span>
+                </h3>
+                <button class="modal-close" onclick="closeWorkshopModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="workshop-form" onsubmit="saveWorkshop(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">车间编码</label>
+                            <input type="text" class="form-input" id="workshop-code" required placeholder="如：WS-001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">车间名称</label>
+                            <input type="text" class="form-input" id="workshop-name" required placeholder="如：生产车间1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">所属厂区</label>
+                            <select class="form-select" id="workshop-factory" required>
+                                <option value="">请选择厂区</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">关联ECC</label>
+                            <select class="form-select" id="workshop-ecc">
+                                <option value="">请选择ECC（可选）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">负责人</label>
+                            <input type="text" class="form-input" id="workshop-manager" placeholder="请输入负责人姓名">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">联系电话</label>
+                            <input type="text" class="form-input" id="workshop-phone" placeholder="请输入联系电话">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeWorkshopModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 产线配置模态框 -->
+    <div class="modal-overlay" id="production-line-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-stream"></i> <span id="production-line-modal-title">新增产线</span>
+                </h3>
+                <button class="modal-close" onclick="closeProductionLineModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="production-line-form" onsubmit="saveProductionLine(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">产线编码</label>
+                            <input type="text" class="form-input" id="production-line-code" required placeholder="如：PL-001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">产线名称</label>
+                            <input type="text" class="form-input" id="production-line-name" required placeholder="如：注塑产线1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">所属车间</label>
+                            <select class="form-select" id="production-line-workshop" required>
+                                <option value="">请选择车间</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">关联ECC</label>
+                            <select class="form-select" id="production-line-ecc">
+                                <option value="">请选择ECC（可选）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">负责人</label>
+                            <input type="text" class="form-input" id="production-line-manager" placeholder="请输入负责人姓名">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">联系电话</label>
+                            <input type="text" class="form-input" id="production-line-phone" placeholder="请输入联系电话">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeProductionLineModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 工艺配置模态框 -->
+    <div class="modal-overlay" id="craft-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-flask"></i> <span id="craft-modal-title">新增工艺</span>
+                </h3>
+                <button class="modal-close" onclick="closeCraftModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="craft-form" onsubmit="saveCraft(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">工艺编码</label>
+                            <input type="text" class="form-input" id="craft-code" required placeholder="如：CRAFT-001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">工艺名称</label>
+                            <input type="text" class="form-input" id="craft-name" required placeholder="如：注塑工艺">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">所属产线</label>
+                            <select class="form-select" id="craft-production-line" required>
+                                <option value="">请选择产线</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">工艺描述</label>
+                            <textarea class="form-textarea" id="craft-description" placeholder="请输入工艺描述（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeCraftModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 工序配置模态框 -->
+    <div class="modal-overlay" id="process-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-project-diagram"></i> <span id="process-modal-title">新增工序</span>
+                </h3>
+                <button class="modal-close" onclick="closeProcessModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="process-form" onsubmit="saveProcess(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">工序编码</label>
+                            <input type="text" class="form-input" id="process-code" required placeholder="如：PROC-001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">工序名称</label>
+                            <input type="text" class="form-input" id="process-name" required placeholder="如：注塑成型">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">所属工艺</label>
+                            <select class="form-select" id="process-craft" required>
+                                <option value="">请选择工艺</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">关联ECC</label>
+                            <select class="form-select" id="process-ecc">
+                                <option value="">请选择ECC（可选）</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">工序描述</label>
+                            <textarea class="form-textarea" id="process-description" placeholder="请输入工序描述信息（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeProcessModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 设备配置模态框 -->
+    <div class="modal-overlay" id="equipment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-cogs"></i> <span id="equipment-modal-title">新增设备</span>
+                </h3>
+                <button class="modal-close" onclick="closeEquipmentModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="equipment-form" onsubmit="saveEquipment(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">设备编码</label>
+                            <input type="text" class="form-input" id="equipment-code" required placeholder="如：EQ-001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">设备名称</label>
+                            <input type="text" class="form-input" id="equipment-name" required placeholder="如：主电机">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">设备类型</label>
+                            <select class="form-select" id="equipment-type" required>
+                                <option value="">请选择</option>
+                                <option value="motor">电机</option>
+                                <option value="compressor">压缩机</option>
+                                <option value="pump">水泵</option>
+                                <option value="fan">风机</option>
+                                <option value="heater">加热器</option>
+                                <option value="cooler">冷却器</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">所属工序</label>
+                            <select class="form-select" id="equipment-process" required>
+                                <option value="">请选择工序</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">关联ECC</label>
+                            <select class="form-select" id="equipment-ecc">
+                                <option value="">请选择ECC（可选）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">额定功率(kW)</label>
+                            <input type="number" class="form-input" id="equipment-power" step="0.01" min="0" placeholder="如：100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">启用状态</label>
+                            <select class="form-select" id="equipment-enabled" required>
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeEquipmentModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 计量仪表配置模态框 -->
+    <div class="modal-overlay" id="meter-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-tachometer-alt"></i> <span id="meter-modal-title">新增仪表</span>
+                </h3>
+                <button class="modal-close" onclick="closeMeterModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="meter-form" onsubmit="saveMeter(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">仪表编码</label>
+                            <input type="text" class="form-input" id="meter-code" required placeholder="如：MTR-001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">仪表名称</label>
+                            <input type="text" class="form-input" id="meter-name" required placeholder="如：主电机电流表">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">仪表类型</label>
+                            <select class="form-select" id="meter-type" required>
+                                <option value="">请选择</option>
+                                <option value="electricity-meter">电表</option>
+                                <option value="water-meter">水表</option>
+                                <option value="flow-meter">流量计</option>
+                                <option value="pressure-meter">压力表</option>
+                                <option value="temperature-meter">温度计</option>
+                                <option value="current-meter">电流表</option>
+                                <option value="voltage-meter">电压表</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">所属设备</label>
+                            <select class="form-select" id="meter-equipment" required>
+                                <option value="">请选择设备</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">监测参数</label>
+                            <select class="form-select" id="meter-parameter" required>
+                                <option value="">请选择</option>
+                                <option value="current">电流</option>
+                                <option value="voltage">电压</option>
+                                <option value="power">功率</option>
+                                <option value="consumption">能耗</option>
+                                <option value="flow">流量</option>
+                                <option value="pressure">压力</option>
+                                <option value="temperature">温度</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">计量单位</label>
+                            <input type="text" class="form-input" id="meter-unit" required placeholder="如：A、V、kW等">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">启用状态</label>
+                            <select class="form-select" id="meter-enabled" required>
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeMeterModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+(function() {
+    // 从localStorage加载ECC数据
+    function loadECCData() {
+        const stored = localStorage.getItem('ecc-list');
+        if (stored) {
+            return JSON.parse(stored);
+        }
+        return [];
+    }
+
+    // ECC数据（从localStorage加载）
+    let eccList = loadECCData();
+
+    // 分页配置
+    const pageSize = 10; // 每页显示10条数据
+    const paginationState = {
+        factory: { currentPage: 1 },
+        workshop: { currentPage: 1 },
+        productionLine: { currentPage: 1 },
+        craft: { currentPage: 1 },
+        process: { currentPage: 1 },
+        equipment: { currentPage: 1 },
+        meter: { currentPage: 1 },
+        allocation: { currentPage: 1 },
+        association: { currentPage: 1 }
+    };
+
+    // 厂区数据
+    let factoryData = [
+        { id: 1, code: 'FACT-001', name: 'XX制造有限公司', eccId: 'ecc-1', eccName: 'XX制造有限公司', eccCode: 'ECC001', manager: '张总', phone: '13800138000', description: '公司总部，负责整体能源管理' }
+    ];
+
+    // 车间数据
+    let workshopData = [
+        { id: 1, code: 'WS-001', name: '生产车间A', factoryId: 1, factoryName: 'XX制造有限公司', eccId: 'ecc-2', eccName: '生产车间A', eccCode: 'ECC002', manager: '李主任', phone: '13800138001' },
+        { id: 2, code: 'WS-002', name: '生产车间B', factoryId: 1, factoryName: 'XX制造有限公司', eccId: 'ecc-3', eccName: '生产车间B', eccCode: 'ECC003', manager: '王主任', phone: '13800138002' },
+        { id: 3, code: 'WS-003', name: '包装车间', factoryId: 1, factoryName: 'XX制造有限公司', eccId: 'ecc-4', eccName: '包装车间', eccCode: 'ECC004', manager: '赵主任', phone: '13800138003' }
+    ];
+
+    // 产线数据
+    let productionLineData = [
+        { id: 1, code: 'PL-001', name: '注塑产线1', workshopId: 1, workshopName: '生产车间A', eccId: 'ecc-5', eccName: '注塑产线1', eccCode: 'ECC005', manager: '刘班长', phone: '13800138004' },
+        { id: 2, code: 'PL-002', name: '注塑产线2', workshopId: 1, workshopName: '生产车间A', eccId: 'ecc-6', eccName: '注塑产线2', eccCode: 'ECC006', manager: '陈班长', phone: '13800138005' },
+        { id: 3, code: 'PL-003', name: '冲压产线1', workshopId: 2, workshopName: '生产车间B', eccId: 'ecc-7', eccName: '冲压产线1', eccCode: 'ECC007', manager: '周班长', phone: '13800138006' },
+        { id: 4, code: 'PL-004', name: '包装产线1', workshopId: 3, workshopName: '包装车间', eccId: 'ecc-8', eccName: '包装产线1', eccCode: 'ECC008', manager: '吴班长', phone: '13800138007' }
+    ];
+
+    // 工艺数据
+    let craftData = [
+        { id: 1, code: 'CRAFT-001', name: '注塑工艺', productionLineId: 1, productionLineName: '注塑产线1', description: '注塑成型工艺，包括原料处理、注塑、冷却等环节' },
+        { id: 2, code: 'CRAFT-002', name: '冲压工艺', productionLineId: 3, productionLineName: '冲压产线1', description: '金属冲压成型工艺' },
+        { id: 3, code: 'CRAFT-003', name: '包装工艺', productionLineId: 4, productionLineName: '包装产线1', description: '产品包装工艺，包括分拣、包装、贴标等' }
+    ];
+
+    // 工序数据
+    let processData = [
+        { id: 1, code: 'PROC-001', name: '注塑成型', craftId: 1, craftName: '注塑工艺', eccId: 'ecc-10', eccName: '注塑工序', eccCode: 'ECC010', description: '塑料制品注塑成型工序，包括原料加热、注塑、冷却等环节' },
+        { id: 2, code: 'PROC-002', name: '冷却工序', craftId: 1, craftName: '注塑工艺', eccId: 'ecc-11', eccName: '冷却工序', eccCode: 'ECC011', description: '产品冷却工序，确保产品尺寸稳定' },
+        { id: 3, code: 'PROC-003', name: '冲压成型', craftId: 2, craftName: '冲压工艺', eccId: 'ecc-13', eccName: '冲压工序', eccCode: 'ECC013', description: '金属冲压成型工序' },
+        { id: 4, code: 'PROC-004', name: '分拣包装', craftId: 3, craftName: '包装工艺', eccId: 'ecc-14', eccName: '包装工序', eccCode: 'ECC014', description: '产品分拣和包装工序' }
+    ];
+
+    // 设备数据
+    let equipmentData = [
+        { id: 1, code: 'EQ-001', name: '主电机', type: 'motor', typeName: '电机', processId: 1, processName: '注塑成型', eccId: 'ecc-15', eccName: '主电机', eccCode: 'ECC015', power: 100, enabled: true },
+        { id: 2, code: 'EQ-002', name: '注塑机', type: 'other', typeName: '其他', processId: 1, processName: '注塑成型', eccId: 'ecc-16', eccName: '注塑机', eccCode: 'ECC016', power: 150, enabled: true },
+        { id: 3, code: 'EQ-003', name: '冷却水泵', type: 'pump', typeName: '水泵', processId: 2, processName: '冷却工序', eccId: null, eccName: null, eccCode: null, power: 30, enabled: true },
+        { id: 4, code: 'EQ-004', name: '压缩机', type: 'compressor', typeName: '压缩机', processId: 3, processName: '冲压成型', eccId: 'ecc-18', eccName: '压缩机', eccCode: 'ECC018', power: 75, enabled: true },
+        { id: 5, code: 'EQ-005', name: '循环风机', type: 'fan', typeName: '风机', processId: 1, processName: '注塑成型', eccId: null, eccName: null, eccCode: null, power: 45, enabled: true },
+        { id: 6, code: 'EQ-006', name: '加热器', type: 'heater', typeName: '加热器', processId: 1, processName: '注塑成型', eccId: null, eccName: null, eccCode: null, power: 200, enabled: true },
+        { id: 7, code: 'EQ-007', name: '冷却塔', type: 'cooler', typeName: '冷却器', processId: 2, processName: '冷却工序', eccId: null, eccName: null, eccCode: null, power: 50, enabled: true },
+        { id: 8, code: 'EQ-008', name: '包装机', type: 'other', typeName: '其他', processId: 4, processName: '分拣包装', eccId: 'ecc-19', eccName: '包装机', eccCode: 'ECC019', power: 60, enabled: true }
+    ];
+
+    // 计量仪表数据
+    let meterData = [
+        { id: 1, code: 'MTR-001', name: '主电机电流表', type: 'current-meter', typeName: '电流表', equipmentId: 1, equipmentName: '主电机', parameter: 'current', parameterName: '电流', unit: 'A', enabled: true },
+        { id: 2, code: 'MTR-002', name: '主电机电压表', type: 'voltage-meter', typeName: '电压表', equipmentId: 1, equipmentName: '主电机', parameter: 'voltage', parameterName: '电压', unit: 'V', enabled: true },
+        { id: 3, code: 'MTR-003', name: '主电机电表', type: 'electricity-meter', typeName: '电表', equipmentId: 1, equipmentName: '主电机', parameter: 'consumption', parameterName: '能耗', unit: 'kWh', enabled: true },
+        { id: 4, code: 'MTR-004', name: '冷却水泵流量计', type: 'flow-meter', typeName: '流量计', equipmentId: 3, equipmentName: '冷却水泵', parameter: 'flow', parameterName: '流量', unit: 'm³/h', enabled: true },
+        { id: 5, code: 'MTR-005', name: '压缩机压力表', type: 'pressure-meter', typeName: '压力表', equipmentId: 4, equipmentName: '压缩机', parameter: 'pressure', parameterName: '压力', unit: 'MPa', enabled: true },
+        { id: 6, code: 'MTR-006', name: '加热器温度计', type: 'temperature-meter', typeName: '温度计', equipmentId: 6, equipmentName: '加热器', parameter: 'temperature', parameterName: '温度', unit: '℃', enabled: true },
+        { id: 7, code: 'MTR-007', name: '冷却塔水表', type: 'water-meter', typeName: '水表', equipmentId: 7, equipmentName: '冷却塔', parameter: 'flow', parameterName: '流量', unit: 'm³/h', enabled: true },
+        { id: 8, code: 'MTR-008', name: '注塑机功率表', type: 'electricity-meter', typeName: '电表', equipmentId: 2, equipmentName: '注塑机', parameter: 'power', parameterName: '功率', unit: 'kW', enabled: true }
+    ];
+
+    let currentEditingId = null;
+    let currentTab = 'factory';
+
+    // Tab切换
+    window.switchTab = function(tab, event) {
+        // 更新Tab按钮状态
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // 找到被点击的按钮（通过event或通过tab名称）
+        let targetButton = null;
+        if (event && event.target) {
+            targetButton = event.target.closest('.tab-button');
+        }
+        
+        // 如果找不到，通过onclick属性查找
+        if (!targetButton) {
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                const onclickAttr = btn.getAttribute('onclick');
+                if (onclickAttr && (onclickAttr.includes(`switchTab('${tab}'`) || onclickAttr.includes(`switchTab("${tab}"`))) {
+                    targetButton = btn;
+                }
+            });
+        }
+        
+        if (targetButton) {
+            targetButton.classList.add('active');
+        }
+
+        // 更新Tab内容
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        const targetTabContent = document.getElementById('tab-' + tab);
+        if (targetTabContent) {
+            targetTabContent.classList.add('active');
+        }
+
+        currentTab = tab;
+        
+        // 重新渲染当前Tab的数据
+        if (tab === 'factory') {
+            renderFactoryTable();
+        } else if (tab === 'workshop') {
+            renderWorkshopTable();
+        } else if (tab === 'production-line') {
+            renderProductionLineTable();
+        } else if (tab === 'craft') {
+            renderCraftTable();
+        } else if (tab === 'process') {
+            renderProcessTable();
+        } else if (tab === 'equipment') {
+            renderEquipmentTable();
+        } else if (tab === 'meter') {
+            renderMeterTable();
+        }
+    };
+
+    // 通用分页渲染函数
+    function renderPagination(tabName, totalRecords, startRecord, endRecord) {
+        const pagination = document.getElementById(`${tabName}-pagination`);
+        if (!pagination) return;
+
+        const state = paginationState[tabName];
+        const totalPages = Math.ceil(totalRecords / pageSize);
+
+        if (totalPages <= 1) {
+            pagination.style.display = 'none';
+            return;
+        }
+
+        pagination.style.display = 'flex';
+
+        let html = '';
+
+        // 上一页按钮
+        html += `<button class="pagination-button" onclick="goToPage('${tabName}', ${state.currentPage - 1})" ${state.currentPage === 1 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i> 上一页
+        </button>`;
+
+        // 页码按钮
+        const maxVisiblePages = 7;
+        let startPage = Math.max(1, state.currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+        
+        if (endPage - startPage < maxVisiblePages - 1) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // 第一页
+        if (startPage > 1) {
+            html += `<button class="pagination-button" onclick="goToPage('${tabName}', 1)">1</button>`;
+            if (startPage > 2) {
+                html += `<span class="pagination-info">...</span>`;
+            }
+        }
+
+        // 中间页码
+        for (let i = startPage; i <= endPage; i++) {
+            html += `<button class="pagination-button ${i === state.currentPage ? 'active' : ''}" onclick="goToPage('${tabName}', ${i})">${i}</button>`;
+        }
+
+        // 最后一页
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                html += `<span class="pagination-info">...</span>`;
+            }
+            html += `<button class="pagination-button" onclick="goToPage('${tabName}', ${totalPages})">${totalPages}</button>`;
+        }
+
+        // 下一页按钮
+        html += `<button class="pagination-button" onclick="goToPage('${tabName}', ${state.currentPage + 1})" ${state.currentPage === totalPages ? 'disabled' : ''}>
+            下一页 <i class="fas fa-chevron-right"></i>
+        </button>`;
+
+        // 分页信息
+        html += `<span class="pagination-info">共 ${totalRecords} 条，第 ${startRecord}-${endRecord} 条</span>`;
+
+        // 跳转输入
+        html += `<div class="pagination-jump">
+            <span style="color: #a7bed3; font-size: 13px;">跳至</span>
+            <input type="number" id="${tabName}-page-jump-input" min="1" max="${totalPages}" value="${state.currentPage}" onkeypress="handlePageJump('${tabName}', event)">
+            <span style="color: #a7bed3; font-size: 13px;">页</span>
+            <button onclick="jumpToPage('${tabName}')">确定</button>
+        </div>`;
+
+        pagination.innerHTML = html;
+    }
+
+    // 跳转到指定页（通用函数）
+    window.goToPage = function(tabName, page) {
+        const state = paginationState[tabName];
+        if (!state) return;
+
+        // 根据tab名称调用对应的渲染函数
+        const renderFunctions = {
+            'factory': () => {
+                const totalPages = Math.ceil(factoryData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderFactoryTable();
+            },
+            'workshop': () => {
+                const totalPages = Math.ceil(workshopData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderWorkshopTable();
+            },
+            'productionLine': () => {
+                const totalPages = Math.ceil(productionLineData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderProductionLineTable();
+            },
+            'craft': () => {
+                const totalPages = Math.ceil(craftData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderCraftTable();
+            },
+            'process': () => {
+                const totalPages = Math.ceil(processData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderProcessTable();
+            },
+            'equipment': () => {
+                const totalPages = Math.ceil(equipmentData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderEquipmentTable();
+            },
+            'meter': () => {
+                const totalPages = Math.ceil(meterData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderMeterTable();
+            },
+            'allocation': () => {
+                const totalPages = Math.ceil(allocationData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderAllocationTable();
+            },
+            'association': () => {
+                const totalPages = Math.ceil(associationData.length / pageSize);
+                if (page < 1 || page > totalPages) return;
+                state.currentPage = page;
+                renderAssociationTable();
+            }
+        };
+
+        if (renderFunctions[tabName]) {
+            renderFunctions[tabName]();
+        }
+    };
+
+    // 处理跳转输入框的Enter键
+    window.handlePageJump = function(tabName, event) {
+        if (event.key === 'Enter') {
+            jumpToPage(tabName);
+        }
+    };
+
+    // 跳转到指定页（通过输入框）
+    window.jumpToPage = function(tabName) {
+        const input = document.getElementById(`${tabName}-page-jump-input`);
+        if (!input) return;
+        
+        const targetPage = parseInt(input.value);
+        if (isNaN(targetPage) || targetPage < 1) {
+            alert('请输入有效的页码');
+            return;
+        }
+
+        const state = paginationState[tabName];
+        if (!state) return;
+
+        const dataLengths = {
+            'factory': factoryData.length,
+            'workshop': workshopData.length,
+            'productionLine': productionLineData.length,
+            'craft': craftData.length,
+            'process': processData.length,
+            'equipment': equipmentData.length,
+            'meter': meterData.length,
+            'allocation': allocationData.length,
+            'association': associationData.length
+        };
+
+        const totalPages = Math.ceil((dataLengths[tabName] || 0) / pageSize);
+        
+        if (targetPage > totalPages) {
+            alert(`页码不能超过 ${totalPages}`);
+            input.value = state.currentPage;
+            return;
+        }
+
+        goToPage(tabName, targetPage);
+    };
+
+    // 渲染厂区表格（带分页）
+    function renderFactoryTable(data = null) {
+        const tbody = document.getElementById('factory-table-body');
+        if (!tbody) {
+            console.warn('factory-table-body element not found');
+            return;
+        }
+        const displayData = data || factoryData;
+        const state = paginationState.factory;
+
+        if (displayData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无数据</p>
+                    </td>
+                </tr>
+            `;
+            const pagination = document.getElementById('factory-pagination');
+            if (pagination) pagination.style.display = 'none';
+            return;
+        }
+
+        // 计算分页
+        const totalRecords = displayData.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        if (state.currentPage > totalPages && totalPages > 0) {
+            state.currentPage = 1;
+        }
+
+        const startIndex = (state.currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = displayData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = currentPageData.map((item, index) => {
+            const globalIndex = startIndex + index;
+            return `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.code}</td>
+                <td>${item.name}</td>
+                <td>${item.eccName ? `${item.eccName} (${item.eccCode})` : '-'}</td>
+                <td>${item.manager || '-'}</td>
+                <td>${item.phone || '-'}</td>
+                <td>${item.description || '-'}</td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editFactory(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteFactory(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // 渲染车间表格（带分页）
+    function renderWorkshopTable(data = null) {
+        const tbody = document.getElementById('workshop-table-body');
+        if (!tbody) {
+            console.warn('workshop-table-body element not found');
+            return;
+        }
+        const displayData = data || workshopData;
+        const state = paginationState.workshop;
+
+        if (displayData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无数据</p>
+                    </td>
+                </tr>
+            `;
+            const pagination = document.getElementById('workshop-pagination');
+            if (pagination) pagination.style.display = 'none';
+            return;
+        }
+
+        // 计算分页
+        const totalRecords = displayData.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        if (state.currentPage > totalPages && totalPages > 0) {
+            state.currentPage = 1;
+        }
+
+        const startIndex = (state.currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = displayData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = currentPageData.map((item, index) => {
+            const globalIndex = startIndex + index;
+            return `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.code}</td>
+                <td>${item.name}</td>
+                <td>${item.factoryName}</td>
+                <td>${item.eccName ? `${item.eccName} (${item.eccCode})` : '-'}</td>
+                <td>${item.manager || '-'}</td>
+                <td>${item.phone || '-'}</td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editWorkshop(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteWorkshop(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        renderPagination('workshop', totalRecords, startIndex + 1, endIndex);
+    }
+
+    // 渲染产线表格（带分页）
+    function renderProductionLineTable(data = null) {
+        const tbody = document.getElementById('production-line-table-body');
+        if (!tbody) {
+            console.warn('production-line-table-body element not found');
+            return;
+        }
+        const displayData = data || productionLineData;
+
+        if (displayData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无数据</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = displayData.map(item => `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.code}</td>
+                <td>${item.name}</td>
+                <td>${item.workshopName}</td>
+                <td>${item.eccName ? `${item.eccName} (${item.eccCode})` : '-'}</td>
+                <td>${item.manager || '-'}</td>
+                <td>${item.phone || '-'}</td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editProductionLine(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteProductionLine(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        renderPagination('productionLine', totalRecords, startIndex + 1, endIndex);
+    }
+
+    // 渲染工艺表格（带分页）
+    function renderCraftTable(data = null) {
+        const tbody = document.getElementById('craft-table-body');
+        if (!tbody) {
+            console.warn('craft-table-body element not found');
+            return;
+        }
+        const displayData = data || craftData;
+        const state = paginationState.craft;
+
+        if (displayData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无数据</p>
+                    </td>
+                </tr>
+            `;
+            const pagination = document.getElementById('craft-pagination');
+            if (pagination) pagination.style.display = 'none';
+            return;
+        }
+
+        // 计算分页
+        const totalRecords = displayData.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        if (state.currentPage > totalPages && totalPages > 0) {
+            state.currentPage = 1;
+        }
+
+        const startIndex = (state.currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = displayData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = currentPageData.map((item, index) => {
+            const globalIndex = startIndex + index;
+            return `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.code}</td>
+                <td>${item.name}</td>
+                <td>${item.productionLineName}</td>
+                <td>${item.description || '-'}</td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editCraft(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteCraft(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        renderPagination('craft', totalRecords, startIndex + 1, endIndex);
+    }
+
+    // 渲染工序表格（带分页）
+    function renderProcessTable(data = null) {
+        const tbody = document.getElementById('process-table-body');
+        if (!tbody) {
+            console.warn('process-table-body element not found');
+            return;
+        }
+        const displayData = data || processData;
+        const state = paginationState.process;
+
+        if (displayData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无数据</p>
+                    </td>
+                </tr>
+            `;
+            const pagination = document.getElementById('process-pagination');
+            if (pagination) pagination.style.display = 'none';
+            return;
+        }
+
+        // 计算分页
+        const totalRecords = displayData.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        if (state.currentPage > totalPages && totalPages > 0) {
+            state.currentPage = 1;
+        }
+
+        const startIndex = (state.currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = displayData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = currentPageData.map((item, index) => {
+            const globalIndex = startIndex + index;
+            return `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.code}</td>
+                <td>${item.name}</td>
+                <td>${item.craftName}</td>
+                <td>${item.eccName ? `${item.eccName} (${item.eccCode})` : '-'}</td>
+                <td>${item.description || '-'}</td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editProcess(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteProcess(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        renderPagination('process', totalRecords, startIndex + 1, endIndex);
+    }
+
+    // 渲染设备表格（带分页）
+    function renderEquipmentTable(data = null) {
+        const tbody = document.getElementById('equipment-table-body');
+        if (!tbody) {
+            console.warn('equipment-table-body element not found');
+            return;
+        }
+        const displayData = data || equipmentData;
+        const state = paginationState.equipment;
+
+        if (displayData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无数据</p>
+                    </td>
+                </tr>
+            `;
+            const pagination = document.getElementById('equipment-pagination');
+            if (pagination) pagination.style.display = 'none';
+            return;
+        }
+
+        // 计算分页
+        const totalRecords = displayData.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        if (state.currentPage > totalPages && totalPages > 0) {
+            state.currentPage = 1;
+        }
+
+        const startIndex = (state.currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = displayData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = currentPageData.map((item, index) => {
+            const globalIndex = startIndex + index;
+            return `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.code}</td>
+                <td>${item.name}</td>
+                <td>${item.typeName}</td>
+                <td>${item.processName}</td>
+                <td>${item.eccName ? `${item.eccName} (${item.eccCode})` : '-'}</td>
+                <td>${item.power || '-'}</td>
+                <td>
+                    <span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">
+                        ${item.enabled ? '启用' : '禁用'}
+                    </span>
+                </td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editEquipment(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteEquipment(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        renderPagination('equipment', totalRecords, startIndex + 1, endIndex);
+    }
+
+    // 渲染计量仪表表格（带分页）
+    function renderMeterTable(data = null) {
+        const tbody = document.getElementById('meter-table-body');
+        if (!tbody) {
+            console.warn('meter-table-body element not found');
+            return;
+        }
+        const displayData = data || meterData;
+        const state = paginationState.meter;
+
+        if (displayData.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>暂无数据</p>
+                    </td>
+                </tr>
+            `;
+            const pagination = document.getElementById('meter-pagination');
+            if (pagination) pagination.style.display = 'none';
+            return;
+        }
+
+        // 计算分页
+        const totalRecords = displayData.length;
+        const totalPages = Math.ceil(totalRecords / pageSize);
+        
+        if (state.currentPage > totalPages && totalPages > 0) {
+            state.currentPage = 1;
+        }
+
+        const startIndex = (state.currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, totalRecords);
+        const currentPageData = displayData.slice(startIndex, endIndex);
+
+        tbody.innerHTML = currentPageData.map((item, index) => {
+            const globalIndex = startIndex + index;
+            return `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.code}</td>
+                <td>${item.name}</td>
+                <td>${item.typeName}</td>
+                <td>${item.equipmentName}</td>
+                <td>${item.parameterName}</td>
+                <td>${item.unit}</td>
+                <td>
+                    <span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">
+                        ${item.enabled ? '启用' : '禁用'}
+                    </span>
+                </td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editMeter(${item.id})" title="编辑">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteMeter(${item.id})" title="删除">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+        }).join('');
+
+        renderPagination('meter', totalRecords, startIndex + 1, endIndex);
+    }
+
+
+    // 工序相关函数
+    window.showProcessForm = function() {
+        currentEditingId = null;
+        document.getElementById('process-modal-title').textContent = '新增工序';
+        document.getElementById('process-form').reset();
+        document.getElementById('process-modal').classList.add('active');
+    };
+
+    window.closeProcessModal = function() {
+        document.getElementById('process-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editProcess = function(id) {
+        const item = processData.find(d => d.id === id);
+        if (!item) return;
+
+        currentEditingId = id;
+        document.getElementById('process-modal-title').textContent = '编辑工序';
+        document.getElementById('process-code').value = item.code;
+        document.getElementById('process-name').value = item.name;
+        document.getElementById('process-description').value = item.description || '';
+        document.getElementById('process-modal').classList.add('active');
+    };
+
+    window.deleteProcess = function(id) {
+        if (confirm('确定要删除这条工序配置吗？')) {
+            processData = processData.filter(d => d.id !== id);
+            // 同时删除相关的分配记录
+            allocationData = allocationData.filter(d => d.processId !== id);
+            renderProcessTable();
+            renderAllocationTable();
+        }
+    };
+
+    window.saveProcess = function(e) {
+        e.preventDefault();
+        
+        const data = {
+            code: document.getElementById('process-code').value,
+            name: document.getElementById('process-name').value,
+            description: document.getElementById('process-description').value || ''
+        };
+
+        if (currentEditingId) {
+            const index = processData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                processData[index] = { ...processData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...processData.map(d => d.id), 0) + 1;
+            processData.push({ id: newId, ...data });
+        }
+
+        renderProcessTable();
+        closeProcessModal();
+    };
+
+    window.filterProcess = function() {
+        const keyword = document.getElementById('search-process').value.toLowerCase();
+        const filtered = processData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            (item.description && item.description.toLowerCase().includes(keyword))
+        );
+        renderProcessTable(filtered);
+    };
+
+    // 设备相关函数
+    window.showEquipmentForm = function() {
+        currentEditingId = null;
+        document.getElementById('equipment-modal-title').textContent = '新增设备';
+        document.getElementById('equipment-form').reset();
+        document.getElementById('equipment-modal').classList.add('active');
+    };
+
+    window.closeEquipmentModal = function() {
+        document.getElementById('equipment-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editEquipment = function(id) {
+        const item = equipmentData.find(d => d.id === id);
+        if (!item) return;
+
+        currentEditingId = id;
+        document.getElementById('equipment-modal-title').textContent = '编辑设备';
+        document.getElementById('equipment-code').value = item.code;
+        document.getElementById('equipment-name').value = item.name;
+        document.getElementById('equipment-type').value = item.type;
+        document.getElementById('equipment-station').value = item.station;
+        document.getElementById('equipment-power').value = item.power || '';
+        document.getElementById('equipment-enabled').value = item.enabled.toString();
+        document.getElementById('equipment-modal').classList.add('active');
+    };
+
+    window.deleteEquipment = function(id) {
+        if (confirm('确定要删除这条设备配置吗？删除后相关的分配和仪表配置也会被删除。')) {
+            equipmentData = equipmentData.filter(d => d.id !== id);
+            // 同时删除相关的分配和仪表记录
+            allocationData = allocationData.filter(d => d.equipmentId !== id);
+            meterData = meterData.filter(d => d.equipmentId !== id);
+            renderEquipmentTable();
+            renderAllocationTable();
+            renderMeterTable();
+        }
+    };
+
+    window.saveEquipment = function(e) {
+        e.preventDefault();
+        
+        const typeMap = {
+            'motor': '电机',
+            'compressor': '压缩机',
+            'pump': '水泵',
+            'fan': '风机',
+            'heater': '加热器',
+            'cooler': '冷却器',
+            'other': '其他'
+        };
+
+        const stationMap = {
+            'station-1': '生产车间1',
+            'station-2': '生产车间2',
+            'station-3': '生产车间3',
+            'station-4': '辅助设施'
+        };
+
+        const data = {
+            code: document.getElementById('equipment-code').value,
+            name: document.getElementById('equipment-name').value,
+            type: document.getElementById('equipment-type').value,
+            typeName: typeMap[document.getElementById('equipment-type').value] || '其他',
+            station: document.getElementById('equipment-station').value,
+            stationName: stationMap[document.getElementById('equipment-station').value] || '',
+            power: document.getElementById('equipment-power').value ? parseFloat(document.getElementById('equipment-power').value) : null,
+            enabled: document.getElementById('equipment-enabled').value === 'true'
+        };
+
+        if (currentEditingId) {
+            const index = equipmentData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                equipmentData[index] = { ...equipmentData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...equipmentData.map(d => d.id), 0) + 1;
+            equipmentData.push({ id: newId, ...data });
+        }
+
+        renderEquipmentTable();
+        closeEquipmentModal();
+    };
+
+    window.filterEquipment = function() {
+        const keyword = document.getElementById('search-equipment').value.toLowerCase();
+        const filtered = equipmentData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            item.typeName.toLowerCase().includes(keyword) ||
+            item.processName.toLowerCase().includes(keyword)
+        );
+        renderEquipmentTable(filtered);
+    };
+
+
+    // 计量仪表相关函数
+    window.showMeterForm = function() {
+        currentEditingId = null;
+        document.getElementById('meter-modal-title').textContent = '新增仪表';
+        document.getElementById('meter-form').reset();
+        document.getElementById('meter-modal').classList.add('active');
+        
+        // 更新设备下拉框
+        updateMeterEquipmentOptions();
+    };
+
+    window.closeMeterModal = function() {
+        document.getElementById('meter-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editMeter = function(id) {
+        const item = meterData.find(d => d.id === id);
+        if (!item) return;
+
+        currentEditingId = id;
+        document.getElementById('meter-modal-title').textContent = '编辑仪表';
+        document.getElementById('meter-code').value = item.code;
+        document.getElementById('meter-name').value = item.name;
+        document.getElementById('meter-type').value = item.type;
+        document.getElementById('meter-equipment').value = item.equipmentId;
+        document.getElementById('meter-parameter').value = item.parameter;
+        document.getElementById('meter-unit').value = item.unit;
+        document.getElementById('meter-enabled').value = item.enabled.toString();
+        
+        updateMeterEquipmentOptions();
+        document.getElementById('meter-modal').classList.add('active');
+    };
+
+    window.deleteMeter = function(id) {
+        if (confirm('确定要删除这条仪表配置吗？')) {
+            meterData = meterData.filter(d => d.id !== id);
+            renderMeterTable();
+        }
+    };
+
+    window.saveMeter = function(e) {
+        e.preventDefault();
+        
+        const typeMap = {
+            'electricity-meter': '电表',
+            'water-meter': '水表',
+            'flow-meter': '流量计',
+            'pressure-meter': '压力表',
+            'temperature-meter': '温度计',
+            'current-meter': '电流表',
+            'voltage-meter': '电压表',
+            'other': '其他'
+        };
+
+        const parameterMap = {
+            'current': '电流',
+            'voltage': '电压',
+            'power': '功率',
+            'consumption': '能耗',
+            'flow': '流量',
+            'pressure': '压力',
+            'temperature': '温度',
+            'other': '其他'
+        };
+
+        const equipmentId = parseInt(document.getElementById('meter-equipment').value);
+        const equipment = equipmentData.find(eq => eq.id === equipmentId);
+
+        if (!equipment) {
+            alert('请选择有效的设备');
+            return;
+        }
+
+        const data = {
+            code: document.getElementById('meter-code').value,
+            name: document.getElementById('meter-name').value,
+            type: document.getElementById('meter-type').value,
+            typeName: typeMap[document.getElementById('meter-type').value] || '其他',
+            equipmentId: equipmentId,
+            equipmentName: equipment.name,
+            parameter: document.getElementById('meter-parameter').value,
+            parameterName: parameterMap[document.getElementById('meter-parameter').value] || '其他',
+            unit: document.getElementById('meter-unit').value,
+            enabled: document.getElementById('meter-enabled').value === 'true'
+        };
+
+        if (currentEditingId) {
+            const index = meterData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                meterData[index] = { ...meterData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...meterData.map(d => d.id), 0) + 1;
+            meterData.push({ id: newId, ...data });
+            paginationState.meter.currentPage = 1; // 重置到第一页
+        }
+
+        renderMeterTable();
+        closeMeterModal();
+    };
+
+    function updateMeterEquipmentOptions() {
+        const select = document.getElementById('meter-equipment');
+        select.innerHTML = '<option value="">请选择设备</option>';
+        equipmentData.filter(eq => eq.enabled).forEach(equipment => {
+            const option = document.createElement('option');
+            option.value = equipment.id;
+            option.textContent = `${equipment.code} - ${equipment.name}`;
+            select.appendChild(option);
+        });
+    }
+
+    window.filterMeter = function() {
+        const keyword = document.getElementById('search-meter').value.toLowerCase();
+        const filtered = meterData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            item.typeName.toLowerCase().includes(keyword) ||
+            item.equipmentName.toLowerCase().includes(keyword) ||
+            item.parameterName.toLowerCase().includes(keyword)
+        );
+        renderMeterTable(filtered);
+    };
+
+    // 导出/导入函数（占位）
+    window.exportFactory = function() { alert('导出功能开发中...'); };
+    window.importFactory = function() { alert('导入功能开发中...'); };
+    window.exportWorkshop = function() { alert('导出功能开发中...'); };
+    window.importWorkshop = function() { alert('导入功能开发中...'); };
+    window.exportProductionLine = function() { alert('导出功能开发中...'); };
+    window.importProductionLine = function() { alert('导入功能开发中...'); };
+    window.exportCraft = function() { alert('导出功能开发中...'); };
+    window.importCraft = function() { alert('导入功能开发中...'); };
+    window.exportProcess = function() { alert('导出功能开发中...'); };
+    window.importProcess = function() { alert('导入功能开发中...'); };
+    window.exportEquipment = function() { alert('导出功能开发中...'); };
+    window.importEquipment = function() { alert('导入功能开发中...'); };
+    window.exportMeter = function() { alert('导出功能开发中...'); };
+    window.importMeter = function() { alert('导入功能开发中...'); };
+
+    // 点击模态框外部关闭
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+    });
+
+    // ESC键关闭模态框
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay').forEach(overlay => {
+                overlay.classList.remove('active');
+            });
+        }
+    });
+
+    // 更新ECC下拉框选项（根据级别过滤）
+    function updateECCOptions(selectId, level = null) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        
+        select.innerHTML = '<option value="">请选择ECC（可选）</option>';
+        
+        let filteredECC = eccList;
+        if (level) {
+            // 根据级别过滤ECC
+            filteredECC = eccList.filter(ecc => ecc.level === level);
+        }
+        
+        filteredECC.forEach(ecc => {
+            const option = document.createElement('option');
+            option.value = ecc.id;
+            option.textContent = `${ecc.code} - ${ecc.name}`;
+            select.appendChild(option);
+        });
+    }
+
+    // 更新厂区下拉框
+    function updateFactoryOptions(selectId) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        select.innerHTML = '<option value="">请选择厂区</option>';
+        factoryData.forEach(factory => {
+            const option = document.createElement('option');
+            option.value = factory.id;
+            option.textContent = `${factory.code} - ${factory.name}`;
+            select.appendChild(option);
+        });
+    }
+
+    // 更新车间下拉框
+    function updateWorkshopOptions(selectId, factoryId = null) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        select.innerHTML = '<option value="">请选择车间</option>';
+        let filtered = workshopData;
+        if (factoryId) {
+            filtered = workshopData.filter(w => w.factoryId === factoryId);
+        }
+        filtered.forEach(workshop => {
+            const option = document.createElement('option');
+            option.value = workshop.id;
+            option.textContent = `${workshop.code} - ${workshop.name}`;
+            select.appendChild(option);
+        });
+    }
+
+    // 更新产线下拉框
+    function updateProductionLineOptions(selectId, workshopId = null) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        select.innerHTML = '<option value="">请选择产线</option>';
+        let filtered = productionLineData;
+        if (workshopId) {
+            filtered = productionLineData.filter(pl => pl.workshopId === workshopId);
+        }
+        filtered.forEach(pl => {
+            const option = document.createElement('option');
+            option.value = pl.id;
+            option.textContent = `${pl.code} - ${pl.name}`;
+            select.appendChild(option);
+        });
+    }
+
+    // 更新工艺下拉框
+    function updateCraftOptions(selectId, productionLineId = null) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        select.innerHTML = '<option value="">请选择工艺</option>';
+        let filtered = craftData;
+        if (productionLineId) {
+            filtered = craftData.filter(c => c.productionLineId === productionLineId);
+        }
+        filtered.forEach(craft => {
+            const option = document.createElement('option');
+            option.value = craft.id;
+            option.textContent = `${craft.code} - ${craft.name}`;
+            select.appendChild(option);
+        });
+    }
+
+    // 更新工序下拉框
+    function updateProcessOptions(selectId, craftId = null) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        select.innerHTML = '<option value="">请选择工序</option>';
+        let filtered = processData;
+        if (craftId) {
+            filtered = processData.filter(p => p.craftId === craftId);
+        }
+        filtered.forEach(process => {
+            const option = document.createElement('option');
+            option.value = process.id;
+            option.textContent = `${process.code} - ${process.name}`;
+            select.appendChild(option);
+        });
+    }
+
+    // 厂区相关函数（占位，需要完整实现）
+    window.showFactoryForm = function() {
+        currentEditingId = null;
+        document.getElementById('factory-modal-title').textContent = '新增厂区';
+        document.getElementById('factory-form').reset();
+        updateECCOptions('factory-ecc', 'company');
+        document.getElementById('factory-modal').classList.add('active');
+    };
+
+    window.closeFactoryModal = function() {
+        document.getElementById('factory-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editFactory = function(id) {
+        const item = factoryData.find(d => d.id === id);
+        if (!item) return;
+        currentEditingId = id;
+        document.getElementById('factory-modal-title').textContent = '编辑厂区';
+        updateECCOptions('factory-ecc', 'company');
+        document.getElementById('factory-code').value = item.code;
+        document.getElementById('factory-name').value = item.name;
+        document.getElementById('factory-ecc').value = item.eccId || '';
+        document.getElementById('factory-manager').value = item.manager || '';
+        document.getElementById('factory-phone').value = item.phone || '';
+        document.getElementById('factory-description').value = item.description || '';
+        document.getElementById('factory-modal').classList.add('active');
+    };
+
+    window.deleteFactory = function(id) {
+        if (confirm('确定要删除这个厂区吗？删除后相关的车间、产线等数据也会受影响。')) {
+            factoryData = factoryData.filter(d => d.id !== id);
+            renderFactoryTable();
+        }
+    };
+
+    window.saveFactory = function(e) {
+        e.preventDefault();
+        const data = {
+            code: document.getElementById('factory-code').value,
+            name: document.getElementById('factory-name').value,
+            eccId: document.getElementById('factory-ecc').value || null,
+            manager: document.getElementById('factory-manager').value || '',
+            phone: document.getElementById('factory-phone').value || '',
+            description: document.getElementById('factory-description').value || ''
+        };
+
+        if (data.eccId) {
+            const ecc = eccList.find(e => e.id === data.eccId);
+            if (ecc) {
+                data.eccName = ecc.name;
+                data.eccCode = ecc.code;
+            }
+        }
+
+        if (currentEditingId) {
+            const index = factoryData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                factoryData[index] = { ...factoryData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...factoryData.map(d => d.id), 0) + 1;
+            factoryData.push({ id: newId, ...data });
+            paginationState.factory.currentPage = 1; // 重置到第一页
+        }
+
+        renderFactoryTable();
+        closeFactoryModal();
+    };
+
+    window.filterFactory = function() {
+        const keyword = document.getElementById('search-factory').value.toLowerCase();
+        const filtered = factoryData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            (item.eccName && item.eccName.toLowerCase().includes(keyword))
+        );
+        renderFactoryTable(filtered);
+    };
+
+    // 车间、产线、工艺、工序、设备相关函数（类似实现，这里先占位）
+    window.showWorkshopForm = function() {
+        currentEditingId = null;
+        document.getElementById('workshop-modal-title').textContent = '新增车间';
+        document.getElementById('workshop-form').reset();
+        updateFactoryOptions('workshop-factory');
+        updateECCOptions('workshop-ecc', 'workshop');
+        document.getElementById('workshop-modal').classList.add('active');
+    };
+
+    window.closeWorkshopModal = function() {
+        document.getElementById('workshop-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editWorkshop = function(id) {
+        const item = workshopData.find(d => d.id === id);
+        if (!item) return;
+        currentEditingId = id;
+        document.getElementById('workshop-modal-title').textContent = '编辑车间';
+        updateFactoryOptions('workshop-factory');
+        updateECCOptions('workshop-ecc', 'workshop');
+        document.getElementById('workshop-code').value = item.code;
+        document.getElementById('workshop-name').value = item.name;
+        document.getElementById('workshop-factory').value = item.factoryId;
+        document.getElementById('workshop-ecc').value = item.eccId || '';
+        document.getElementById('workshop-manager').value = item.manager || '';
+        document.getElementById('workshop-phone').value = item.phone || '';
+        document.getElementById('workshop-modal').classList.add('active');
+    };
+
+    window.deleteWorkshop = function(id) {
+        if (confirm('确定要删除这个车间吗？')) {
+            workshopData = workshopData.filter(d => d.id !== id);
+            renderWorkshopTable();
+        }
+    };
+
+    window.saveWorkshop = function(e) {
+        e.preventDefault();
+        const factoryId = parseInt(document.getElementById('workshop-factory').value);
+        const factory = factoryData.find(f => f.id === factoryId);
+        if (!factory) {
+            alert('请选择有效的厂区');
+            return;
+        }
+
+        const data = {
+            code: document.getElementById('workshop-code').value,
+            name: document.getElementById('workshop-name').value,
+            factoryId: factoryId,
+            factoryName: factory.name,
+            eccId: document.getElementById('workshop-ecc').value || null,
+            manager: document.getElementById('workshop-manager').value || '',
+            phone: document.getElementById('workshop-phone').value || ''
+        };
+
+        if (data.eccId) {
+            const ecc = eccList.find(e => e.id === data.eccId);
+            if (ecc) {
+                data.eccName = ecc.name;
+                data.eccCode = ecc.code;
+            }
+        }
+
+        if (currentEditingId) {
+            const index = workshopData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                workshopData[index] = { ...workshopData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...workshopData.map(d => d.id), 0) + 1;
+            workshopData.push({ id: newId, ...data });
+            paginationState.workshop.currentPage = 1; // 重置到第一页
+        }
+
+        renderWorkshopTable();
+        closeWorkshopModal();
+    };
+
+    window.filterWorkshop = function() {
+        const keyword = document.getElementById('search-workshop').value.toLowerCase();
+        const filtered = workshopData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            item.factoryName.toLowerCase().includes(keyword)
+        );
+        renderWorkshopTable(filtered);
+    };
+
+    // 产线、工艺、工序、设备、仪表相关函数（类似实现，这里简化处理）
+    // 为了节省空间，其他函数采用类似的模式实现
+    window.showProductionLineForm = function() {
+        currentEditingId = null;
+        document.getElementById('production-line-modal-title').textContent = '新增产线';
+        document.getElementById('production-line-form').reset();
+        updateWorkshopOptions('production-line-workshop');
+        updateECCOptions('production-line-ecc', 'production-line');
+        document.getElementById('production-line-modal').classList.add('active');
+    };
+
+    window.closeProductionLineModal = function() {
+        document.getElementById('production-line-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editProductionLine = function(id) {
+        const item = productionLineData.find(d => d.id === id);
+        if (!item) return;
+        currentEditingId = id;
+        document.getElementById('production-line-modal-title').textContent = '编辑产线';
+        updateWorkshopOptions('production-line-workshop');
+        updateECCOptions('production-line-ecc', 'production-line');
+        document.getElementById('production-line-code').value = item.code;
+        document.getElementById('production-line-name').value = item.name;
+        document.getElementById('production-line-workshop').value = item.workshopId;
+        document.getElementById('production-line-ecc').value = item.eccId || '';
+        document.getElementById('production-line-manager').value = item.manager || '';
+        document.getElementById('production-line-phone').value = item.phone || '';
+        document.getElementById('production-line-modal').classList.add('active');
+    };
+
+    window.deleteProductionLine = function(id) {
+        if (confirm('确定要删除这条产线吗？')) {
+            productionLineData = productionLineData.filter(d => d.id !== id);
+            renderProductionLineTable();
+        }
+    };
+
+    window.saveProductionLine = function(e) {
+        e.preventDefault();
+        const workshopId = parseInt(document.getElementById('production-line-workshop').value);
+        const workshop = workshopData.find(w => w.id === workshopId);
+        if (!workshop) {
+            alert('请选择有效的车间');
+            return;
+        }
+
+        const data = {
+            code: document.getElementById('production-line-code').value,
+            name: document.getElementById('production-line-name').value,
+            workshopId: workshopId,
+            workshopName: workshop.name,
+            eccId: document.getElementById('production-line-ecc').value || null,
+            manager: document.getElementById('production-line-manager').value || '',
+            phone: document.getElementById('production-line-phone').value || ''
+        };
+
+        if (data.eccId) {
+            const ecc = eccList.find(e => e.id === data.eccId);
+            if (ecc) {
+                data.eccName = ecc.name;
+                data.eccCode = ecc.code;
+            }
+        }
+
+        if (currentEditingId) {
+            const index = productionLineData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                productionLineData[index] = { ...productionLineData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...productionLineData.map(d => d.id), 0) + 1;
+            productionLineData.push({ id: newId, ...data });
+            paginationState.productionLine.currentPage = 1; // 重置到第一页
+        }
+
+        renderProductionLineTable();
+        closeProductionLineModal();
+    };
+
+    window.filterProductionLine = function() {
+        const keyword = document.getElementById('search-production-line').value.toLowerCase();
+        const filtered = productionLineData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            item.workshopName.toLowerCase().includes(keyword)
+        );
+        renderProductionLineTable(filtered);
+    };
+
+    // 工艺相关函数
+    window.showCraftForm = function() {
+        currentEditingId = null;
+        document.getElementById('craft-modal-title').textContent = '新增工艺';
+        document.getElementById('craft-form').reset();
+        updateProductionLineOptions('craft-production-line');
+        document.getElementById('craft-modal').classList.add('active');
+    };
+
+    window.closeCraftModal = function() {
+        document.getElementById('craft-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editCraft = function(id) {
+        const item = craftData.find(d => d.id === id);
+        if (!item) return;
+        currentEditingId = id;
+        document.getElementById('craft-modal-title').textContent = '编辑工艺';
+        updateProductionLineOptions('craft-production-line');
+        document.getElementById('craft-code').value = item.code;
+        document.getElementById('craft-name').value = item.name;
+        document.getElementById('craft-production-line').value = item.productionLineId;
+        document.getElementById('craft-description').value = item.description || '';
+        document.getElementById('craft-modal').classList.add('active');
+    };
+
+    window.deleteCraft = function(id) {
+        if (confirm('确定要删除这个工艺吗？')) {
+            craftData = craftData.filter(d => d.id !== id);
+            renderCraftTable();
+        }
+    };
+
+    window.saveCraft = function(e) {
+        e.preventDefault();
+        const productionLineId = parseInt(document.getElementById('craft-production-line').value);
+        const pl = productionLineData.find(p => p.id === productionLineId);
+        if (!pl) {
+            alert('请选择有效的产线');
+            return;
+        }
+
+        const data = {
+            code: document.getElementById('craft-code').value,
+            name: document.getElementById('craft-name').value,
+            productionLineId: productionLineId,
+            productionLineName: pl.name,
+            description: document.getElementById('craft-description').value || ''
+        };
+
+        if (currentEditingId) {
+            const index = craftData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                craftData[index] = { ...craftData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...craftData.map(d => d.id), 0) + 1;
+            craftData.push({ id: newId, ...data });
+            paginationState.craft.currentPage = 1; // 重置到第一页
+        }
+
+        renderCraftTable();
+        closeCraftModal();
+    };
+
+    window.filterCraft = function() {
+        const keyword = document.getElementById('search-craft').value.toLowerCase();
+        const filtered = craftData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            item.productionLineName.toLowerCase().includes(keyword)
+        );
+        renderCraftTable(filtered);
+    };
+
+    // 更新工序相关函数（需要关联工艺和ECC）
+    window.showProcessForm = function() {
+        currentEditingId = null;
+        document.getElementById('process-modal-title').textContent = '新增工序';
+        document.getElementById('process-form').reset();
+        updateCraftOptions('process-craft');
+        updateECCOptions('process-ecc', 'process');
+        document.getElementById('process-modal').classList.add('active');
+    };
+
+    window.closeProcessModal = function() {
+        document.getElementById('process-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editProcess = function(id) {
+        const item = processData.find(d => d.id === id);
+        if (!item) return;
+        currentEditingId = id;
+        document.getElementById('process-modal-title').textContent = '编辑工序';
+        updateCraftOptions('process-craft');
+        updateECCOptions('process-ecc', 'process');
+        document.getElementById('process-code').value = item.code;
+        document.getElementById('process-name').value = item.name;
+        document.getElementById('process-craft').value = item.craftId;
+        document.getElementById('process-ecc').value = item.eccId || '';
+        document.getElementById('process-description').value = item.description || '';
+        document.getElementById('process-modal').classList.add('active');
+    };
+
+    window.deleteProcess = function(id) {
+        if (confirm('确定要删除这个工序吗？')) {
+            processData = processData.filter(d => d.id !== id);
+            renderProcessTable();
+        }
+    };
+
+    window.saveProcess = function(e) {
+        e.preventDefault();
+        const craftId = parseInt(document.getElementById('process-craft').value);
+        const craft = craftData.find(c => c.id === craftId);
+        if (!craft) {
+            alert('请选择有效的工艺');
+            return;
+        }
+
+        const data = {
+            code: document.getElementById('process-code').value,
+            name: document.getElementById('process-name').value,
+            craftId: craftId,
+            craftName: craft.name,
+            eccId: document.getElementById('process-ecc').value || null,
+            description: document.getElementById('process-description').value || ''
+        };
+
+        if (data.eccId) {
+            const ecc = eccList.find(e => e.id === data.eccId);
+            if (ecc) {
+                data.eccName = ecc.name;
+                data.eccCode = ecc.code;
+            }
+        }
+
+        if (currentEditingId) {
+            const index = processData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                processData[index] = { ...processData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...processData.map(d => d.id), 0) + 1;
+            processData.push({ id: newId, ...data });
+        }
+
+        renderProcessTable();
+        closeProcessModal();
+    };
+
+    window.filterProcess = function() {
+        const keyword = document.getElementById('search-process').value.toLowerCase();
+        const filtered = processData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            item.craftName.toLowerCase().includes(keyword)
+        );
+        renderProcessTable(filtered);
+    };
+
+    // 更新设备相关函数（需要关联工序和ECC）
+    window.showEquipmentForm = function() {
+        currentEditingId = null;
+        document.getElementById('equipment-modal-title').textContent = '新增设备';
+        document.getElementById('equipment-form').reset();
+        updateProcessOptions('equipment-process');
+        updateECCOptions('equipment-ecc', 'equipment');
+        document.getElementById('equipment-modal').classList.add('active');
+    };
+
+    window.closeEquipmentModal = function() {
+        document.getElementById('equipment-modal').classList.remove('active');
+        currentEditingId = null;
+    };
+
+    window.editEquipment = function(id) {
+        const item = equipmentData.find(d => d.id === id);
+        if (!item) return;
+        currentEditingId = id;
+        document.getElementById('equipment-modal-title').textContent = '编辑设备';
+        updateProcessOptions('equipment-process');
+        updateECCOptions('equipment-ecc', 'equipment');
+        document.getElementById('equipment-code').value = item.code;
+        document.getElementById('equipment-name').value = item.name;
+        document.getElementById('equipment-type').value = item.type;
+        document.getElementById('equipment-process').value = item.processId;
+        document.getElementById('equipment-ecc').value = item.eccId || '';
+        document.getElementById('equipment-power').value = item.power || '';
+        document.getElementById('equipment-enabled').value = item.enabled ? 'true' : 'false';
+        document.getElementById('equipment-modal').classList.add('active');
+    };
+
+    window.deleteEquipment = function(id) {
+        if (confirm('确定要删除这个设备吗？删除后相关的仪表配置也会被删除。')) {
+            equipmentData = equipmentData.filter(d => d.id !== id);
+            // 级联删除相关仪表
+            meterData = meterData.filter(m => m.equipmentId !== id);
+            renderEquipmentTable();
+            renderMeterTable();
+        }
+    };
+
+    window.saveEquipment = function(e) {
+        e.preventDefault();
+        const processId = parseInt(document.getElementById('equipment-process').value);
+        const process = processData.find(p => p.id === processId);
+        if (!process) {
+            alert('请选择有效的工序');
+            return;
+        }
+
+        const typeMap = {
+            'motor': '电机',
+            'compressor': '压缩机',
+            'pump': '水泵',
+            'fan': '风机',
+            'heater': '加热器',
+            'cooler': '冷却器',
+            'other': '其他'
+        };
+
+        const data = {
+            code: document.getElementById('equipment-code').value,
+            name: document.getElementById('equipment-name').value,
+            type: document.getElementById('equipment-type').value,
+            typeName: typeMap[document.getElementById('equipment-type').value] || '其他',
+            processId: processId,
+            processName: process.name,
+            eccId: document.getElementById('equipment-ecc').value || null,
+            power: parseFloat(document.getElementById('equipment-power').value) || null,
+            enabled: document.getElementById('equipment-enabled').value === 'true'
+        };
+
+        if (data.eccId) {
+            const ecc = eccList.find(e => e.id === data.eccId);
+            if (ecc) {
+                data.eccName = ecc.name;
+                data.eccCode = ecc.code;
+            }
+        }
+
+        if (currentEditingId) {
+            const index = equipmentData.findIndex(d => d.id === currentEditingId);
+            if (index !== -1) {
+                equipmentData[index] = { ...equipmentData[index], ...data };
+            }
+        } else {
+            const newId = Math.max(...equipmentData.map(d => d.id), 0) + 1;
+            equipmentData.push({ id: newId, ...data });
+        }
+
+        renderEquipmentTable();
+        closeEquipmentModal();
+    };
+
+    window.filterEquipment = function() {
+        const keyword = document.getElementById('search-equipment').value.toLowerCase();
+        const filtered = equipmentData.filter(item => 
+            item.code.toLowerCase().includes(keyword) ||
+            item.name.toLowerCase().includes(keyword) ||
+            item.typeName.toLowerCase().includes(keyword) ||
+            item.processName.toLowerCase().includes(keyword)
+        );
+        renderEquipmentTable(filtered);
+    };
+
+    // 初始化
+    function init() {
+        // 检查必要的DOM元素是否存在
+        const factoryTableBody = document.getElementById('factory-table-body');
+        if (!factoryTableBody) {
+            console.warn('DOM elements not ready, retrying...');
+            // 如果DOM元素不存在，延迟重试
+            setTimeout(init, 200);
+            return;
+        }
+        
+        // 重新加载ECC数据
+        eccList = loadECCData();
+        
+        // 渲染所有表格
+        renderFactoryTable();
+        renderWorkshopTable();
+        renderProductionLineTable();
+        renderCraftTable();
+        renderProcessTable();
+        renderEquipmentTable();
+        renderMeterTable();
+    }
+
+    // 确保在iframe中也能正常初始化
+    function ensureInit() {
+        // 如果DOM已经完全加载，直接初始化
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            // 稍微延迟确保所有元素都已渲染
+            setTimeout(init, 150);
+        } else {
+            // 等待DOM加载完成
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(init, 150);
+            });
+        }
+    }
+
+    // 在iframe环境中，需要多次尝试确保初始化成功
+    if (window.parent !== window) {
+        // 在iframe环境中
+        // 监听load事件
+        window.addEventListener('load', function() {
+            setTimeout(init, 500);
+        });
+        // 也监听DOMContentLoaded
+        ensureInit();
+        // 备用：如果以上都没成功，延迟更长时间再试
+        setTimeout(function() {
+            const factoryTableBody = document.getElementById('factory-table-body');
+            if (factoryTableBody && factoryTableBody.children.length === 0) {
+                init();
+            }
+        }, 1000);
+    } else {
+        ensureInit();
+    }
+})();
+</script>

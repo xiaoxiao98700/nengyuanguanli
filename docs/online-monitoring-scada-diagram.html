@@ -1,0 +1,2568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组态图监控</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #0f1e2d;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Source Han Sans', Arial, sans-serif;
+            color: #e0e6ed;
+        }
+        .iframe-page-wrapper {
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="iframe-page-wrapper">
+<h2><i class="fas fa-project-diagram"></i> 组态图 - SCADA监控</h2>
+
+<div class="tab-nav">
+    <button class="tab-button active" onclick="openEnergyMonitorTab(event, 'boiler-system-tab')">锅炉系统</button>
+    <button class="tab-button" onclick="openEnergyMonitorTab(event, 'power-system-tab')">电力系统</button>
+    <button class="tab-button" onclick="openEnergyMonitorTab(event, 'water-system-tab')">水系统</button>
+    <button class="tab-button" onclick="openEnergyMonitorTab(event, 'air-system-tab')">压缩空气系统</button>
+</div>
+
+<!-- 锅炉系统组态图 -->
+<div id="boiler-system-tab" class="tab-content" style="display: block;">
+    <div class="scada-container">
+        <!-- 左侧控制面板 -->
+        <div class="scada-control-panel">
+            <div class="control-tabs">
+                <button class="control-tab-btn active">本地</button>
+                <button class="control-tab-btn">远程</button>
+            </div>
+            <div class="control-mode-tabs">
+                <button class="control-mode-btn active">温度控制</button>
+                <button class="control-mode-btn">功率控制</button>
+            </div>
+            
+            <div class="status-list">
+                <div class="status-item">
+                    <span class="status-label">锅炉安全</span>
+                    <span class="status-indicator status-gray"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">锅炉停止/互锁</span>
+                    <span class="status-indicator status-gray"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">锅炉运行就绪</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">锅炉运行</span>
+                    <span class="status-indicator status-gray"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">锅炉停止/工作态</span>
+                    <span class="status-indicator status-gray"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">锅炉运行中</span>
+                    <span class="status-indicator status-gray"></span>
+                </div>
+                <div class="status-item highlight">
+                    <span class="status-label">启动锅炉</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item alert">
+                    <span class="status-label">停止锅炉</span>
+                    <span class="status-indicator status-red"></span>
+                </div>
+            </div>
+            
+            <div class="parameter-group">
+                <div class="parameter-item">
+                    <label>实际区域温度设定值</label>
+                    <input type="number" value="68.9" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <label>锅炉实际功率</label>
+                    <input type="number" value="0" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <span class="status-label">锅炉处于温度控制式</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="parameter-item">
+                    <span class="status-label">锅炉处于温度控制式</span>
+                    <span class="status-indicator status-gray"></span>
+                </div>
+                <div class="parameter-item">
+                    <span class="status-label">锅炉处于功率限制</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="parameter-item">
+                    <span class="status-label">锅炉处于功率限制</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+            </div>
+            
+            <button class="stop-boiler-btn">停止锅炉</button>
+        </div>
+        
+        <!-- 主要组态图区域 -->
+        <div class="scada-diagram-area">
+            <!-- 顶部主断路器 -->
+            <div class="component-group top-breaker">
+                <div class="component-label">主断路器</div>
+                <div class="breaker-symbol">
+                    <div class="breaker-circle breaker-top"></div>
+                    <div class="breaker-line"></div>
+                    <div class="breaker-circle breaker-bottom"></div>
+                </div>
+                <div class="component-tag">OBBA10G S001</div>
+                <div class="status-box">
+                    <div>已连接</div>
+                    <div>合闸到位</div>
+                </div>
+            </div>
+            
+            <!-- 锅炉主体 -->
+            <div class="boiler-main">
+                <!-- 顶部设备 -->
+                <div class="boiler-top-section">
+                    <div class="pressure-indicator">
+                        <div class="tag-label">锅炉压力</div>
+                        <div class="tag-box">BE10CP001/</div>
+                        <div class="value-box">1.1Bar</div>
+                    </div>
+                    
+                    <div class="breaker-symbol small">
+                        <div class="breaker-circle breaker-top"></div>
+                        <div class="breaker-line"></div>
+                        <div class="ground-symbol"></div>
+                    </div>
+                    
+                    <div class="electrode-group">
+                        <div class="electrode-label">锅炉耗电量</div>
+                        <div class="electrode-container">
+                            <div class="electrode-item">
+                                <div class="electrode-symbol"></div>
+                                <div class="electrode-tag">电流 L1</div>
+                            </div>
+                            <div class="electrode-item">
+                                <div class="electrode-symbol"></div>
+                                <div class="electrode-tag">电流 L2</div>
+                            </div>
+                            <div class="electrode-item">
+                                <div class="electrode-symbol"></div>
+                                <div class="electrode-tag">电流 L3</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 锅炉本体 -->
+                <div class="boiler-body">
+                    <div class="boiler-tank">
+                        <!-- 水位指示 -->
+                        <div class="water-level-container">
+                            <div class="level-indicator top">
+                                <span class="level-tag">BE10CL003</span>
+                                <span class="level-value">-0.1%</span>
+                                <span class="level-label">锅炉上液位</span>
+                            </div>
+                            <div class="level-indicator middle">
+                                <span class="level-tag">BE10CL001/2</span>
+                                <span class="level-value">84.4%</span>
+                                <span class="level-label">锅炉下液位</span>
+                            </div>
+                            
+                            <!-- 锅炉内部设定值显示 -->
+                            <div class="boiler-setpoints">
+                                <div class="setpoint-item">
+                                    <span class="setpoint-tag">LFN10AP001</span>
+                                    <span class="setpoint-label">锅炉功率控制阀设定值</span>
+                                </div>
+                                <div class="setpoint-percentage">
+                                    <span class="green-text">15%</span>
+                                    <span class="blue-text">14.7%</span>
+                                </div>
+                                <div class="setpoint-item">
+                                    <span class="setpoint-label">锅炉功率控制阀反馈值</span>
+                                </div>
+                            </div>
+                            
+                            <!-- 水位显示 -->
+                            <div class="water-fill">
+                                <div class="water-surface"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 水泵符号 -->
+                        <div class="pump-symbol-container">
+                            <div class="pump-item">
+                                <div class="pump-circle">
+                                    <div class="pump-indicator green"></div>
+                                </div>
+                                <div class="pump-tag">QHG10 AP001</div>
+                                <div class="pump-value">0%<br>0.1Hz</div>
+                            </div>
+                            <div class="pump-item">
+                                <div class="pump-circle">
+                                    <div class="pump-indicator green"></div>
+                                </div>
+                                <div class="pump-tag">QHG10AP002</div>
+                                <div class="pump-value">15%<br>0.1Hz</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 右侧水位百分比 -->
+                    <div class="water-level-percent">
+                        <div class="percent-item">
+                            <span class="percent-tag">BE10CL003</span>
+                            <span class="percent-value">-0.1%</span>
+                            <span class="percent-label">锅炉上液位</span>
+                        </div>
+                        <div class="percent-item">
+                            <span class="percent-tag">BE10CL001/2</span>
+                            <span class="percent-value">84.4%</span>
+                            <span class="percent-label">锅炉下液位</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 电导率显示 -->
+                    <div class="conductivity-display">
+                        <div class="cond-tag">QHG10 CQ001</div>
+                        <div class="cond-value">55.5μS</div>
+                        <div class="cond-label">锅炉电导率</div>
+                    </div>
+                </div>
+                
+                <!-- 底部管道 -->
+                <div class="boiler-bottom-pipes">
+                    <div class="bottom-valve">
+                        <span class="valve-tag">LAB10AA301</span>
+                        <div class="valve-symbol">
+                            <div class="valve-box"></div>
+                        </div>
+                        <span class="valve-label">给水箱</span>
+                    </div>
+                    
+                    <div class="bottom-pump">
+                        <div class="pump-circle">
+                            <div class="pump-indicator green"></div>
+                        </div>
+                        <span class="pump-label">锅炉循环泵2运行</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 左侧管道系统 -->
+            <div class="left-pipe-system">
+                <div class="pipe-component">
+                    <span class="pipe-tag">NDB63CT001</span>
+                    <div class="pipe-line horizontal"></div>
+                </div>
+                
+                <div class="temp-display">
+                    <span class="temp-label">区域热温度</span>
+                    <span class="temp-tag">NDB63CT001/</span>
+                    <span class="temp-value">10.2°C</span>
+                </div>
+                
+                <div class="valve-component">
+                    <span class="valve-label">锅炉三通阀设定值</span>
+                    <div class="valve-symbol three-way">
+                        <div class="valve-indicator green"></div>
+                        <div class="valve-percentage blue">100%</div>
+                    </div>
+                    <span class="valve-label">锅炉三通阀反馈值</span>
+                </div>
+            </div>
+            
+            <!-- 中部温度显示 -->
+            <div class="center-temp-display">
+                <div class="temp-component">
+                    <span class="temp-label">锅炉回水温度</span>
+                    <span class="temp-tag">DHG10CT001</span>
+                    <span class="temp-value">11.2°C</span>
+                    <div class="pipe-line horizontal orange"></div>
+                </div>
+                
+                <div class="temp-component">
+                    <span class="temp-label">锅炉温度</span>
+                    <span class="temp-tag">DHG10CT001 / 2</span>
+                    <span class="temp-value">11°C</span>
+                    <div class="arrow-up green"></div>
+                </div>
+                
+                <div class="operation-label">
+                    <span class="operation-text green">加药泵运行</span>
+                    <span class="operation-text">氯氧化钠</span>
+                </div>
+            </div>
+            
+            <!-- 右侧管道输出 -->
+            <div class="right-pipe-system">
+                <div class="outlet-section">
+                    <span class="outlet-label">排气阀</span>
+                    <div class="valve-symbol outlet">
+                        <div class="valve-triangle"></div>
+                    </div>
+                    <span class="outlet-tag">W2填充阀（氮气）</span>
+                    <div class="pipe-line horizontal"></div>
+                </div>
+                
+                <div class="drain-section">
+                    <span class="drain-label">排污阀</span>
+                    <div class="valve-symbol drain">
+                        <div class="valve-triangle"></div>
+                    </div>
+                    <div class="pipe-line horizontal"></div>
+                </div>
+            </div>
+            
+            <!-- 右上角标签 -->
+            <div class="top-right-labels">
+                <div class="label-item">
+                    <span class="label-text">10干块</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 实时数据表格 -->
+    <div class="scada-data-panel">
+        <h3 class="card-title"><i class="fas fa-table"></i> 实时监测数据</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>测点名称</th>
+                    <th>测点编号</th>
+                    <th>当前值</th>
+                    <th>单位</th>
+                    <th>状态</th>
+                    <th>更新时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>锅炉压力</td>
+                    <td>BE10CP001</td>
+                    <td>1.1</td>
+                    <td>Bar</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>锅炉下液位</td>
+                    <td>BE10CL001/2</td>
+                    <td>84.4</td>
+                    <td>%</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>锅炉上液位</td>
+                    <td>BE10CL003</td>
+                    <td>-0.1</td>
+                    <td>%</td>
+                    <td><span class="status-badge status-warning">偏低</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>锅炉温度</td>
+                    <td>DHG10CT001/2</td>
+                    <td>11</td>
+                    <td>°C</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>锅炉回水温度</td>
+                    <td>DHG10CT001</td>
+                    <td>11.2</td>
+                    <td>°C</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>锅炉电导率</td>
+                    <td>QHG10 CQ001</td>
+                    <td>55.5</td>
+                    <td>μS</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 电力系统组态图 -->
+<div id="power-system-tab" class="tab-content" style="display: none;">
+    <div class="scada-container">
+        <!-- 左侧控制面板 -->
+        <div class="scada-control-panel">
+            <div class="control-tabs">
+                <button class="control-tab-btn active">本地</button>
+                <button class="control-tab-btn">远程</button>
+            </div>
+            <div class="control-mode-tabs">
+                <button class="control-mode-btn active">自动</button>
+                <button class="control-mode-btn">手动</button>
+            </div>
+            
+            <div class="status-list">
+                <div class="status-item">
+                    <span class="status-label">主变压器运行</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">1#变压器运行</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">2#变压器运行</span>
+                    <span class="status-indicator status-gray"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">总开关合闸</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">保护动作</span>
+                    <span class="status-indicator status-gray"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">接地故障</span>
+                    <span class="status-indicator status-gray"></span>
+                </div>
+                <div class="status-item highlight">
+                    <span class="status-label">紧急停机</span>
+                    <span class="status-indicator status-red"></span>
+                </div>
+            </div>
+            
+            <div class="parameter-group">
+                <div class="parameter-item">
+                    <label>总负荷功率</label>
+                    <input type="number" value="1250.5" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <label>总电流</label>
+                    <input type="number" value="1890.2" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <label>功率因数</label>
+                    <input type="number" value="0.92" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <span class="status-label">系统正常</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+            </div>
+            
+            <button class="stop-boiler-btn">紧急停机</button>
+        </div>
+        
+        <!-- 主要组态图区域 -->
+        <div class="scada-diagram-area">
+            <!-- 顶部进线 -->
+            <div class="component-group top-power">
+                <div class="component-label">10kV进线</div>
+                <div class="breaker-symbol">
+                    <div class="breaker-circle breaker-top"></div>
+                    <div class="breaker-line"></div>
+                    <div class="breaker-circle breaker-bottom"></div>
+                </div>
+                <div class="component-tag">10kV-001</div>
+                <div class="status-box">
+                    <div>已连接</div>
+                    <div>合闸</div>
+                </div>
+            </div>
+            
+            <!-- 主变压器 -->
+            <div class="transformer-main">
+                <div class="transformer-symbol">
+                    <div class="transformer-core">
+                        <div class="transformer-winding top"></div>
+                        <div class="transformer-winding bottom"></div>
+                    </div>
+                </div>
+                <div class="transformer-label">主变压器</div>
+                <div class="transformer-tag">T1-1000kVA</div>
+                <div class="transformer-data">
+                    <div>电压: 10kV/0.4kV</div>
+                    <div>负载率: 85.2%</div>
+                    <div>温度: 65°C</div>
+                </div>
+            </div>
+            
+            <!-- 低压开关柜 -->
+            <div class="switchgear-container">
+                <div class="switchgear-item">
+                    <div class="switchgear-label">1#开关柜</div>
+                    <div class="switchgear-box">
+                        <div class="switch-indicator green"></div>
+                    </div>
+                    <div class="switchgear-data">
+                        <div>负荷: 450kW</div>
+                        <div>电流: 680A</div>
+                    </div>
+                </div>
+                
+                <div class="switchgear-item">
+                    <div class="switchgear-label">2#开关柜</div>
+                    <div class="switchgear-box">
+                        <div class="switch-indicator green"></div>
+                    </div>
+                    <div class="switchgear-data">
+                        <div>负荷: 520kW</div>
+                        <div>电流: 785A</div>
+                    </div>
+                </div>
+                
+                <div class="switchgear-item">
+                    <div class="switchgear-label">3#开关柜</div>
+                    <div class="switchgear-box">
+                        <div class="switch-indicator green"></div>
+                    </div>
+                    <div class="switchgear-data">
+                        <div>负荷: 280kW</div>
+                        <div>电流: 425A</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 配电回路 -->
+            <div class="distribution-circuits">
+                <div class="circuit-item">
+                    <div class="circuit-label">生产车间1</div>
+                    <div class="circuit-line"></div>
+                    <div class="circuit-data">280kW</div>
+                </div>
+                <div class="circuit-item">
+                    <div class="circuit-label">生产车间2</div>
+                    <div class="circuit-line"></div>
+                    <div class="circuit-data">350kW</div>
+                </div>
+                <div class="circuit-item">
+                    <div class="circuit-label">办公区</div>
+                    <div class="circuit-line"></div>
+                    <div class="circuit-data">120kW</div>
+                </div>
+                <div class="circuit-item">
+                    <div class="circuit-label">辅助设备</div>
+                    <div class="circuit-line"></div>
+                    <div class="circuit-data">500kW</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 实时数据表格 -->
+    <div class="scada-data-panel">
+        <h3 class="card-title"><i class="fas fa-table"></i> 实时监测数据</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>测点名称</th>
+                    <th>测点编号</th>
+                    <th>当前值</th>
+                    <th>单位</th>
+                    <th>状态</th>
+                    <th>更新时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>总负荷功率</td>
+                    <td>PWR-001</td>
+                    <td>1250.5</td>
+                    <td>kW</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>总电流</td>
+                    <td>CUR-001</td>
+                    <td>1890.2</td>
+                    <td>A</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>功率因数</td>
+                    <td>PF-001</td>
+                    <td>0.92</td>
+                    <td>-</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>主变压器温度</td>
+                    <td>TEMP-T1</td>
+                    <td>65</td>
+                    <td>°C</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>主变压器负载率</td>
+                    <td>LOAD-T1</td>
+                    <td>85.2</td>
+                    <td>%</td>
+                    <td><span class="status-badge status-warning">偏高</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 水系统组态图 -->
+<div id="water-system-tab" class="tab-content" style="display: none;">
+    <div class="scada-container">
+        <!-- 左侧控制面板 -->
+        <div class="scada-control-panel">
+            <div class="control-tabs">
+                <button class="control-tab-btn active">本地</button>
+                <button class="control-tab-btn">远程</button>
+            </div>
+            <div class="control-mode-tabs">
+                <button class="control-mode-btn active">自动</button>
+                <button class="control-mode-btn">手动</button>
+            </div>
+            
+            <div class="status-list">
+                <div class="status-item">
+                    <span class="status-label">供水泵运行</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">循环泵运行</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">水箱水位正常</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">水处理运行</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">压力正常</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">水质正常</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item highlight">
+                    <span class="status-label">启动系统</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item alert">
+                    <span class="status-label">停止系统</span>
+                    <span class="status-indicator status-red"></span>
+                </div>
+            </div>
+            
+            <div class="parameter-group">
+                <div class="parameter-item">
+                    <label>供水压力设定值</label>
+                    <input type="number" value="0.45" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <label>水箱水位</label>
+                    <input type="number" value="75.8" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <label>流量</label>
+                    <input type="number" value="125.6" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <span class="status-label">系统自动运行</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+            </div>
+            
+            <button class="stop-boiler-btn">停止系统</button>
+        </div>
+        
+        <!-- 主要组态图区域 -->
+        <div class="scada-diagram-area">
+            <!-- 水源 -->
+            <div class="water-source">
+                <div class="source-label">市政供水</div>
+                <div class="source-icon">💧</div>
+                <div class="source-data">压力: 0.3MPa</div>
+            </div>
+            
+            <!-- 水处理系统 -->
+            <div class="water-treatment">
+                <div class="treatment-tank">
+                    <div class="tank-label">预处理池</div>
+                    <div class="tank-water"></div>
+                    <div class="tank-data">水位: 80%</div>
+                </div>
+                
+                <div class="treatment-pump">
+                    <div class="pump-circle">
+                        <div class="pump-indicator green"></div>
+                    </div>
+                    <div class="pump-label">提升泵</div>
+                </div>
+                
+                <div class="treatment-tank">
+                    <div class="tank-label">过滤池</div>
+                    <div class="tank-water"></div>
+                    <div class="tank-data">水位: 75%</div>
+                </div>
+            </div>
+            
+            <!-- 主水箱 -->
+            <div class="main-water-tank">
+                <div class="water-tank-container">
+                    <div class="water-tank-body">
+                        <div class="tank-water-level">
+                            <div class="water-fill-tank"></div>
+                        </div>
+                        <div class="tank-label-main">主水箱</div>
+                        <div class="tank-data-main">
+                            <div>水位: 75.8%</div>
+                            <div>容量: 500m³</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 供水系统 -->
+            <div class="water-supply-system">
+                <div class="supply-pump">
+                    <div class="pump-circle">
+                        <div class="pump-indicator green"></div>
+                    </div>
+                    <div class="pump-tag">WSP-001</div>
+                    <div class="pump-value">85%<br>50Hz</div>
+                    <div class="pump-label">供水泵1</div>
+                </div>
+                
+                <div class="supply-pump">
+                    <div class="pump-circle">
+                        <div class="pump-indicator green"></div>
+                    </div>
+                    <div class="pump-tag">WSP-002</div>
+                    <div class="pump-value">60%<br>35Hz</div>
+                    <div class="pump-label">供水泵2</div>
+                </div>
+                
+                <div class="pressure-tank">
+                    <div class="pressure-label">压力罐</div>
+                    <div class="pressure-value">0.45MPa</div>
+                </div>
+            </div>
+            
+            <!-- 分配管道 -->
+            <div class="distribution-pipes">
+                <div class="pipe-branch">
+                    <div class="pipe-label">生产用水</div>
+                    <div class="pipe-line horizontal"></div>
+                    <div class="pipe-data">流量: 85L/min</div>
+                </div>
+                <div class="pipe-branch">
+                    <div class="pipe-label">生活用水</div>
+                    <div class="pipe-line horizontal"></div>
+                    <div class="pipe-data">流量: 40L/min</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 实时数据表格 -->
+    <div class="scada-data-panel">
+        <h3 class="card-title"><i class="fas fa-table"></i> 实时监测数据</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>测点名称</th>
+                    <th>测点编号</th>
+                    <th>当前值</th>
+                    <th>单位</th>
+                    <th>状态</th>
+                    <th>更新时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>主水箱水位</td>
+                    <td>WT-001</td>
+                    <td>75.8</td>
+                    <td>%</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>供水压力</td>
+                    <td>WP-001</td>
+                    <td>0.45</td>
+                    <td>MPa</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>总流量</td>
+                    <td>WF-001</td>
+                    <td>125.6</td>
+                    <td>L/min</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>水质pH值</td>
+                    <td>WQ-001</td>
+                    <td>7.2</td>
+                    <td>-</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>供水泵1频率</td>
+                    <td>WSP-001</td>
+                    <td>50</td>
+                    <td>Hz</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 压缩空气系统组态图 -->
+<div id="air-system-tab" class="tab-content" style="display: none;">
+    <div class="scada-container">
+        <!-- 左侧控制面板 -->
+        <div class="scada-control-panel">
+            <div class="control-tabs">
+                <button class="control-tab-btn active">本地</button>
+                <button class="control-tab-btn">远程</button>
+            </div>
+            <div class="control-mode-tabs">
+                <button class="control-mode-btn active">自动</button>
+                <button class="control-mode-btn">手动</button>
+            </div>
+            
+            <div class="status-list">
+                <div class="status-item">
+                    <span class="status-label">1#空压机运行</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">2#空压机运行</span>
+                    <span class="status-indicator status-gray"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">干燥机运行</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">储气罐压力正常</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">过滤器正常</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">系统压力正常</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item highlight">
+                    <span class="status-label">启动系统</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+                <div class="status-item alert">
+                    <span class="status-label">停止系统</span>
+                    <span class="status-indicator status-red"></span>
+                </div>
+            </div>
+            
+            <div class="parameter-group">
+                <div class="parameter-item">
+                    <label>系统压力设定值</label>
+                    <input type="number" value="0.75" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <label>储气罐压力</label>
+                    <input type="number" value="0.72" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <label>流量</label>
+                    <input type="number" value="85.5" class="param-input">
+                </div>
+                <div class="parameter-item">
+                    <span class="status-label">系统自动运行</span>
+                    <span class="status-indicator status-green"></span>
+                </div>
+            </div>
+            
+            <button class="stop-boiler-btn">停止系统</button>
+        </div>
+        
+        <!-- 主要组态图区域 -->
+        <div class="scada-diagram-area">
+            <!-- 空压机 -->
+            <div class="compressor-group">
+                <div class="compressor-item">
+                    <div class="compressor-symbol">
+                        <div class="compressor-body">
+                            <div class="compressor-indicator green"></div>
+                        </div>
+                    </div>
+                    <div class="compressor-label">1#空压机</div>
+                    <div class="compressor-tag">AC-001</div>
+                    <div class="compressor-data">
+                        <div>压力: 0.75MPa</div>
+                        <div>流量: 85.5m³/min</div>
+                        <div>温度: 85°C</div>
+                    </div>
+                </div>
+                
+                <div class="compressor-item">
+                    <div class="compressor-symbol">
+                        <div class="compressor-body">
+                            <div class="compressor-indicator gray"></div>
+                        </div>
+                    </div>
+                    <div class="compressor-label">2#空压机</div>
+                    <div class="compressor-tag">AC-002</div>
+                    <div class="compressor-data">
+                        <div>状态: 待机</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 后处理系统 -->
+            <div class="after-treatment">
+                <div class="treatment-item">
+                    <div class="treatment-icon">🔧</div>
+                    <div class="treatment-label">冷却器</div>
+                    <div class="treatment-data">温度: 35°C</div>
+                </div>
+                
+                <div class="treatment-item">
+                    <div class="treatment-icon">💨</div>
+                    <div class="treatment-label">干燥机</div>
+                    <div class="treatment-data">露点: -40°C</div>
+                </div>
+                
+                <div class="treatment-item">
+                    <div class="treatment-icon">🔍</div>
+                    <div class="treatment-label">过滤器</div>
+                    <div class="treatment-data">压差: 0.02MPa</div>
+                </div>
+            </div>
+            
+            <!-- 储气罐 -->
+            <div class="air-tank-main">
+                <div class="air-tank-container">
+                    <div class="air-tank-body">
+                        <div class="air-tank-label">储气罐</div>
+                        <div class="air-tank-tag">TANK-001</div>
+                        <div class="air-pressure-gauge">
+                            <div class="gauge-value">0.72</div>
+                            <div class="gauge-unit">MPa</div>
+                        </div>
+                        <div class="air-tank-data">
+                            <div>容量: 50m³</div>
+                            <div>压力: 0.72MPa</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 分配系统 -->
+            <div class="air-distribution">
+                <div class="distribution-branch">
+                    <div class="branch-label">生产用气</div>
+                    <div class="branch-pipe"></div>
+                    <div class="branch-data">压力: 0.70MPa<br>流量: 45m³/min</div>
+                </div>
+                
+                <div class="distribution-branch">
+                    <div class="branch-label">仪表用气</div>
+                    <div class="branch-pipe"></div>
+                    <div class="branch-data">压力: 0.65MPa<br>流量: 25m³/min</div>
+                </div>
+                
+                <div class="distribution-branch">
+                    <div class="branch-label">其他用气</div>
+                    <div class="branch-pipe"></div>
+                    <div class="branch-data">压力: 0.68MPa<br>流量: 15m³/min</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 实时数据表格 -->
+    <div class="scada-data-panel">
+        <h3 class="card-title"><i class="fas fa-table"></i> 实时监测数据</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>测点名称</th>
+                    <th>测点编号</th>
+                    <th>当前值</th>
+                    <th>单位</th>
+                    <th>状态</th>
+                    <th>更新时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>储气罐压力</td>
+                    <td>AP-001</td>
+                    <td>0.72</td>
+                    <td>MPa</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>系统压力</td>
+                    <td>AP-002</td>
+                    <td>0.75</td>
+                    <td>MPa</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>总流量</td>
+                    <td>AF-001</td>
+                    <td>85.5</td>
+                    <td>m³/min</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>1#空压机温度</td>
+                    <td>AT-001</td>
+                    <td>85</td>
+                    <td>°C</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+                <tr>
+                    <td>干燥机露点</td>
+                    <td>AD-001</td>
+                    <td>-40</td>
+                    <td>°C</td>
+                    <td><span class="status-badge status-normal">正常</span></td>
+                    <td>2025-11-14 14:23:15</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.scada-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    background-color: #2a3d54;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* 左侧控制面板 */
+.scada-control-panel {
+    width: 280px;
+    background-color: #3c5472;
+    border: 2px solid #4a6a8a;
+    padding: 10px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.control-tabs {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.control-tab-btn {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #4a6a8a;
+    background-color: #2a3d54;
+    color: #a7bed3;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.control-tab-btn:hover {
+    background-color: #3c5472;
+}
+
+.control-tab-btn.active {
+    background-color: #00bcd4;
+    color: #fff;
+    border-color: #00bcd4;
+}
+
+.control-mode-tabs {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.control-mode-btn {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #4a6a8a;
+    background-color: #2a3d54;
+    color: #a7bed3;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.control-mode-btn:hover {
+    background-color: #3c5472;
+}
+
+.control-mode-btn.active {
+    background-color: #00bcd4;
+    color: #fff;
+    border-color: #00bcd4;
+}
+
+.status-list {
+    margin-bottom: 15px;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    border: 1px solid #4a6a8a;
+    margin-bottom: 2px;
+    background-color: #2a3d54;
+    color: #a7bed3;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.status-item:hover {
+    background-color: #3c5472;
+}
+
+.status-item.highlight {
+    background-color: #f39c12;
+    color: #fff;
+    font-weight: bold;
+    border-color: #f39c12;
+}
+
+.status-item.alert {
+    background-color: #e74c3c;
+    color: #fff;
+    font-weight: bold;
+    border-color: #e74c3c;
+}
+
+.status-label {
+    font-size: 11px;
+}
+
+.status-indicator {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #4a6a8a;
+    display: inline-block;
+    border-radius: 2px;
+}
+
+.status-indicator.status-gray {
+    background-color: #5d7d9a;
+}
+
+.status-indicator.status-green {
+    background-color: #00bcd4;
+    box-shadow: 0 0 6px rgba(0, 188, 212, 0.5);
+}
+
+.status-indicator.status-red {
+    background-color: #e74c3c;
+    box-shadow: 0 0 6px rgba(231, 76, 60, 0.5);
+}
+
+.parameter-group {
+    margin-top: 15px;
+}
+
+.parameter-item {
+    margin-bottom: 10px;
+}
+
+.parameter-item label {
+    display: block;
+    font-size: 11px;
+    margin-bottom: 4px;
+    color: #a7bed3;
+}
+
+.param-input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #4a6a8a;
+    background-color: #2a3d54;
+    color: #e0e6ed;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 4px;
+}
+
+.param-input:focus {
+    outline: none;
+    border-color: #00bcd4;
+    box-shadow: 0 0 4px rgba(0, 188, 212, 0.3);
+}
+
+.stop-boiler-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #f39c12;
+    color: #fff;
+    border: 2px solid #e67e22;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.stop-boiler-btn:hover {
+    background-color: #e67e22;
+    box-shadow: 0 0 8px rgba(243, 156, 18, 0.5);
+}
+
+/* 主组态图区域 */
+.scada-diagram-area {
+    flex: 1;
+    background-color: #1a2a3a;
+    border: 2px solid #3c5472;
+    padding: 20px;
+    position: relative;
+    min-height: 1000px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+}
+
+/* 顶部断路器 */
+.top-breaker {
+    position: absolute;
+    top: 20px;
+    right: 100px;
+    text-align: center;
+}
+
+.component-label {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #e0e6ed;
+}
+
+.component-tag {
+    font-size: 11px;
+    background-color: #2a3d54;
+    border: 1px solid #4a6a8a;
+    color: #a7bed3;
+    padding: 2px 8px;
+    margin-top: 5px;
+    border-radius: 3px;
+}
+
+.breaker-symbol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.breaker-circle {
+    width: 30px;
+    height: 30px;
+    border: 2px solid #4a6a8a;
+    border-radius: 50%;
+    background: linear-gradient(to bottom, #00bcd4 50%, #e74c3c 50%);
+    box-shadow: 0 0 8px rgba(0, 188, 212, 0.3);
+}
+
+.breaker-line {
+    width: 2px;
+    height: 30px;
+    background-color: #4a6a8a;
+}
+
+.ground-symbol {
+    width: 20px;
+    height: 2px;
+    background-color: #4a6a8a;
+    position: relative;
+}
+
+.ground-symbol::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 8px solid #4a6a8a;
+}
+
+.status-box {
+    margin-top: 8px;
+    border: 1px solid #4a6a8a;
+    padding: 4px 8px;
+    font-size: 10px;
+    background-color: #2a3d54;
+    color: #a7bed3;
+    border-radius: 3px;
+}
+
+/* 锅炉主体 */
+.boiler-main {
+    position: absolute;
+    top: 150px;
+    right: 50px;
+    width: 600px;
+}
+
+.boiler-top-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.pressure-indicator {
+    text-align: center;
+}
+
+.tag-label {
+    font-size: 11px;
+    margin-bottom: 4px;
+    color: #a7bed3;
+}
+
+.tag-box {
+    border: 1px solid #4a6a8a;
+    padding: 2px 8px;
+    background-color: #2a3d54;
+    color: #a7bed3;
+    font-size: 11px;
+    margin: 4px 0;
+    border-radius: 3px;
+}
+
+.value-box {
+    border: 1px solid #00bcd4;
+    padding: 4px 12px;
+    background-color: #1a2a3a;
+    color: #00bcd4;
+    font-weight: bold;
+    border-radius: 3px;
+    box-shadow: 0 0 6px rgba(0, 188, 212, 0.3);
+}
+
+.electrode-group {
+    text-align: center;
+}
+
+.electrode-label {
+    font-size: 11px;
+    margin-bottom: 8px;
+    color: #a7bed3;
+}
+
+.electrode-container {
+    display: flex;
+    gap: 15px;
+}
+
+.electrode-item {
+    text-align: center;
+}
+
+.electrode-symbol {
+    width: 40px;
+    height: 60px;
+    background-color: #3c5472;
+    border: 2px solid #4a6a8a;
+    margin-bottom: 4px;
+    border-radius: 4px;
+}
+
+.electrode-tag {
+    font-size: 10px;
+    color: #a7bed3;
+}
+
+/* 锅炉本体 */
+.boiler-body {
+    display: flex;
+    gap: 20px;
+    position: relative;
+}
+
+.boiler-tank {
+    width: 350px;
+    height: 400px;
+    border: 3px solid #4a6a8a;
+    background-color: #2a3d54;
+    border-radius: 0 0 50% 50%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 188, 212, 0.2);
+}
+
+.water-level-container {
+    position: relative;
+    height: 100%;
+}
+
+.level-indicator {
+    position: absolute;
+    right: -180px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+}
+
+.level-indicator.top {
+    top: 50px;
+}
+
+.level-indicator.middle {
+    bottom: 80px;
+}
+
+.level-tag {
+    border: 1px solid #4a6a8a;
+    padding: 2px 6px;
+    background-color: #2a3d54;
+    color: #a7bed3;
+    border-radius: 3px;
+}
+
+.level-value {
+    font-weight: bold;
+    color: #00bcd4;
+}
+
+.boiler-setpoints {
+    position: absolute;
+    left: 20px;
+    top: 100px;
+    font-size: 10px;
+}
+
+.setpoint-item {
+    margin-bottom: 4px;
+}
+
+.setpoint-tag {
+    border: 1px solid #4a6a8a;
+    padding: 2px 6px;
+    background-color: #2a3d54;
+    color: #a7bed3;
+    display: inline-block;
+    margin-bottom: 4px;
+    border-radius: 3px;
+}
+
+.setpoint-percentage {
+    margin: 8px 0;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.green-text {
+    color: #00bcd4;
+    text-shadow: 0 0 4px rgba(0, 188, 212, 0.5);
+}
+
+.blue-text {
+    color: #3498db;
+    margin-left: 10px;
+    text-shadow: 0 0 4px rgba(52, 152, 219, 0.5);
+}
+
+/* 水位填充 */
+.water-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 84%;
+    background: linear-gradient(to bottom, #3498db 0%, #2980b9 50%, #1e3a8a 100%);
+    border-radius: 0 0 50% 50%;
+    box-shadow: inset 0 0 20px rgba(52, 152, 219, 0.3);
+}
+
+.water-surface {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(to right, transparent, #87ceeb, transparent);
+    box-shadow: 0 -2px 8px rgba(135, 206, 235, 0.5);
+}
+
+/* 水泵符号 */
+.pump-symbol-container {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 40px;
+}
+
+.pump-item {
+    text-align: center;
+}
+
+.pump-circle {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #4a6a8a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2a3d54;
+    margin-bottom: 4px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.pump-indicator {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.pump-indicator.green {
+    background-color: #00bcd4;
+    box-shadow: 0 0 12px rgba(0, 188, 212, 0.8);
+}
+
+.pump-tag {
+    font-size: 10px;
+    font-weight: bold;
+    color: #a7bed3;
+}
+
+.pump-value {
+    font-size: 10px;
+    margin-top: 2px;
+    color: #00bcd4;
+}
+
+/* 水位百分比显示 */
+.water-level-percent {
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+}
+
+.percent-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+}
+
+.percent-tag {
+    border: 1px solid #4a6a8a;
+    padding: 2px 6px;
+    background-color: #2a3d54;
+    color: #a7bed3;
+    border-radius: 3px;
+}
+
+.percent-value {
+    font-weight: bold;
+    font-size: 12px;
+    color: #00bcd4;
+}
+
+/* 电导率显示 */
+.conductivity-display {
+    position: absolute;
+    bottom: -80px;
+    right: 200px;
+    text-align: center;
+}
+
+.cond-tag {
+    border: 1px solid #4a6a8a;
+    padding: 2px 8px;
+    background-color: #2a3d54;
+    color: #a7bed3;
+    font-size: 11px;
+    margin-bottom: 4px;
+    border-radius: 3px;
+}
+
+.cond-value {
+    font-weight: bold;
+    font-size: 14px;
+    margin: 4px 0;
+    color: #00bcd4;
+}
+
+.cond-label {
+    font-size: 11px;
+    color: #a7bed3;
+}
+
+/* 底部管道 */
+.boiler-bottom-pipes {
+    position: absolute;
+    bottom: -120px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.bottom-valve {
+    text-align: center;
+}
+
+.valve-symbol {
+    margin: 8px 0;
+}
+
+.valve-box {
+    width: 40px;
+    height: 30px;
+    background-color: #3c5472;
+    border: 2px solid #4a6a8a;
+    border-radius: 3px;
+}
+
+.valve-label {
+    font-size: 10px;
+    color: #a7bed3;
+}
+
+.bottom-pump {
+    text-align: center;
+}
+
+.pump-label {
+    display: block;
+    font-size: 11px;
+    margin-top: 8px;
+}
+
+/* 左侧管道系统 */
+.left-pipe-system {
+    position: absolute;
+    left: 30px;
+    top: 300px;
+}
+
+.pipe-component {
+    margin-bottom: 20px;
+}
+
+.pipe-tag {
+    display: block;
+    border: 1px solid #000;
+    padding: 2px 8px;
+    background-color: #fff;
+    font-size: 11px;
+    margin-bottom: 8px;
+}
+
+.pipe-line {
+    background-color: #4a6a8a;
+}
+
+.pipe-line.horizontal {
+    width: 150px;
+    height: 4px;
+}
+
+.pipe-line.orange {
+    background-color: #f39c12;
+    box-shadow: 0 0 6px rgba(243, 156, 18, 0.5);
+}
+
+.temp-display {
+    margin: 20px 0;
+}
+
+.temp-label, .temp-tag, .temp-value {
+    display: block;
+    font-size: 11px;
+    margin-bottom: 4px;
+    color: #a7bed3;
+}
+
+.temp-value {
+    font-weight: bold;
+    color: #00bcd4;
+}
+
+.valve-component {
+    margin-top: 30px;
+}
+
+.valve-symbol.three-way {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #4a6a8a;
+    border-radius: 50%;
+    position: relative;
+    margin: 10px 0;
+    background-color: #2a3d54;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.valve-indicator.green {
+    width: 40px;
+    height: 40px;
+    background-color: #00bcd4;
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(0, 188, 212, 0.8);
+}
+
+.valve-percentage {
+    position: absolute;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.valve-percentage.blue {
+    color: #3498db;
+    text-shadow: 0 0 4px rgba(52, 152, 219, 0.5);
+}
+
+/* 中部温度显示 */
+.center-temp-display {
+    position: absolute;
+    left: 200px;
+    top: 500px;
+}
+
+.temp-component {
+    margin-bottom: 30px;
+}
+
+.arrow-up {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 15px solid #00ff00;
+    margin: 10px auto;
+}
+
+.arrow-up.green {
+    border-bottom-color: #00ff00;
+}
+
+.operation-label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.operation-text {
+    font-size: 11px;
+    padding: 4px 8px;
+    background-color: #2a3d54;
+    border: 1px solid #4a6a8a;
+    color: #a7bed3;
+    border-radius: 3px;
+}
+
+.operation-text.green {
+    color: #00bcd4;
+    background-color: #1a2a3a;
+    font-weight: bold;
+    border-color: #00bcd4;
+    box-shadow: 0 0 6px rgba(0, 188, 212, 0.3);
+}
+
+/* 右侧管道输出 */
+.right-pipe-system {
+    position: absolute;
+    right: 30px;
+    top: 200px;
+}
+
+.outlet-section, .drain-section {
+    margin-bottom: 100px;
+}
+
+.outlet-label, .drain-label {
+    display: block;
+    font-size: 11px;
+    margin-bottom: 8px;
+    color: #a7bed3;
+}
+
+.outlet-tag {
+    display: block;
+    font-size: 11px;
+    margin-top: 8px;
+    color: #a7bed3;
+}
+
+.valve-symbol.outlet, .valve-symbol.drain {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 8px 0;
+}
+
+.valve-triangle {
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-top: 20px solid #4a6a8a;
+}
+
+/* 右上角标签 */
+.top-right-labels {
+    position: absolute;
+    left: 30px;
+    top: 200px;
+}
+
+.label-item {
+    border: 1px solid #4a6a8a;
+    padding: 4px 8px;
+    background-color: #2a3d54;
+    color: #a7bed3;
+    font-size: 11px;
+    border-radius: 3px;
+}
+
+/* 数据面板 */
+.scada-data-panel {
+    margin-top: 30px;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-badge.status-normal {
+    background-color: #27ae60;
+    color: white;
+}
+
+.status-badge.status-warning {
+    background-color: #f39c12;
+    color: white;
+}
+
+.status-badge.status-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+/* ========== 电力系统样式 ========== */
+.top-power {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.transformer-main {
+    position: absolute;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.transformer-symbol {
+    margin: 20px 0;
+}
+
+.transformer-core {
+    width: 80px;
+    height: 120px;
+    border: 3px solid #4a6a8a;
+    background-color: #2a3d54;
+    border-radius: 10px;
+    position: relative;
+    margin: 0 auto;
+    box-shadow: 0 0 15px rgba(0, 188, 212, 0.2);
+}
+
+.transformer-winding {
+    width: 60px;
+    height: 40px;
+    border: 2px solid #00bcd4;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, #1a2a3a 30%, transparent 30%);
+}
+
+.transformer-winding.top {
+    top: 10px;
+}
+
+.transformer-winding.bottom {
+    bottom: 10px;
+}
+
+.transformer-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #e0e6ed;
+    margin-top: 10px;
+}
+
+.transformer-tag {
+    font-size: 11px;
+    background-color: #2a3d54;
+    border: 1px solid #4a6a8a;
+    color: #a7bed3;
+    padding: 4px 12px;
+    margin: 8px auto;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.transformer-data {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #a7bed3;
+}
+
+.transformer-data div {
+    margin: 4px 0;
+}
+
+.switchgear-container {
+    position: absolute;
+    top: 300px;
+    left: 50px;
+    right: 50px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.switchgear-item {
+    text-align: center;
+    flex: 1;
+    max-width: 200px;
+}
+
+.switchgear-label {
+    font-size: 12px;
+    color: #a7bed3;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.switchgear-box {
+    width: 100px;
+    height: 80px;
+    border: 2px solid #4a6a8a;
+    background-color: #2a3d54;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.switch-indicator {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+}
+
+.switch-indicator.green {
+    background-color: #00bcd4;
+    box-shadow: 0 0 12px rgba(0, 188, 212, 0.8);
+}
+
+.switchgear-data {
+    font-size: 11px;
+    color: #a7bed3;
+}
+
+.switchgear-data div {
+    margin: 4px 0;
+}
+
+.distribution-circuits {
+    position: absolute;
+    bottom: 100px;
+    left: 50px;
+    right: 50px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.circuit-item {
+    text-align: center;
+    flex: 1;
+}
+
+.circuit-label {
+    font-size: 11px;
+    color: #a7bed3;
+    margin-bottom: 8px;
+}
+
+.circuit-line {
+    width: 100%;
+    height: 4px;
+    background-color: #4a6a8a;
+    margin: 8px 0;
+    border-radius: 2px;
+}
+
+.circuit-data {
+    font-size: 12px;
+    color: #00bcd4;
+    font-weight: bold;
+}
+
+/* ========== 水系统样式 ========== */
+.water-source {
+    position: absolute;
+    top: 30px;
+    left: 50px;
+    text-align: center;
+}
+
+.source-label {
+    font-size: 12px;
+    color: #a7bed3;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.source-icon {
+    font-size: 40px;
+    margin: 10px 0;
+}
+
+.source-data {
+    font-size: 11px;
+    color: #00bcd4;
+}
+
+.water-treatment {
+    position: absolute;
+    top: 150px;
+    left: 50px;
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.treatment-tank {
+    width: 120px;
+    height: 150px;
+    border: 2px solid #4a6a8a;
+    background-color: #2a3d54;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.tank-label {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    font-size: 11px;
+    color: #a7bed3;
+    text-align: center;
+    z-index: 2;
+}
+
+.tank-water {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, #3498db 0%, #2980b9 100%);
+    border-radius: 0 0 6px 6px;
+}
+
+.treatment-tank:nth-child(1) .tank-water {
+    height: 80%;
+}
+
+.treatment-tank:nth-child(3) .tank-water {
+    height: 75%;
+}
+
+.tank-data {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    font-size: 10px;
+    color: #00bcd4;
+    text-align: center;
+    z-index: 2;
+}
+
+.treatment-pump {
+    text-align: center;
+}
+
+.main-water-tank {
+    position: absolute;
+    top: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.water-tank-container {
+    width: 300px;
+    height: 400px;
+}
+
+.water-tank-body {
+    width: 100%;
+    height: 100%;
+    border: 3px solid #4a6a8a;
+    background-color: #2a3d54;
+    border-radius: 0 0 50% 50%;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0, 188, 212, 0.2);
+}
+
+.tank-water-level {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 75.8%;
+}
+
+.water-fill-tank {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, #3498db 0%, #2980b9 50%, #1e3a8a 100%);
+    border-radius: 0 0 50% 50%;
+    box-shadow: inset 0 0 20px rgba(52, 152, 219, 0.3);
+}
+
+.tank-label-main {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    right: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #e0e6ed;
+    text-align: center;
+    z-index: 2;
+}
+
+.tank-data-main {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    font-size: 12px;
+    color: #00bcd4;
+    text-align: center;
+    z-index: 2;
+}
+
+.tank-data-main div {
+    margin: 4px 0;
+}
+
+.water-supply-system {
+    position: absolute;
+    bottom: 150px;
+    left: 50px;
+    right: 50px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.supply-pump {
+    text-align: center;
+}
+
+.pressure-tank {
+    text-align: center;
+    padding: 20px;
+    border: 2px solid #4a6a8a;
+    background-color: #2a3d54;
+    border-radius: 8px;
+}
+
+.pressure-label {
+    font-size: 12px;
+    color: #a7bed3;
+    margin-bottom: 8px;
+}
+
+.pressure-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #00bcd4;
+}
+
+.distribution-pipes {
+    position: absolute;
+    bottom: 50px;
+    left: 50px;
+    right: 50px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.pipe-branch {
+    text-align: center;
+    flex: 1;
+}
+
+.pipe-label {
+    font-size: 11px;
+    color: #a7bed3;
+    margin-bottom: 8px;
+}
+
+.pipe-data {
+    font-size: 11px;
+    color: #00bcd4;
+    margin-top: 8px;
+}
+
+/* ========== 压缩空气系统样式 ========== */
+.compressor-group {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 120px;
+    z-index: 1;
+    width: 100%;
+    max-width: 600px;
+}
+
+.compressor-item {
+    text-align: center;
+    width: 200px;
+    flex: 1;
+}
+
+.compressor-symbol {
+    margin-bottom: 12px;
+}
+
+.compressor-body {
+    width: 140px;
+    height: 110px;
+    border: 3px solid #4a6a8a;
+    background-color: #2a3d54;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: 0 0 15px rgba(0, 188, 212, 0.2);
+    margin: 0 auto;
+}
+
+.compressor-indicator {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+}
+
+.compressor-indicator.green {
+    background-color: #00bcd4;
+    box-shadow: 0 0 15px rgba(0, 188, 212, 0.8);
+}
+
+.compressor-indicator.gray {
+    background-color: #5d7d9a;
+}
+
+.compressor-label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #e0e6ed;
+    margin: 8px 0 4px;
+}
+
+.compressor-tag {
+    font-size: 11px;
+    background-color: #2a3d54;
+    border: 1px solid #4a6a8a;
+    color: #a7bed3;
+    padding: 3px 10px;
+    margin: 4px auto;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+.compressor-data {
+    margin-top: 8px;
+    font-size: 11px;
+    color: #a7bed3;
+}
+
+.compressor-data div {
+    margin: 3px 0;
+}
+
+/* 空压机组总高度约180px，所以后处理系统从210px开始 */
+.after-treatment {
+    position: absolute;
+    top: 210px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+}
+
+.treatment-item {
+    text-align: center;
+    padding: 15px;
+    border: 2px solid #4a6a8a;
+    background-color: #2a3d54;
+    border-radius: 8px;
+    flex: 1;
+    min-width: 120px;
+    max-width: 150px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.treatment-icon {
+    font-size: 28px;
+    margin-bottom: 6px;
+}
+
+.treatment-label {
+    font-size: 11px;
+    color: #a7bed3;
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.treatment-data {
+    font-size: 10px;
+    color: #00bcd4;
+    font-weight: bold;
+}
+
+/* 后处理系统总高度约110px，所以储气罐从350px开始（210+110+30间距） */
+.air-tank-main {
+    position: absolute;
+    top: 350px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+}
+
+.air-tank-container {
+    width: 280px;
+    height: 280px;
+}
+
+.air-tank-body {
+    width: 100%;
+    height: 100%;
+    border: 3px solid #4a6a8a;
+    background-color: #2a3d54;
+    border-radius: 15px;
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 188, 212, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+}
+
+.air-tank-label {
+    font-size: 18px;
+    font-weight: bold;
+    color: #e0e6ed;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 3;
+}
+
+.air-tank-tag {
+    font-size: 12px;
+    background-color: #1a2a3a;
+    border: 1px solid #4a6a8a;
+    color: #a7bed3;
+    padding: 4px 12px;
+    margin-bottom: 12px;
+    border-radius: 3px;
+    position: relative;
+    z-index: 3;
+}
+
+.air-pressure-gauge {
+    width: 120px;
+    height: 120px;
+    border: 4px solid #00bcd4;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, #1a2a3a 40%, #2a3d54 40%);
+    box-shadow: 0 0 25px rgba(0, 188, 212, 0.6);
+    margin: 10px 0;
+    position: relative;
+    z-index: 3;
+}
+
+.gauge-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #00bcd4;
+    position: relative;
+    z-index: 4;
+}
+
+.gauge-unit {
+    font-size: 11px;
+    color: #a7bed3;
+    margin-top: 3px;
+    position: relative;
+    z-index: 4;
+}
+
+.air-tank-data {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #a7bed3;
+    text-align: center;
+    position: relative;
+    z-index: 3;
+}
+
+.air-tank-data div {
+    margin: 4px 0;
+}
+
+/* 储气罐总高度280px，所以分配系统从670px开始（350+280+40间距） */
+.air-distribution {
+    position: absolute;
+    top: 670px;
+    left: 50px;
+    right: 50px;
+    display: flex;
+    justify-content: space-around;
+    z-index: 1;
+    gap: 15px;
+}
+
+.distribution-branch {
+    text-align: center;
+    flex: 1;
+    max-width: 280px;
+    padding: 12px;
+    border: 2px solid #4a6a8a;
+    background-color: #2a3d54;
+    border-radius: 8px;
+    margin: 0 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.branch-label {
+    font-size: 14px;
+    color: #e0e6ed;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.branch-pipe {
+    width: 100%;
+    height: 8px;
+    background-color: #4a6a8a;
+    margin: 15px 0;
+    border-radius: 4px;
+    position: relative;
+    box-shadow: 0 0 8px rgba(74, 106, 138, 0.5);
+}
+
+.branch-pipe::after {
+    content: '';
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid #4a6a8a;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+}
+
+.branch-data {
+    font-size: 12px;
+    color: #00bcd4;
+    margin-top: 15px;
+    line-height: 1.8;
+    font-weight: bold;
+}
+</style>
+<script src="iframe-common.js"></script>
+</div>
+</body>
+</html>

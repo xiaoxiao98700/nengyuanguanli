@@ -1,0 +1,1305 @@
+<div class="energy-balance-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+
+        .energy-balance-container {
+            padding: 24px 28px 48px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+            color: #e0e6ed;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+        }
+
+        .page-header {
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* 筛选区域 */
+        .filter-panel {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .filter-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            color: #8aa0bc;
+        }
+
+        .filter-select,
+        .filter-input {
+            background-color: #152535;
+            border: 1px solid #2f4a66;
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #e6ecf3;
+            font-size: 14px;
+            transition: border 0.2s ease;
+        }
+
+        .filter-select:focus,
+        .filter-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.2);
+        }
+
+        .time-granularity-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .time-granularity-btn {
+            border: none;
+            background: #1d3247;
+            color: #c7d5e5;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .time-granularity-btn.active {
+            background: linear-gradient(120deg, #00bcd4, #5ad8ff);
+            color: #052030;
+            font-weight: 600;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #24415c;
+        }
+
+        .action-button {
+            background: linear-gradient(120deg, #00bcd4, #5ad8ff);
+            border: none;
+            color: #052030;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.4);
+        }
+
+        .action-button.secondary {
+            background: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .action-button.secondary:hover {
+            background: #4a6a8a;
+            box-shadow: 0 4px 12px rgba(60, 84, 114, 0.4);
+        }
+
+        /* 统计概览 */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.input {
+            background: linear-gradient(135deg, #00bcd4, #5ad8ff);
+            color: #052030;
+        }
+
+        .stat-icon.output {
+            background: linear-gradient(135deg, #4caf50, #81c784);
+            color: #fff;
+        }
+
+        .stat-icon.consumption {
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+            color: #fff;
+        }
+
+        .stat-icon.loss {
+            background: linear-gradient(135deg, #f44336, #e57373);
+            color: #fff;
+        }
+
+        .stat-icon.balance {
+            background: linear-gradient(135deg, #9c27b0, #ba68c8);
+            color: #fff;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #8aa0bc;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #e0e6ed;
+        }
+
+        .stat-unit {
+            font-size: 12px;
+            color: #8aa0bc;
+            margin-left: 4px;
+        }
+
+        .stat-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .stat-badge.balanced {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .stat-badge.unbalanced {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        /* 报表表格 */
+        .report-table-container {
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            overflow-x: auto;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .report-table thead {
+            background: linear-gradient(135deg, #1a2f47, #24415c);
+        }
+
+        .report-table th {
+            padding: 14px 12px;
+            text-align: left;
+            color: #00bcd4;
+            font-weight: 600;
+            border-bottom: 2px solid #00bcd4;
+            white-space: nowrap;
+        }
+
+        .report-table td {
+            padding: 12px;
+            border-bottom: 1px solid #2f4a66;
+            color: #e0e6ed;
+        }
+
+        .report-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .report-table tbody tr:hover {
+            background-color: rgba(0, 188, 212, 0.1);
+        }
+
+        .report-table tbody tr:nth-child(even) {
+            background-color: rgba(26, 45, 71, 0.3);
+        }
+
+        .report-table tbody tr.section-header {
+            background-color: rgba(0, 188, 212, 0.2);
+            font-weight: 600;
+        }
+
+        .report-table tbody tr.total-row {
+            background-color: rgba(0, 188, 212, 0.15);
+            font-weight: 600;
+        }
+
+        .report-table tbody tr.balance-row {
+            background-color: rgba(76, 175, 80, 0.1);
+            font-weight: 600;
+        }
+
+        .report-table tbody tr.unbalance-row {
+            background-color: rgba(244, 67, 54, 0.1);
+            font-weight: 600;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-button {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: #2a3d54;
+            border-color: #00bcd4;
+            color: #00bcd4;
+            transform: translateY(-1px);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            color: #1a2a3a;
+            border-color: #00bcd4;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+        }
+
+        .pagination-info {
+            color: #a7bed3;
+            font-size: 14px;
+            margin: 0 12px;
+            white-space: nowrap;
+        }
+
+        .pagination-jump {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .pagination-jump input {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .pagination-jump input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .pagination-jump button {
+            background: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-jump button:hover {
+            background: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .number-value {
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .balance-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .balance-status.balanced {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .balance-status.unbalanced {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8aa0bc;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 15px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-button {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background: #2a3d54;
+            border-color: #00bcd4;
+            color: #00bcd4;
+            transform: translateY(-1px);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            color: #1a2a3a;
+            border-color: #00bcd4;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.3);
+        }
+
+        .pagination-info {
+            color: #a7bed3;
+            font-size: 14px;
+            margin: 0 12px;
+            white-space: nowrap;
+        }
+
+        .pagination-jump {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 12px;
+        }
+
+        .pagination-jump input {
+            background: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .pagination-jump input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .pagination-jump button {
+            background: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-jump button:hover {
+            background: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: rgba(16, 33, 54, 0.9);
+            border: 1px solid #24415c;
+            border-radius: 12px;
+        }
+
+        .action-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .action-bar-right {
+            display: flex;
+            gap: 12px;
+        }
+
+        .info-text {
+            color: #8aa0bc;
+            font-size: 14px;
+        }
+    </style>
+
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-balance-scale"></i> 能源平衡报表
+        </h2>
+        <p class="page-description">
+            工厂各类型能源输出及支出的平衡，消耗机有效利用能源及各项损失之间的数据平衡，实现企业能源平衡报表，按照月、年进行统计。
+        </p>
+    </div>
+
+    <!-- 筛选区域 -->
+    <div class="filter-panel">
+        <div class="filter-grid">
+            <div class="filter-field">
+                <label class="filter-label">时间粒度</label>
+                <div class="time-granularity-group">
+                    <button class="time-granularity-btn active" data-granularity="month">月</button>
+                    <button class="time-granularity-btn" data-granularity="year">年</button>
+                </div>
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">开始时间</label>
+                <input type="month" class="filter-input" id="start-time">
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">结束时间</label>
+                <input type="month" class="filter-input" id="end-time">
+            </div>
+            <div class="filter-field">
+                <label class="filter-label">能源类型</label>
+                <select class="filter-select" id="energy-type-select">
+                    <option value="">全部能源</option>
+                    <option value="electricity">电</option>
+                    <option value="water">水</option>
+                    <option value="gas">天然气</option>
+                    <option value="steam">蒸汽</option>
+                    <option value="compressed-air">压缩空气</option>
+                    <option value="nitrogen">氮气</option>
+                </select>
+            </div>
+        </div>
+        <div class="filter-actions">
+            <button class="action-button" onclick="queryBalanceReport()">
+                <i class="fas fa-search"></i> 查询
+            </button>
+            <button class="action-button secondary" onclick="resetFilter()">
+                <i class="fas fa-redo"></i> 重置
+            </button>
+            <button class="action-button secondary" onclick="exportReport()">
+                <i class="fas fa-download"></i> 导出
+            </button>
+        </div>
+    </div>
+
+    <!-- 统计概览 -->
+    <div class="stats-overview" id="stats-overview">
+        <!-- 统计卡片将通过JavaScript动态生成 -->
+    </div>
+
+    <!-- 操作栏 -->
+    <div class="action-bar">
+        <div class="action-bar-left">
+            <span class="info-text" id="data-info">请选择筛选条件并查询</span>
+        </div>
+        <div class="action-bar-right">
+            <button class="action-button secondary" onclick="exportReport('excel')">
+                <i class="fas fa-file-excel"></i> 导出Excel
+            </button>
+            <button class="action-button secondary" onclick="exportReport('pdf')">
+                <i class="fas fa-file-pdf"></i> 导出PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- 能源平衡报表 -->
+    <div class="report-table-container">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>能源类型</th>
+                    <th>输入量</th>
+                    <th>单位</th>
+                    <th>输出量</th>
+                    <th>单位</th>
+                    <th>有效利用量</th>
+                    <th>单位</th>
+                    <th>损失量</th>
+                    <th>单位</th>
+                    <th>平衡差</th>
+                    <th>平衡状态</th>
+                </tr>
+            </thead>
+            <tbody id="balance-table-body">
+                <tr>
+                    <td colspan="12" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>请选择筛选条件并查询</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- 分页控件 -->
+        <div class="pagination" id="pagination" style="display: none;">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // 防止重复加载
+        if (window.__energyBalanceModuleLoaded) {
+            return;
+        }
+        window.__energyBalanceModuleLoaded = true;
+
+        // 能源类型配置
+        const energyTypes = {
+            electricity: { name: '电', unit: 'kWh', coalFactor: 0.1229, price: 0.65 },
+            water: { name: '水', unit: 'm³', coalFactor: 0.0857, price: 3.0 },
+            gas: { name: '天然气', unit: 'Nm³', coalFactor: 1.33, price: 3.5 },
+            steam: { name: '蒸汽', unit: 't', coalFactor: 0.1286, price: 180 },
+            'compressed-air': { name: '压缩空气', unit: 'Nm³', coalFactor: 0.04, price: 0.1 },
+            nitrogen: { name: '氮气', unit: 'Nm³', coalFactor: 0.15, price: 0.8 }
+        };
+
+        let currentGranularity = 'month';
+        let balanceData = [];
+        let filteredData = [];
+        let currentPage = 1;
+        const pageSize = 10; // 每页显示10条数据
+
+        const energyTypeSelect = document.getElementById('energy-type-select');
+        const startTimeInput = document.getElementById('start-time');
+        const endTimeInput = document.getElementById('end-time');
+        const balanceTableBody = document.getElementById('balance-table-body');
+        const statsOverview = document.getElementById('stats-overview');
+        const dataInfo = document.getElementById('data-info');
+
+        // 初始化
+        function init() {
+            // 初始化时间粒度按钮
+            initTimeGranularityButtons();
+
+            // 初始化时间（默认最近6个月）
+            const now = new Date();
+            const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+            startTimeInput.value = formatMonthInput(sixMonthsAgo);
+            endTimeInput.value = formatMonthInput(now);
+        }
+
+        // 格式化月份输入
+        function formatMonthInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            return `${year}-${month}`;
+        }
+
+        // 初始化时间粒度按钮
+        function initTimeGranularityButtons() {
+            document.querySelectorAll('.time-granularity-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.time-granularity-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentGranularity = this.dataset.granularity;
+                    
+                    // 根据粒度切换输入类型
+                    if (currentGranularity === 'year') {
+                        startTimeInput.type = 'number';
+                        startTimeInput.placeholder = '开始年份';
+                        endTimeInput.type = 'number';
+                        endTimeInput.placeholder = '结束年份';
+                        startTimeInput.value = new Date().getFullYear() - 1;
+                        endTimeInput.value = new Date().getFullYear();
+                    } else {
+                        startTimeInput.type = 'month';
+                        endTimeInput.type = 'month';
+                        const now = new Date();
+                        const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+                        startTimeInput.value = formatMonthInput(sixMonthsAgo);
+                        endTimeInput.value = formatMonthInput(now);
+                    }
+                });
+            });
+        }
+
+        // 生成能源平衡样例数据
+        function generateBalanceData() {
+            const data = [];
+            let startDate, endDate, formatFunc, interval;
+
+            if (currentGranularity === 'year') {
+                const startYear = parseInt(startTimeInput.value);
+                const endYear = parseInt(endTimeInput.value);
+                if (isNaN(startYear) || isNaN(endYear)) {
+                    alert('请选择完整的年份范围');
+                    return [];
+                }
+                startDate = new Date(startYear, 0, 1);
+                endDate = new Date(endYear, 11, 31);
+                interval = 365 * 24 * 60 * 60 * 1000;
+                formatFunc = (d) => d.getFullYear() + '年';
+            } else {
+                const startValue = startTimeInput.value;
+                const endValue = endTimeInput.value;
+                if (!startValue || !endValue) {
+                    alert('请选择完整的月份范围');
+                    return [];
+                }
+                const [startYear, startMonth] = startValue.split('-').map(Number);
+                const [endYear, endMonth] = endValue.split('-').map(Number);
+                startDate = new Date(startYear, startMonth - 1, 1);
+                endDate = new Date(endYear, endMonth, 0);
+                interval = 30 * 24 * 60 * 60 * 1000;
+                formatFunc = (d) => d.getFullYear() + '年' + (d.getMonth() + 1) + '月';
+            }
+
+            for (let date = new Date(startDate); date <= endDate; date = new Date(date.getTime() + interval)) {
+                const timeLabel = formatFunc(date);
+                
+                Object.keys(energyTypes).forEach(energyType => {
+                    const energyConfig = energyTypes[energyType];
+                    
+                    // 生成输入量（购入、自产等）
+                    const baseInput = getBaseInput(energyType);
+                    const input = baseInput * (0.9 + Math.random() * 0.2); // 90%-110%波动
+                    
+                    // 生成输出量（外供、自用等）
+                    const outputRate = getOutputRate(energyType);
+                    const output = input * outputRate * (0.95 + Math.random() * 0.1);
+                    
+                    // 生成有效利用量（生产用能等）
+                    const utilizationRate = getUtilizationRate(energyType);
+                    const utilization = (input - output) * utilizationRate * (0.92 + Math.random() * 0.16);
+                    
+                    // 生成损失量（传输损失、设备损失等）
+                    const lossRate = getLossRate(energyType);
+                    const loss = (input - output - utilization) * (0.8 + Math.random() * 0.4);
+                    
+                    // 计算平衡差：输入 - 输出 - 有效利用 - 损失
+                    const balance = input - output - utilization - loss;
+                    const balancePercent = input > 0 ? (balance / input) * 100 : 0;
+                    
+                    // 判断平衡状态（平衡差在±5%以内为平衡）
+                    const isBalanced = Math.abs(balancePercent) <= 5;
+
+                    data.push({
+                        timeLabel: timeLabel,
+                        timestamp: date.toISOString(),
+                        energyType: energyType,
+                        energyName: energyConfig.name,
+                        input: parseFloat(input.toFixed(2)),
+                        output: parseFloat(output.toFixed(2)),
+                        utilization: parseFloat(utilization.toFixed(2)),
+                        loss: parseFloat(loss.toFixed(2)),
+                        balance: parseFloat(balance.toFixed(2)),
+                        balancePercent: parseFloat(balancePercent.toFixed(2)),
+                        isBalanced: isBalanced,
+                        unit: energyConfig.unit
+                    });
+                });
+            }
+
+            return data;
+        }
+
+        // 获取基准输入量
+        function getBaseInput(energyType) {
+            const baseMap = {
+                electricity: 100000, // kWh
+                water: 5000, // m³
+                gas: 3000, // Nm³
+                steam: 200, // t
+                'compressed-air': 50000, // Nm³
+                nitrogen: 2000 // Nm³
+            };
+            return baseMap[energyType] || 1000;
+        }
+
+        // 获取输出率
+        function getOutputRate(energyType) {
+            // 部分能源有外供（如蒸汽、压缩空气）
+            const rateMap = {
+                electricity: 0.05, // 5%外供
+                water: 0.02, // 2%外供
+                gas: 0,
+                steam: 0.15, // 15%外供
+                'compressed-air': 0.20, // 20%外供
+                nitrogen: 0.10 // 10%外供
+            };
+            return rateMap[energyType] || 0;
+        }
+
+        // 获取有效利用率
+        function getUtilizationRate(energyType) {
+            // 不同能源的有效利用率不同
+            const rateMap = {
+                electricity: 0.85, // 85%有效利用
+                water: 0.90, // 90%有效利用
+                gas: 0.80, // 80%有效利用
+                steam: 0.75, // 75%有效利用
+                'compressed-air': 0.70, // 70%有效利用
+                nitrogen: 0.75 // 75%有效利用
+            };
+            return rateMap[energyType] || 0.80;
+        }
+
+        // 获取损失率
+        function getLossRate(energyType) {
+            // 不同能源的损失率不同
+            const rateMap = {
+                electricity: 0.10, // 10%损失
+                water: 0.08, // 8%损失
+                gas: 0.15, // 15%损失
+                steam: 0.10, // 10%损失
+                'compressed-air': 0.10, // 10%损失
+                nitrogen: 0.15 // 15%损失
+            };
+            return rateMap[energyType] || 0.10;
+        }
+
+        // 查询平衡报表
+        window.queryBalanceReport = function() {
+            balanceData = generateBalanceData();
+            
+            if (balanceData.length === 0) {
+                return;
+            }
+
+            currentPage = 1; // 重置到第一页
+            
+            // 应用筛选
+            filteredData = balanceData;
+            if (energyTypeSelect.value) {
+                filteredData = filteredData.filter(d => d.energyType === energyTypeSelect.value);
+            }
+
+            // 渲染统计概览
+            renderStats();
+
+            // 渲染表格
+            renderTable();
+
+            dataInfo.textContent = `共 ${filteredData.length} 条记录`;
+        };
+
+        // 渲染统计概览
+        function renderStats() {
+            if (filteredData.length === 0) {
+                statsOverview.innerHTML = '';
+                return;
+            }
+
+            const totalInput = filteredData.reduce((sum, d) => sum + d.input, 0);
+            const totalOutput = filteredData.reduce((sum, d) => sum + d.output, 0);
+            const totalUtilization = filteredData.reduce((sum, d) => sum + d.utilization, 0);
+            const totalLoss = filteredData.reduce((sum, d) => sum + d.loss, 0);
+            const totalBalance = filteredData.reduce((sum, d) => sum + d.balance, 0);
+            const balancePercent = totalInput > 0 ? (totalBalance / totalInput) * 100 : 0;
+            const isBalanced = Math.abs(balancePercent) <= 5;
+
+            statsOverview.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-icon input">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">总输入量</div>
+                        <div class="stat-value">${totalInput.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">（各能源单位）</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon output">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">总输出量</div>
+                        <div class="stat-value">${totalOutput.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">（各能源单位）</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon consumption">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">有效利用量</div>
+                        <div class="stat-value">${totalUtilization.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">（各能源单位）</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon loss">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">总损失量</div>
+                        <div class="stat-value">${totalLoss.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}<span class="stat-unit">（各能源单位）</span></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon balance">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">平衡差</div>
+                        <div class="stat-value">
+                            ${totalBalance.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}
+                            <span class="stat-unit">（${balancePercent.toFixed(2)}%）</span>
+                            <span class="stat-badge ${isBalanced ? 'balanced' : 'unbalanced'}">
+                                ${isBalanced ? '平衡' : '不平衡'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 渲染表格（带分页）
+        function renderTable() {
+            const pagination = document.getElementById('pagination');
+            
+            if (filteredData.length === 0) {
+                balanceTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="12" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>暂无数据</p>
+                        </td>
+                    </tr>
+                `;
+                if (pagination) pagination.style.display = 'none';
+                return;
+            }
+
+            // 按时间和能源类型分组
+            const grouped = {};
+            filteredData.forEach(d => {
+                const key = `${d.timeLabel}_${d.energyType}`;
+                if (!grouped[key]) {
+                    grouped[key] = d;
+                }
+            });
+
+            const groupedArray = Object.values(grouped);
+            
+            // 计算分页
+            const totalRecords = groupedArray.length;
+            const totalPages = Math.ceil(totalRecords / pageSize);
+            
+            // 如果当前页超出范围，重置到第一页
+            if (currentPage > totalPages && totalPages > 0) {
+                currentPage = 1;
+            }
+
+            // 计算当前页的数据范围
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, totalRecords);
+            const currentPageData = groupedArray.slice(startIndex, endIndex);
+
+            if (pagination) pagination.style.display = 'flex';
+
+            const rows = currentPageData.map((d, index) => {
+                const globalIndex = startIndex + index;
+                const rowClass = d.isBalanced ? 'balance-row' : 'unbalance-row';
+                return `
+                    <tr class="${rowClass}">
+                        <td>${d.timeLabel}</td>
+                        <td>${d.energyName}</td>
+                        <td class="number-value">${d.input.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                        <td>${d.unit}</td>
+                        <td class="number-value">${d.output.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                        <td>${d.unit}</td>
+                        <td class="number-value">${d.utilization.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                        <td>${d.unit}</td>
+                        <td class="number-value">${d.loss.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</td>
+                        <td>${d.unit}</td>
+                        <td class="number-value">${d.balance.toLocaleString('zh-CN', { maximumFractionDigits: 2 })} (${d.balancePercent > 0 ? '+' : ''}${d.balancePercent.toFixed(2)}%)</td>
+                        <td>
+                            <span class="balance-status ${d.isBalanced ? 'balanced' : 'unbalanced'}">
+                                ${d.isBalanced ? '平衡' : '不平衡'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // 计算合计行
+            const totalInput = filteredData.reduce((sum, d) => sum + d.input, 0);
+            const totalOutput = filteredData.reduce((sum, d) => sum + d.output, 0);
+            const totalUtilization = filteredData.reduce((sum, d) => sum + d.utilization, 0);
+            const totalLoss = filteredData.reduce((sum, d) => sum + d.loss, 0);
+            const totalBalance = filteredData.reduce((sum, d) => sum + d.balance, 0);
+            const totalBalancePercent = totalInput > 0 ? (totalBalance / totalInput) * 100 : 0;
+            const isTotalBalanced = Math.abs(totalBalancePercent) <= 5;
+
+            balanceTableBody.innerHTML = rows + `
+                <tr class="total-row">
+                    <td colspan="2"><strong>合计</strong></td>
+                    <td class="number-value"><strong>${totalInput.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td>-</td>
+                    <td class="number-value"><strong>${totalOutput.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td>-</td>
+                    <td class="number-value"><strong>${totalUtilization.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td>-</td>
+                    <td class="number-value"><strong>${totalLoss.toLocaleString('zh-CN', { maximumFractionDigits: 2 })}</strong></td>
+                    <td>-</td>
+                    <td class="number-value"><strong>${totalBalance.toLocaleString('zh-CN', { maximumFractionDigits: 2 })} (${totalBalancePercent > 0 ? '+' : ''}${totalBalancePercent.toFixed(2)}%)</strong></td>
+                    <td>
+                        <span class="balance-status ${isTotalBalanced ? 'balanced' : 'unbalanced'}">
+                            ${isTotalBalanced ? '平衡' : '不平衡'}
+                        </span>
+                    </td>
+                </tr>
+            `;
+
+            renderPagination(totalPages, totalRecords, startIndex + 1, endIndex);
+        }
+
+        // 渲染分页控件
+        function renderPagination(totalPages, totalRecords, startRecord, endRecord) {
+            const pagination = document.getElementById('pagination');
+            if (!pagination) return;
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            let html = '';
+
+            // 上一页按钮
+            html += `<button class="pagination-button" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i> 上一页
+            </button>`;
+
+            // 页码按钮
+            const maxVisiblePages = 7;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            // 第一页
+            if (startPage > 1) {
+                html += `<button class="pagination-button" onclick="goToPage(1)">1</button>`;
+                if (startPage > 2) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+            }
+
+            // 中间页码
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="pagination-button ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            // 最后一页
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    html += `<span class="pagination-info">...</span>`;
+                }
+                html += `<button class="pagination-button" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            // 下一页按钮
+            html += `<button class="pagination-button" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                下一页 <i class="fas fa-chevron-right"></i>
+            </button>`;
+
+            // 分页信息
+            html += `<span class="pagination-info">共 ${totalRecords} 条，第 ${startRecord}-${endRecord} 条</span>`;
+
+            // 跳转输入
+            html += `<div class="pagination-jump">
+                <span style="color: #a7bed3; font-size: 13px;">跳至</span>
+                <input type="number" id="page-jump-input" min="1" max="${totalPages}" value="${currentPage}" onkeypress="handlePageJump(event)">
+                <span style="color: #a7bed3; font-size: 13px;">页</span>
+                <button onclick="jumpToPage()">确定</button>
+            </div>`;
+
+            pagination.innerHTML = html;
+        }
+
+        // 跳转到指定页
+        window.goToPage = function(page) {
+            // 重新分组数据
+            const grouped = {};
+            filteredData.forEach(d => {
+                const key = `${d.timeLabel}_${d.energyType}`;
+                if (!grouped[key]) {
+                    grouped[key] = d;
+                }
+            });
+            
+            const totalPages = Math.ceil(Object.keys(grouped).length / pageSize);
+            
+            if (page < 1 || page > totalPages) return;
+            
+            currentPage = page;
+            renderTable();
+            
+            // 滚动到表格顶部
+            const tableContainer = document.querySelector('.report-table-container');
+            if (tableContainer) {
+                tableContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        };
+
+        // 处理跳转输入框的Enter键
+        window.handlePageJump = function(event) {
+            if (event.key === 'Enter') {
+                jumpToPage();
+            }
+        };
+
+        // 跳转到指定页（通过输入框）
+        window.jumpToPage = function() {
+            const input = document.getElementById('page-jump-input');
+            if (!input) return;
+            
+            const targetPage = parseInt(input.value);
+            if (isNaN(targetPage) || targetPage < 1) {
+                alert('请输入有效的页码');
+                return;
+            }
+
+            // 重新分组数据
+            const grouped = {};
+            filteredData.forEach(d => {
+                const key = `${d.timeLabel}_${d.energyType}`;
+                if (!grouped[key]) {
+                    grouped[key] = d;
+                }
+            });
+            
+            const totalPages = Math.ceil(Object.keys(grouped).length / pageSize);
+            
+            if (targetPage > totalPages) {
+                alert(`页码不能超过 ${totalPages}`);
+                input.value = currentPage;
+                return;
+            }
+
+            goToPage(targetPage);
+        };
+
+        // 重置筛选
+        window.resetFilter = function() {
+            energyTypeSelect.value = '';
+            const now = new Date();
+            const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+            startTimeInput.value = formatMonthInput(sixMonthsAgo);
+            endTimeInput.value = formatMonthInput(now);
+            document.querySelectorAll('.time-granularity-btn').forEach(btn => {
+                if (btn.dataset.granularity === 'month') {
+                    btn.classList.add('active');
+                    currentGranularity = 'month';
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            startTimeInput.type = 'month';
+            endTimeInput.type = 'month';
+        };
+
+        // 导出报表
+        window.exportReport = function(format = 'excel') {
+            if (filteredData.length === 0) {
+                alert('暂无数据可导出');
+                return;
+            }
+
+            if (format === 'excel') {
+                const headers = ['时间', '能源类型', '输入量', '单位', '输出量', '单位', '有效利用量', '单位', '损失量', '单位', '平衡差', '平衡状态'];
+                const rows = filteredData.map(record => [
+                    record.timeLabel,
+                    record.energyName,
+                    record.input,
+                    record.unit,
+                    record.output,
+                    record.unit,
+                    record.utilization,
+                    record.unit,
+                    record.loss,
+                    record.unit,
+                    `${record.balance} (${record.balancePercent > 0 ? '+' : ''}${record.balancePercent.toFixed(2)}%)`,
+                    record.isBalanced ? '平衡' : '不平衡'
+                ]);
+
+                const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `能源平衡报表_${new Date().toISOString().slice(0, 10)}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                alert('PDF导出功能开发中...');
+            }
+        };
+
+        // 确保初始化
+        function ensureInit() {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        }
+
+        ensureInit();
+    })();
+</script>

@@ -1,0 +1,1951 @@
+<div class="capacity-demand-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+        
+        .capacity-demand-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        
+        .page-description {
+            color: #a7bed3;
+            font-size: 14px;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* Tab导航 */
+        .tab-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #24415c;
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: #8aa0bc;
+            padding: 12px 24px;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-button:hover {
+            color: #00bcd4;
+        }
+
+        .tab-button.active {
+            color: #00bcd4;
+            border-bottom-color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 筛选区域 */
+        .filter-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-item label {
+            color: #a7bed3;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .filter-select {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .filter-select:hover {
+            border-color: #00bcd4;
+        }
+
+        .query-button, .export-button {
+            background-color: #00bcd4;
+            border: none;
+            color: #1a2a3a;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .query-button:hover, .export-button:hover {
+            background-color: #00acc1;
+            transform: translateY(-1px);
+        }
+
+        .export-button {
+            background-color: #3c5472;
+            color: #e0e6ed;
+        }
+
+        .export-button:hover {
+            background-color: #4a6a8a;
+        }
+
+        /* 费用对比卡片 */
+        .cost-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .cost-card {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .cost-card:hover {
+            border-color: #00bcd4;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.2);
+        }
+
+        .cost-card.recommended {
+            border: 2px solid #4caf50;
+            background: linear-gradient(135deg, #2a3d54 0%, #1e3a2a 100%);
+        }
+
+        .cost-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .cost-card-title {
+            font-size: 16px;
+            color: #e0e6ed;
+            font-weight: bold;
+        }
+
+        .cost-card-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .cost-card-badge.recommended {
+            background-color: #4caf50;
+            color: #fff;
+        }
+
+        .cost-card-badge.expensive {
+            background-color: #f44336;
+            color: #fff;
+        }
+
+        .cost-card-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #00bcd4;
+            margin-bottom: 5px;
+        }
+
+        .cost-card-unit {
+            font-size: 14px;
+            color: #a7bed3;
+            margin-bottom: 15px;
+        }
+
+        .cost-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #3c5472;
+        }
+
+        .cost-detail-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .cost-detail-label {
+            color: #a7bed3;
+        }
+
+        .cost-detail-value {
+            color: #e0e6ed;
+            font-weight: 500;
+        }
+
+        /* 电价配置区域 */
+        .price-config-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #e0e6ed;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .price-config-item {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .price-config-label {
+            font-size: 13px;
+            color: #a7bed3;
+            margin-bottom: 8px;
+        }
+
+        .price-config-input {
+            width: 100%;
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .price-config-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        /* 图表区域 */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-panel {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            color: #e0e6ed;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        .chart-container svg {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        /* 优化建议区域 */
+        .optimization-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .optimization-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .optimization-item {
+            background-color: #1a2a3a;
+            border-left: 4px solid #00bcd4;
+            padding: 12px 15px;
+            border-radius: 4px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .optimization-icon {
+            color: #00bcd4;
+            font-size: 18px;
+            margin-top: 2px;
+        }
+
+        .optimization-content {
+            flex: 1;
+        }
+
+        .optimization-title {
+            font-size: 14px;
+            color: #e0e6ed;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .optimization-desc {
+            font-size: 13px;
+            color: #a7bed3;
+            line-height: 1.5;
+        }
+
+        .optimization-savings {
+            font-size: 13px;
+            color: #4caf50;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        /* 详细数据表格 */
+        .data-table-section {
+            background-color: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background-color: #1a2a3a;
+            color: #a7bed3;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: normal;
+            border-bottom: 2px solid #3c5472;
+        }
+
+        .data-table td {
+            padding: 12px;
+            color: #e0e6ed;
+            font-size: 13px;
+            border-bottom: 1px solid #3c5472;
+        }
+
+        .data-table tr:hover {
+            background-color: #1e2d3f;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #5d7d9a;
+        }
+    </style>
+
+    <div class="page-header">
+        <h2 class="page-title">
+            <i class="fas fa-calculator"></i>
+            容需量分析
+        </h2>
+    </div>
+
+    <!-- 标签页导航 -->
+    <div class="tab-nav" style="margin-bottom: 20px;">
+        <button class="tab-button active" onclick="switchTab('cost-analysis-tab', this)">费用分析</button>
+        <button class="tab-button" onclick="switchTab('model-management-tab', this)">模型管理</button>
+        <button class="tab-button" onclick="switchTab('demand-declaration-tab', this)">需量申报</button>
+    </div>
+
+    <!-- 费用分析标签页 -->
+    <div id="cost-analysis-tab" class="tab-content active">
+    <!-- 筛选区域 -->
+    <div class="filter-section">
+        <div class="filter-row">
+            <div class="filter-item">
+                <label>时间范围:</label>
+                <select class="filter-select" id="time-range">
+                    <option value="today">今日</option>
+                    <option value="week">本周</option>
+                    <option value="month" selected>本月</option>
+                    <option value="quarter">本季度</option>
+                    <option value="year">本年</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>变压器:</label>
+                <select class="filter-select" id="transformer-select">
+                    <option value="all">全部变压器</option>
+                    <option value="transformer1">1号变压器</option>
+                    <option value="transformer2">2号变压器</option>
+                    <option value="transformer3">3号变压器</option>
+                </select>
+            </div>
+            <button class="query-button" onclick="queryData()">
+                <i class="fas fa-search"></i> 查询
+            </button>
+            <button class="export-button" onclick="exportData()">
+                <i class="fas fa-download"></i> 导出
+            </button>
+        </div>
+    </div>
+
+    <!-- 费用对比卡片 -->
+    <div class="cost-comparison" id="cost-comparison">
+        <!-- 将通过JavaScript动态生成 -->
+    </div>
+
+    <!-- 电价配置区域 -->
+    <div class="price-config-section">
+        <div class="section-title">
+            <i class="fas fa-cog"></i>
+            电价配置
+        </div>
+        <div class="price-config-grid">
+            <div class="price-config-item">
+                <div class="price-config-label">电度电价（元/kWh）</div>
+                <input type="number" class="price-config-input" id="electricity-price" value="0.65" step="0.01">
+            </div>
+            <div class="price-config-item">
+                <div class="price-config-label">峰时电价（元/kWh）</div>
+                <input type="number" class="price-config-input" id="peak-price" value="0.95" step="0.01">
+            </div>
+            <div class="price-config-item">
+                <div class="price-config-label">平时电价（元/kWh）</div>
+                <input type="number" class="price-config-input" id="flat-price" value="0.65" step="0.01">
+            </div>
+            <div class="price-config-item">
+                <div class="price-config-label">谷时电价（元/kWh）</div>
+                <input type="number" class="price-config-input" id="valley-price" value="0.35" step="0.01">
+            </div>
+            <div class="price-config-item">
+                <div class="price-config-label">容量电价（元/kVA·月）</div>
+                <input type="number" class="price-config-input" id="capacity-price" value="28" step="0.01">
+            </div>
+            <div class="price-config-item">
+                <div class="price-config-label">需量电价（元/kW·月）</div>
+                <input type="number" class="price-config-input" id="demand-price" value="38" step="0.01">
+            </div>
+        </div>
+    </div>
+
+    <!-- 图表区域 -->
+    <div class="charts-section">
+        <div class="chart-panel">
+            <div class="chart-title">
+                <i class="fas fa-chart-line"></i>
+                需量趋势图
+            </div>
+            <div class="chart-container" id="demand-trend-chart">
+                <!-- 图表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+        <div class="chart-panel">
+            <div class="chart-title">
+                <i class="fas fa-chart-bar"></i>
+                费用对比图
+            </div>
+            <div class="chart-container" id="cost-comparison-chart">
+                <!-- 图表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 优化建议区域 -->
+    <div class="optimization-section">
+        <div class="section-title">
+            <i class="fas fa-lightbulb"></i>
+            优化建议
+        </div>
+        <div class="optimization-list" id="optimization-list">
+            <!-- 将通过JavaScript动态生成 -->
+        </div>
+    </div>
+
+    <!-- 详细数据表格 -->
+    <div class="data-table-section">
+        <div class="section-title">
+            <i class="fas fa-table"></i>
+            详细数据
+        </div>
+        <table class="data-table" id="detail-table">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>变压器</th>
+                    <th>实际需量 (kW)</th>
+                    <th>上报需量 (kW)</th>
+                    <th>容量 (kVA)</th>
+                    <th>按容量收费 (元)</th>
+                    <th>按实际需量收费 (元)</th>
+                    <th>按上报需量收费 (元)</th>
+                    <th>最优方案</th>
+                </tr>
+            </thead>
+            <tbody id="detail-table-body">
+                <!-- 将通过JavaScript动态生成 -->
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+    <!-- 模型管理标签页 -->
+    <div id="model-management-tab" class="tab-content">
+        <!-- 模型列表区域 -->
+        <div class="model-list-section" style="background-color: #2a3d54; border: 1px solid #3c5472; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="section-title">
+                    <i class="fas fa-database"></i>
+                    容需量模型列表
+                </div>
+                <button class="query-button" onclick="showCreateModelModal()">
+                    <i class="fas fa-plus"></i> 创建模型
+                </button>
+            </div>
+            <div id="model-list">
+                <!-- 模型列表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 模型详情区域 -->
+        <div id="model-detail-section" style="display: none; background-color: #2a3d54; border: 1px solid #3c5472; border-radius: 8px; padding: 20px;">
+            <div class="section-title" style="margin-bottom: 20px;">
+                <i class="fas fa-edit"></i>
+                模型配置详情
+            </div>
+            <div id="model-detail-content">
+                <!-- 模型详情将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 需量申报标签页 -->
+    <div id="demand-declaration-tab" class="tab-content">
+        <!-- 需量预测分析 -->
+        <div class="declaration-section" style="background-color: #2a3d54; border: 1px solid #3c5472; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <div class="section-title" style="margin-bottom: 20px;">
+                <i class="fas fa-chart-area"></i>
+                历史需量分析
+            </div>
+            <div class="filter-row" style="margin-bottom: 20px;">
+                <div class="filter-item">
+                    <label>预测周期:</label>
+                    <select class="filter-select" id="forecast-period" onchange="updateDemandForecast()">
+                        <option value="1">下个月</option>
+                        <option value="3">未来3个月</option>
+                        <option value="6">未来6个月</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>变压器:</label>
+                    <select class="filter-select" id="forecast-transformer" onchange="updateDemandForecast()">
+                        <option value="all">全部变压器</option>
+                        <option value="transformer1">1号变压器</option>
+                        <option value="transformer2">2号变压器</option>
+                        <option value="transformer3">3号变压器</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-container" id="demand-forecast-chart" style="height: 350px;">
+                <!-- 需量预测图表将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 智能推荐申报值 -->
+        <div class="declaration-section" style="background-color: #2a3d54; border: 1px solid #3c5472; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <div class="section-title" style="margin-bottom: 20px;">
+                <i class="fas fa-magic"></i>
+                智能推荐申报值
+            </div>
+            <div id="recommendation-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <!-- 推荐卡片将通过JavaScript动态生成 -->
+            </div>
+            <div style="background-color: #1a2a3a; border: 1px solid #3c5472; border-radius: 6px; padding: 15px;">
+                <div style="color: #a7bed3; font-size: 13px; margin-bottom: 10px;">推荐说明:</div>
+                <div id="recommendation-explanation" style="color: #e0e6ed; font-size: 14px; line-height: 1.6;">
+                    <!-- 推荐说明将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 申报值调整影响分析 -->
+        <div class="declaration-section" style="background-color: #2a3d54; border: 1px solid #3c5472; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <div class="section-title" style="margin-bottom: 20px;">
+                <i class="fas fa-sliders-h"></i>
+                申报值调整影响分析
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div style="background-color: #1a2a3a; border: 1px solid #3c5472; border-radius: 6px; padding: 15px;">
+                    <div style="color: #a7bed3; font-size: 13px; margin-bottom: 10px;">当前申报值 (kW)</div>
+                    <div style="font-size: 24px; font-weight: bold; color: #e0e6ed;" id="current-declared-demand">--</div>
+                </div>
+                <div style="background-color: #1a2a3a; border: 1px solid #3c5472; border-radius: 6px; padding: 15px;">
+                    <div style="color: #a7bed3; font-size: 13px; margin-bottom: 10px;">调整申报值 (kW)</div>
+                    <input type="number" id="adjusted-declared-demand" class="price-config-input" 
+                           style="width: 100%; font-size: 20px; font-weight: bold; text-align: center;" 
+                           placeholder="输入申报值" oninput="analyzeDeclarationImpact()">
+                </div>
+            </div>
+            <div id="declaration-impact-analysis">
+                <!-- 影响分析结果将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <!-- 申报历史记录 -->
+        <div class="declaration-section" style="background-color: #2a3d54; border: 1px solid #3c5472; border-radius: 8px; padding: 20px;">
+            <div class="section-title" style="margin-bottom: 20px;">
+                <i class="fas fa-history"></i>
+                申报历史记录
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>申报日期</th>
+                        <th>变压器</th>
+                        <th>申报需量 (kW)</th>
+                        <th>实际最大需量 (kW)</th>
+                        <th>月度基本电费 (元)</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody id="declaration-history-table">
+                    <!-- 申报历史将通过JavaScript动态生成 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 创建/编辑模型模态框 -->
+    <div id="model-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center;">
+        <div style="background-color: #2a3d54; border: 1px solid #3c5472; border-radius: 8px; padding: 30px; max-width: 800px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #e0e6ed; margin: 0;" id="modal-title">创建容需量模型</h3>
+                <button onclick="closeModelModal()" style="background: none; border: none; color: #a7bed3; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div id="model-form">
+                <!-- 模型表单将通过JavaScript动态生成 -->
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                <button class="export-button" onclick="closeModelModal()">取消</button>
+                <button class="query-button" onclick="saveModel()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+        // 防止重复加载检查
+        if (window.__capacityDemandModuleLoaded) {
+            // 如果已加载，直接调用初始化函数重新渲染
+            if (typeof window.initCapacityDemand === 'function') {
+                window.initCapacityDemand();
+            }
+            return;
+        }
+        window.__capacityDemandModuleLoaded = true;
+        const timeRangeMap = { today: 1, week: 7, month: 30, quarter: 90, year: 180 };
+        const transformerProfiles = {
+            all: { capacity: 1000, demandFactor: 1, demandOffset: 0, peakFactor: 1, flatFactor: 1, valleyFactor: 1 },
+            transformer1: { capacity: 1000, demandFactor: 1, demandOffset: 0, peakFactor: 1, flatFactor: 1, valleyFactor: 1 },
+            transformer2: { capacity: 800, demandFactor: 0.92, demandOffset: -90, peakFactor: 0.9, flatFactor: 0.92, valleyFactor: 0.94 },
+            transformer3: { capacity: 1250, demandFactor: 1.1, demandOffset: 110, peakFactor: 1.12, flatFactor: 1.06, valleyFactor: 1.04 }
+        };
+        const transformerNameMap = {
+            all: '全部变压器',
+            transformer1: '1号变压器',
+            transformer2: '2号变压器',
+            transformer3: '3号变压器'
+        };
+
+        const capacityDemandSample = (() => {
+            const startDate = new Date('2025-06-01');
+            const totalDays = 150;
+            const result = [];
+            for (let i = 0; i < totalDays; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const seasonal = Math.sin(i / 6) * 60;
+                const weekly = (i % 7) * 6;
+                const actualDemand = Math.round(780 + seasonal + weekly);
+                const reportedDemand = Math.round(actualDemand + 35 + (i % 5) * 3);
+                const peakUsage = Math.round(1900 + seasonal * 8 + (i % 5) * 30);
+                const flatUsage = Math.round(2600 + Math.cos(i / 8) * 70 + (i % 3) * 20);
+                const valleyUsage = Math.round(1400 + Math.sin(i / 10) * 50 + (i % 4) * 10);
+                result.push({
+                    date: date.toISOString().split('T')[0],
+                    actualDemand,
+                    reportedDemand,
+                    capacity: 1000,
+                    peakUsage,
+                    flatUsage,
+                    valleyUsage,
+                    totalUsage: peakUsage + flatUsage + valleyUsage
+                });
+            }
+            return result;
+        })();
+
+        let currentData = null;
+        let models = []; // 存储容需量模型
+        let currentEditingModel = null; // 当前编辑的模型
+
+        // 标签页切换
+        function switchTab(tabId, element) {
+            // 隐藏所有标签页内容
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 移除所有标签按钮的active状态
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示选中的标签页
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+            
+            // 根据标签页加载相应数据
+            if (tabId === 'model-management-tab') {
+                loadModelList();
+            } else if (tabId === 'demand-declaration-tab') {
+                updateDemandForecast();
+                updateRecommendation();
+                loadDeclarationHistory();
+            }
+        }
+
+        // 初始化
+        function initCapacityDemand() {
+            queryData();
+            
+            // 监听电价配置变化
+            ['electricity-price', 'peak-price', 'flat-price', 'valley-price', 'capacity-price', 'demand-price'].forEach(id => {
+                document.getElementById(id).addEventListener('change', () => {
+                    if (currentData) {
+                        calculateCosts(currentData);
+                    }
+                });
+            });
+            
+            // 初始化模型数据（从localStorage加载）
+            loadModelsFromStorage();
+        }
+
+        // 查询数据
+        function queryData() {
+            const timeRange = document.getElementById('time-range').value;
+            const transformer = document.getElementById('transformer-select').value;
+            
+            // 模拟数据生成
+            const data = generateMockData(timeRange, transformer);
+            currentData = data;
+            
+            calculateCosts(data);
+            renderDemandTrendChart(data);
+            renderCostComparisonChart(data);
+            updateOptimization(data);
+            updateDetailTable(data);
+        }
+
+        // 生成模拟数据
+        function generateMockData(timeRange, transformer) {
+            const days = timeRangeMap[timeRange] || 30;
+            const availableDays = capacityDemandSample.length;
+            const sliceStart = Math.max(0, availableDays - days);
+            const baseData = capacityDemandSample.slice(sliceStart);
+            const profile = transformerProfiles[transformer] || transformerProfiles.all;
+            const transformerId = transformer && transformer !== 'all' ? transformer : 'all';
+            const transformerName = transformerNameMap[transformerId] || transformerNameMap.all;
+            
+            return baseData.map(item => {
+                const adjustedActual = Math.max(0, Math.round(item.actualDemand * profile.demandFactor + profile.demandOffset));
+                const adjustedReported = Math.max(0, Math.round(item.reportedDemand * profile.demandFactor + profile.demandOffset + 25));
+                const peakUsage = Math.max(0, Math.round(item.peakUsage * profile.peakFactor));
+                const flatUsage = Math.max(0, Math.round(item.flatUsage * profile.flatFactor));
+                const valleyUsage = Math.max(0, Math.round(item.valleyUsage * profile.valleyFactor));
+                
+                return {
+                    ...item,
+                    transformerId,
+                    transformerName,
+                    capacity: profile.capacity,
+                    actualDemand: adjustedActual,
+                    reportedDemand: adjustedReported,
+                    peakUsage,
+                    flatUsage,
+                    valleyUsage,
+                    totalUsage: peakUsage + flatUsage + valleyUsage
+                };
+            });
+        }
+
+        // 计算费用
+        function calculateCosts(data) {
+            const electricityPrice = parseFloat(document.getElementById('electricity-price').value) || 0.65;
+            const peakPrice = parseFloat(document.getElementById('peak-price').value) || 0.95;
+            const flatPrice = parseFloat(document.getElementById('flat-price').value) || 0.65;
+            const valleyPrice = parseFloat(document.getElementById('valley-price').value) || 0.35;
+            const capacityPrice = parseFloat(document.getElementById('capacity-price').value) || 28;
+            const demandPrice = parseFloat(document.getElementById('demand-price').value) || 38;
+            
+            let totalCapacityCost = 0;
+            let totalActualDemandCost = 0;
+            let totalReportedDemandCost = 0;
+            let totalElectricityCost = 0;
+            
+            const monthlyData = {};
+            
+            data.forEach(item => {
+                const month = item.date.substring(0, 7); // YYYY-MM
+                if (!monthlyData[month]) {
+                    monthlyData[month] = {
+                        capacity: item.capacity,
+                        maxActualDemand: 0,
+                        maxReportedDemand: 0,
+                        peakUsage: 0,
+                        flatUsage: 0,
+                        valleyUsage: 0,
+                        totalUsage: 0
+                    };
+                }
+                
+                monthlyData[month].maxActualDemand = Math.max(monthlyData[month].maxActualDemand, item.actualDemand);
+                monthlyData[month].maxReportedDemand = Math.max(monthlyData[month].maxReportedDemand, item.reportedDemand);
+                monthlyData[month].peakUsage += item.peakUsage;
+                monthlyData[month].flatUsage += item.flatUsage;
+                monthlyData[month].valleyUsage += item.valleyUsage;
+                monthlyData[month].totalUsage += item.totalUsage;
+            });
+            
+            // 按月计算费用
+            Object.values(monthlyData).forEach(monthData => {
+                // 按容量收费
+                const capacityCost = monthData.capacity * capacityPrice;
+                totalCapacityCost += capacityCost;
+                
+                // 按实际需量收费
+                const actualDemandCost = monthData.maxActualDemand * demandPrice;
+                totalActualDemandCost += actualDemandCost;
+                
+                // 按上报需量收费
+                const reportedDemandCost = monthData.maxReportedDemand * demandPrice;
+                totalReportedDemandCost += reportedDemandCost;
+                
+                // 电度电费（分时电价）
+                const electricityCost = monthData.peakUsage * peakPrice + 
+                                        monthData.flatUsage * flatPrice + 
+                                        monthData.valleyUsage * valleyPrice;
+                totalElectricityCost += electricityCost;
+            });
+            
+            // 计算总费用
+            const capacityTotal = totalCapacityCost + totalElectricityCost;
+            const actualDemandTotal = totalActualDemandCost + totalElectricityCost;
+            const reportedDemandTotal = totalReportedDemandCost + totalElectricityCost;
+            
+            // 找出最优方案
+            const costs = [
+                { type: 'capacity', name: '按容量收费', total: capacityTotal, basic: totalCapacityCost },
+                { type: 'actual', name: '按实际需量收费', total: actualDemandTotal, basic: totalActualDemandCost },
+                { type: 'reported', name: '按上报需量收费', total: reportedDemandTotal, basic: totalReportedDemandCost }
+            ];
+            
+            costs.sort((a, b) => a.total - b.total);
+            const bestOption = costs[0];
+            
+            // 渲染费用对比卡片
+            renderCostComparison(costs, bestOption, totalElectricityCost);
+        }
+
+        // 渲染费用对比卡片
+        function renderCostComparison(costs, bestOption, electricityCost) {
+            const container = document.getElementById('cost-comparison');
+            
+            container.innerHTML = costs.map(cost => {
+                const isRecommended = cost.type === bestOption.type;
+                const savings = cost.total - bestOption.total;
+                
+                return `
+                    <div class="cost-card ${isRecommended ? 'recommended' : ''}">
+                        <div class="cost-card-header">
+                            <div class="cost-card-title">${cost.name}</div>
+                            <div class="cost-card-badge ${isRecommended ? 'recommended' : savings > 0 ? 'expensive' : ''}">
+                                ${isRecommended ? '推荐方案' : savings > 0 ? `多花费 ${savings.toFixed(2)}元` : ''}
+                            </div>
+                        </div>
+                        <div class="cost-card-value">¥${cost.total.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div class="cost-card-unit">总费用</div>
+                        <div class="cost-card-details">
+                            <div class="cost-detail-item">
+                                <span class="cost-detail-label">基本电费:</span>
+                                <span class="cost-detail-value">¥${cost.basic.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            </div>
+                            <div class="cost-detail-item">
+                                <span class="cost-detail-label">电度电费:</span>
+                                <span class="cost-detail-value">¥${electricityCost.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 渲染需量趋势图
+        function renderDemandTrendChart(data) {
+            const container = document.getElementById('demand-trend-chart');
+            const containerWidth = container.offsetWidth || container.clientWidth || 800;
+            const containerHeight = 400;
+            const padding = 70;
+            const width = Math.max(containerWidth - 20, 600);
+            const height = containerHeight - 20;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2 - 30;
+            
+            const maxDemand = Math.max(...data.map(d => Math.max(d.actualDemand, d.reportedDemand, d.capacity))) * 1.1;
+            const svgWidth = width;
+            const svgHeight = height;
+            
+            // 只显示部分数据点（避免过于密集）
+            const displayData = data.length > 30 ? data.filter((d, i) => i % Math.ceil(data.length / 30) === 0) : data;
+            
+            let svg = `
+                <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet" style="max-width: 100%;">
+                    <defs>
+                        <linearGradient id="demandGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00bcd4;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#00bcd4;stop-opacity:0" />
+                        </linearGradient>
+                    </defs>
+                    
+                    <!-- 网格线 -->
+                    ${Array.from({length: 5}, (_, i) => {
+                        const y = padding + (chartHeight / 4) * i;
+                        return `<line x1="${padding}" y1="${y}" x2="${svgWidth - padding}" y2="${y}" stroke="#3c5472" stroke-width="0.5" opacity="0.5"/>`;
+                    }).join('')}
+                    
+                    <!-- Y轴标签 -->
+                    ${Array.from({length: 5}, (_, i) => {
+                        const y = padding + (chartHeight / 4) * i;
+                        const value = maxDemand - (maxDemand / 4) * i;
+                        return `<text x="${padding - 15}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${Math.round(value)}</text>`;
+                    }).join('')}
+                    
+                    <!-- 容量线 -->
+                    <line x1="${padding}" y1="${padding + chartHeight - (data[0].capacity / maxDemand) * chartHeight}" 
+                          x2="${svgWidth - padding}" y2="${padding + chartHeight - (data[0].capacity / maxDemand) * chartHeight}" 
+                          stroke="#9e9e9e" stroke-width="2" stroke-dasharray="5,5" opacity="0.6"/>
+                    <text x="${svgWidth - padding + 10}" y="${padding + chartHeight - (data[0].capacity / maxDemand) * chartHeight + 5}" fill="#9e9e9e" font-size="11">容量: ${data[0].capacity} kVA</text>
+                    
+                    <!-- 实际需量区域填充 -->
+                    <polygon points="${displayData.map((d, i) => {
+                        const x = padding + (chartWidth / (displayData.length - 1 || 1)) * i;
+                        const y = padding + chartHeight - (d.actualDemand / maxDemand) * chartHeight;
+                        return `${x},${y}`;
+                    }).join(' ')} ${svgWidth - padding},${padding + chartHeight} ${padding},${padding + chartHeight}" 
+                        fill="url(#demandGradient)"/>
+                    
+                    <!-- 实际需量线 -->
+                    <polyline points="${displayData.map((d, i) => {
+                        const x = padding + (chartWidth / (displayData.length - 1 || 1)) * i;
+                        const y = padding + chartHeight - (d.actualDemand / maxDemand) * chartHeight;
+                        return `${x},${y}`;
+                    }).join(' ')}" 
+                        fill="none" stroke="#00bcd4" stroke-width="2"/>
+                    
+                    <!-- 上报需量线 -->
+                    <polyline points="${displayData.map((d, i) => {
+                        const x = padding + (chartWidth / (displayData.length - 1 || 1)) * i;
+                        const y = padding + chartHeight - (d.reportedDemand / maxDemand) * chartHeight;
+                        return `${x},${y}`;
+                    }).join(' ')}" 
+                        fill="none" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
+                    
+                    <!-- 数据点 -->
+                    ${displayData.filter((d, i) => i % Math.max(1, Math.floor(displayData.length / 10)) === 0).map((d, i) => {
+                        const index = displayData.findIndex(item => item === d);
+                        const x = padding + (chartWidth / (displayData.length - 1 || 1)) * index;
+                        const y = padding + chartHeight - (d.actualDemand / maxDemand) * chartHeight;
+                        return `<circle cx="${x}" cy="${y}" r="4" fill="#00bcd4" opacity="0.8">
+                            <title>实际需量: ${d.actualDemand} kW</title>
+                        </circle>`;
+                    }).join('')}
+                    
+                    <!-- X轴标签 -->
+                    ${displayData.filter((d, i) => i % Math.max(1, Math.floor(displayData.length / 5)) === 0 || i === displayData.length - 1).map((d, i) => {
+                        const index = displayData.findIndex(item => item === d);
+                        const x = padding + (chartWidth / (displayData.length - 1 || 1)) * index;
+                        const date = new Date(d.date);
+                        return `<text x="${x}" y="${padding + chartHeight + 25}" fill="#a7bed3" font-size="11" text-anchor="middle">${(date.getMonth() + 1)}/${date.getDate()}</text>`;
+                    }).join('')}
+                    
+                    <!-- 图例 -->
+                    <g transform="translate(${svgWidth - 200}, 20)">
+                        <line x1="0" y1="10" x2="30" y2="10" stroke="#00bcd4" stroke-width="2"/>
+                        <text x="35" y="13" fill="#a7bed3" font-size="11">实际需量</text>
+                        <line x1="0" y1="30" x2="30" y2="30" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
+                        <text x="35" y="33" fill="#a7bed3" font-size="11">上报需量</text>
+                        <line x1="0" y1="50" x2="30" y2="50" stroke="#9e9e9e" stroke-width="2" stroke-dasharray="5,5"/>
+                        <text x="35" y="53" fill="#a7bed3" font-size="11">容量</text>
+                    </g>
+                </svg>
+            `;
+            
+            container.innerHTML = svg;
+        }
+
+        // 渲染费用对比图
+        function renderCostComparisonChart(data) {
+            const container = document.getElementById('cost-comparison-chart');
+            const containerWidth = container.offsetWidth || container.clientWidth || 800;
+            const containerHeight = 400;
+            const padding = 70;
+            const width = Math.max(containerWidth - 20, 600);
+            const height = containerHeight - 20;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2 - 30;
+            
+            // 计算费用（使用当前配置）
+            const electricityPrice = parseFloat(document.getElementById('electricity-price').value) || 0.65;
+            const peakPrice = parseFloat(document.getElementById('peak-price').value) || 0.95;
+            const flatPrice = parseFloat(document.getElementById('flat-price').value) || 0.65;
+            const valleyPrice = parseFloat(document.getElementById('valley-price').value) || 0.35;
+            const capacityPrice = parseFloat(document.getElementById('capacity-price').value) || 28;
+            const demandPrice = parseFloat(document.getElementById('demand-price').value) || 38;
+            
+            // 按月汇总
+            const monthlyData = {};
+            data.forEach(item => {
+                const month = item.date.substring(0, 7);
+                if (!monthlyData[month]) {
+                    monthlyData[month] = {
+                        capacity: item.capacity,
+                        maxActualDemand: 0,
+                        maxReportedDemand: 0,
+                        peakUsage: 0,
+                        flatUsage: 0,
+                        valleyUsage: 0
+                    };
+                }
+                monthlyData[month].maxActualDemand = Math.max(monthlyData[month].maxActualDemand, item.actualDemand);
+                monthlyData[month].maxReportedDemand = Math.max(monthlyData[month].maxReportedDemand, item.reportedDemand);
+                monthlyData[month].peakUsage += item.peakUsage;
+                monthlyData[month].flatUsage += item.flatUsage;
+                monthlyData[month].valleyUsage += item.valleyUsage;
+            });
+            
+            const months = Object.keys(monthlyData).sort();
+            const capacityCosts = [];
+            const actualDemandCosts = [];
+            const reportedDemandCosts = [];
+            
+            months.forEach(month => {
+                const monthData = monthlyData[month];
+                const electricityCost = monthData.peakUsage * peakPrice + monthData.flatUsage * flatPrice + monthData.valleyUsage * valleyPrice;
+                
+                capacityCosts.push(monthData.capacity * capacityPrice + electricityCost);
+                actualDemandCosts.push(monthData.maxActualDemand * demandPrice + electricityCost);
+                reportedDemandCosts.push(monthData.maxReportedDemand * demandPrice + electricityCost);
+            });
+            
+            const maxCost = Math.max(...capacityCosts, ...actualDemandCosts, ...reportedDemandCosts) * 1.1;
+            const svgWidth = width;
+            const svgHeight = height;
+            const barWidth = chartWidth / (months.length * 4);
+            
+            let svg = `
+                <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet" style="max-width: 100%;">
+                    <!-- 网格线 -->
+                    ${Array.from({length: 5}, (_, i) => {
+                        const y = padding + (chartHeight / 4) * i;
+                        return `<line x1="${padding}" y1="${y}" x2="${svgWidth - padding}" y2="${y}" stroke="#3c5472" stroke-width="0.5" opacity="0.5"/>`;
+                    }).join('')}
+                    
+                    <!-- Y轴标签 -->
+                    ${Array.from({length: 5}, (_, i) => {
+                        const y = padding + (chartHeight / 4) * i;
+                        const value = maxCost - (maxCost / 4) * i;
+                        return `<text x="${padding - 15}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">¥${Math.round(value).toLocaleString()}</text>`;
+                    }).join('')}
+                    
+                    <!-- 柱状图 -->
+                    ${months.map((month, i) => {
+                        const x = padding + (chartWidth / months.length) * i + (chartWidth / months.length) * 0.1;
+                        const y1 = padding + chartHeight - (capacityCosts[i] / maxCost) * chartHeight;
+                        const y2 = padding + chartHeight - (actualDemandCosts[i] / maxCost) * chartHeight;
+                        const y3 = padding + chartHeight - (reportedDemandCosts[i] / maxCost) * chartHeight;
+                        const h1 = (capacityCosts[i] / maxCost) * chartHeight;
+                        const h2 = (actualDemandCosts[i] / maxCost) * chartHeight;
+                        const h3 = (reportedDemandCosts[i] / maxCost) * chartHeight;
+                        
+                        return `
+                            <rect x="${x}" y="${y1}" width="${barWidth}" height="${h1}" fill="#00bcd4" opacity="0.8">
+                                <title>按容量: ¥${capacityCosts[i].toFixed(2)}</title>
+                            </rect>
+                            <rect x="${x + barWidth}" y="${y2}" width="${barWidth}" height="${h2}" fill="#4caf50" opacity="0.8">
+                                <title>按实际需量: ¥${actualDemandCosts[i].toFixed(2)}</title>
+                            </rect>
+                            <rect x="${x + barWidth * 2}" y="${y3}" width="${barWidth}" height="${h3}" fill="#ff9800" opacity="0.8">
+                                <title>按上报需量: ¥${reportedDemandCosts[i].toFixed(2)}</title>
+                            </rect>
+                        `;
+                    }).join('')}
+                    
+                    <!-- X轴标签 -->
+                    ${months.map((month, i) => {
+                        const x = padding + (chartWidth / months.length) * i + (chartWidth / months.length) * 0.5;
+                        return `<text x="${x}" y="${padding + chartHeight + 25}" fill="#a7bed3" font-size="11" text-anchor="middle">${month.substring(5)}</text>`;
+                    }).join('')}
+                    
+                    <!-- 图例 -->
+                    <g transform="translate(${svgWidth - 200}, 20)">
+                        <rect width="15" height="15" fill="#00bcd4" opacity="0.8"/>
+                        <text x="20" y="12" fill="#a7bed3" font-size="11">按容量</text>
+                        <rect width="15" height="15" y="20" fill="#4caf50" opacity="0.8"/>
+                        <text x="20" y="32" fill="#a7bed3" font-size="11">按实际需量</text>
+                        <rect width="15" height="15" y="40" fill="#ff9800" opacity="0.8"/>
+                        <text x="20" y="52" fill="#a7bed3" font-size="11">按上报需量</text>
+                    </g>
+                </svg>
+            `;
+            
+            container.innerHTML = svg;
+        }
+
+        // 更新优化建议
+        function updateOptimization(data) {
+            const container = document.getElementById('optimization-list');
+            
+            // 计算统计数据
+            const avgActualDemand = data.reduce((sum, d) => sum + d.actualDemand, 0) / data.length;
+            const maxActualDemand = Math.max(...data.map(d => d.actualDemand));
+            const avgReportedDemand = data.reduce((sum, d) => sum + d.reportedDemand, 0) / data.length;
+            const capacity = data[0].capacity;
+            const utilizationRate = (avgActualDemand / capacity) * 100;
+            
+            const suggestions = [];
+            
+            // 建议1: 需量申报优化
+            if (avgReportedDemand > maxActualDemand * 1.1) {
+                const savings = (avgReportedDemand - maxActualDemand) * 38; // 假设需量电价38元/kW
+                suggestions.push({
+                    icon: 'fa-chart-line',
+                    title: '优化需量申报',
+                    desc: `当前上报需量(${Math.round(avgReportedDemand)} kW)明显高于实际最大需量(${Math.round(maxActualDemand)} kW)，建议将上报需量调整为接近实际最大需量。`,
+                    savings: `预计每月可节省: ¥${Math.round(savings)}`
+                });
+            }
+            
+            // 建议2: 容量利用率
+            if (utilizationRate < 60) {
+                suggestions.push({
+                    icon: 'fa-battery-quarter',
+                    title: '容量利用率偏低',
+                    desc: `当前容量利用率仅${utilizationRate.toFixed(1)}%，建议考虑按实际需量收费方式，或优化变压器容量配置。`,
+                    savings: ''
+                });
+            } else if (utilizationRate > 85) {
+                suggestions.push({
+                    icon: 'fa-exclamation-triangle',
+                    title: '容量利用率偏高',
+                    desc: `当前容量利用率${utilizationRate.toFixed(1)}%，接近满载，建议关注变压器负载情况，必要时考虑扩容。`,
+                    savings: ''
+                });
+            }
+            
+            // 建议3: 分时用电优化
+            const peakRatio = data.reduce((sum, d) => sum + d.peakUsage, 0) / data.reduce((sum, d) => sum + d.totalUsage, 0);
+            if (peakRatio > 0.4) {
+                suggestions.push({
+                    icon: 'fa-clock',
+                    title: '优化分时用电',
+                    desc: `峰时用电占比${(peakRatio * 100).toFixed(1)}%较高，建议将部分生产任务调整至谷时，可显著降低电度电费。`,
+                    savings: '预计每月可节省: ¥500-2000'
+                });
+            }
+            
+            // 建议4: 生产强度优化
+            if (maxActualDemand / avgActualDemand > 1.5) {
+                suggestions.push({
+                    icon: 'fa-tasks',
+                    title: '合理安排生产强度',
+                    desc: `需量波动较大，建议合理安排生产计划，避免集中用电导致需量峰值过高。`,
+                    savings: ''
+                });
+            }
+            
+            // 默认建议
+            if (suggestions.length === 0) {
+                suggestions.push({
+                    icon: 'fa-check-circle',
+                    title: '当前配置合理',
+                    desc: '当前电费配置和用电模式较为合理，建议持续监控和优化。',
+                    savings: ''
+                });
+            }
+            
+            container.innerHTML = suggestions.map(s => `
+                <div class="optimization-item">
+                    <i class="fas ${s.icon} optimization-icon"></i>
+                    <div class="optimization-content">
+                        <div class="optimization-title">${s.title}</div>
+                        <div class="optimization-desc">${s.desc}</div>
+                        ${s.savings ? `<div class="optimization-savings">${s.savings}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 更新详细数据表格
+        function updateDetailTable(data) {
+            const tbody = document.getElementById('detail-table-body');
+            const transformerKey = document.getElementById('transformer-select')?.value || 'all';
+            const transformerDisplayName = transformerNameMap[transformerKey] || transformerNameMap.all;
+            
+            // 按月汇总显示
+            const monthlyData = {};
+            data.forEach(item => {
+                const month = item.date.substring(0, 7);
+                if (!monthlyData[month]) {
+                    monthlyData[month] = {
+                        date: month,
+                        transformerName: transformerDisplayName,
+                        maxActualDemand: 0,
+                        maxReportedDemand: 0,
+                        capacity: item.capacity,
+                        peakUsage: 0,
+                        flatUsage: 0,
+                        valleyUsage: 0
+                    };
+                }
+                monthlyData[month].maxActualDemand = Math.max(monthlyData[month].maxActualDemand, item.actualDemand);
+                monthlyData[month].maxReportedDemand = Math.max(monthlyData[month].maxReportedDemand, item.reportedDemand);
+                monthlyData[month].peakUsage += item.peakUsage;
+                monthlyData[month].flatUsage += item.flatUsage;
+                monthlyData[month].valleyUsage += item.valleyUsage;
+            });
+            
+            const electricityPrice = parseFloat(document.getElementById('electricity-price').value) || 0.65;
+            const peakPrice = parseFloat(document.getElementById('peak-price').value) || 0.95;
+            const flatPrice = parseFloat(document.getElementById('flat-price').value) || 0.65;
+            const valleyPrice = parseFloat(document.getElementById('valley-price').value) || 0.35;
+            const capacityPrice = parseFloat(document.getElementById('capacity-price').value) || 28;
+            const demandPrice = parseFloat(document.getElementById('demand-price').value) || 38;
+            
+            const rows = Object.values(monthlyData).sort((a, b) => a.date.localeCompare(b.date)).map(monthData => {
+                const electricityCost = monthData.peakUsage * peakPrice + monthData.flatUsage * flatPrice + monthData.valleyUsage * valleyPrice;
+                const capacityCost = monthData.capacity * capacityPrice + electricityCost;
+                const actualDemandCost = monthData.maxActualDemand * demandPrice + electricityCost;
+                const reportedDemandCost = monthData.maxReportedDemand * demandPrice + electricityCost;
+                
+                const costs = [
+                    { type: 'capacity', name: '按容量', cost: capacityCost },
+                    { type: 'actual', name: '按实际需量', cost: actualDemandCost },
+                    { type: 'reported', name: '按上报需量', cost: reportedDemandCost }
+                ];
+                
+                const best = costs.reduce((min, c) => c.cost < min.cost ? c : min, costs[0]);
+                
+                return `
+                    <tr>
+                        <td>${monthData.date}</td>
+                        <td>${monthData.transformerName}</td>
+                        <td>${Math.round(monthData.maxActualDemand)}</td>
+                        <td>${Math.round(monthData.maxReportedDemand)}</td>
+                        <td>${monthData.capacity}</td>
+                        <td>¥${capacityCost.toFixed(2)}</td>
+                        <td>¥${actualDemandCost.toFixed(2)}</td>
+                        <td>¥${reportedDemandCost.toFixed(2)}</td>
+                        <td><span style="color: #4caf50; font-weight: bold;">${best.name}</span></td>
+                    </tr>
+                `;
+            }).join('');
+            
+            tbody.innerHTML = rows || '<tr><td colspan="8" class="empty-state">暂无数据</td></tr>';
+        }
+
+        // 导出数据
+        function exportData() {
+            alert('导出功能开发中...');
+        }
+
+        // ========== 模型管理功能 ==========
+        
+        // 从localStorage加载模型
+        function loadModelsFromStorage() {
+            const stored = localStorage.getItem('capacity-demand-models');
+            if (stored) {
+                models = JSON.parse(stored);
+            } else {
+                // 初始化示例模型
+                models = [
+                    {
+                        id: 'model-1',
+                        name: '1号变压器-标准配置',
+                        transformer: 'transformer1',
+                        capacity: 1000,
+                        electricityPrice: 0.65,
+                        peakPrice: 0.95,
+                        flatPrice: 0.65,
+                        valleyPrice: 0.35,
+                        capacityPrice: 28,
+                        demandPrice: 38,
+                        billingMethod: 'demand', // capacity, demand, actual
+                        createTime: new Date().toISOString(),
+                        description: '1号变压器标准电价配置模型'
+                    }
+                ];
+                saveModelsToStorage();
+            }
+            if (document.getElementById('model-list')) {
+                loadModelList();
+            }
+        }
+
+        // 保存模型到localStorage
+        function saveModelsToStorage() {
+            localStorage.setItem('capacity-demand-models', JSON.stringify(models));
+        }
+
+        // 加载模型列表
+        function loadModelList() {
+            const container = document.getElementById('model-list');
+            if (!container) return;
+            
+            if (models.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; opacity: 0.3;"></i>
+                        <div>暂无模型，点击"创建模型"按钮创建第一个容需量模型</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = models.map(model => `
+                <div style="background-color: #1a2a3a; border: 1px solid #3c5472; border-radius: 6px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="flex: 1;">
+                        <div style="color: #e0e6ed; font-size: 16px; font-weight: bold; margin-bottom: 5px;">${model.name}</div>
+                        <div style="color: #a7bed3; font-size: 13px; margin-bottom: 3px;">变压器: ${model.transformer || '全部'}</div>
+                        <div style="color: #a7bed3; font-size: 13px; margin-bottom: 3px;">容量: ${model.capacity} kVA | 计费方式: ${model.billingMethod === 'capacity' ? '按容量' : model.billingMethod === 'demand' ? '按需量' : '按实际需量'}</div>
+                        <div style="color: #5d7d9a; font-size: 12px;">创建时间: ${new Date(model.createTime).toLocaleString('zh-CN')}</div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="query-button" style="padding: 6px 12px; font-size: 13px;" onclick="applyModel('${model.id}')">
+                            <i class="fas fa-check"></i> 应用
+                        </button>
+                        <button class="export-button" style="padding: 6px 12px; font-size: 13px;" onclick="editModel('${model.id}')">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="export-button" style="padding: 6px 12px; font-size: 13px; background-color: #f44336;" onclick="deleteModel('${model.id}')">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 显示创建模型模态框
+        function showCreateModelModal() {
+            currentEditingModel = null;
+            document.getElementById('modal-title').textContent = '创建容需量模型';
+            renderModelForm();
+            document.getElementById('model-modal').style.display = 'flex';
+        }
+
+        // 编辑模型
+        function editModel(modelId) {
+            currentEditingModel = models.find(m => m.id === modelId);
+            if (!currentEditingModel) return;
+            
+            document.getElementById('modal-title').textContent = '编辑容需量模型';
+            renderModelForm();
+            document.getElementById('model-modal').style.display = 'flex';
+        }
+
+        // 渲染模型表单
+        function renderModelForm() {
+            const form = document.getElementById('model-form');
+            const model = currentEditingModel || {
+                name: '',
+                transformer: 'all',
+                capacity: 1000,
+                electricityPrice: 0.65,
+                peakPrice: 0.95,
+                flatPrice: 0.65,
+                valleyPrice: 0.35,
+                capacityPrice: 28,
+                demandPrice: 38,
+                billingMethod: 'demand',
+                description: ''
+            };
+            
+            form.innerHTML = `
+                <div style="display: grid; gap: 15px;">
+                    <div>
+                        <label style="color: #a7bed3; font-size: 13px; margin-bottom: 5px; display: block;">模型名称 *</label>
+                        <input type="text" id="model-name" class="price-config-input" value="${model.name}" placeholder="请输入模型名称">
+                    </div>
+                    <div>
+                        <label style="color: #a7bed3; font-size: 13px; margin-bottom: 5px; display: block;">变压器</label>
+                        <select id="model-transformer" class="filter-select" style="width: 100%;">
+                            <option value="all" ${model.transformer === 'all' ? 'selected' : ''}>全部变压器</option>
+                            <option value="transformer1" ${model.transformer === 'transformer1' ? 'selected' : ''}>1号变压器</option>
+                            <option value="transformer2" ${model.transformer === 'transformer2' ? 'selected' : ''}>2号变压器</option>
+                            <option value="transformer3" ${model.transformer === 'transformer3' ? 'selected' : ''}>3号变压器</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="color: #a7bed3; font-size: 13px; margin-bottom: 5px; display: block;">变压器容量 (kVA) *</label>
+                        <input type="number" id="model-capacity" class="price-config-input" value="${model.capacity}" step="10">
+                    </div>
+                    <div>
+                        <label style="color: #a7bed3; font-size: 13px; margin-bottom: 5px; display: block;">计费方式 *</label>
+                        <select id="model-billing-method" class="filter-select" style="width: 100%;">
+                            <option value="capacity" ${model.billingMethod === 'capacity' ? 'selected' : ''}>按容量收费</option>
+                            <option value="demand" ${model.billingMethod === 'demand' ? 'selected' : ''}>按需量收费</option>
+                            <option value="actual" ${model.billingMethod === 'actual' ? 'selected' : ''}>按实际需量收费</option>
+                        </select>
+                    </div>
+                    <div style="border-top: 1px solid #3c5472; padding-top: 15px; margin-top: 5px;">
+                        <div style="color: #e0e6ed; font-size: 14px; font-weight: bold; margin-bottom: 10px;">电价配置</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <label style="color: #a7bed3; font-size: 12px; margin-bottom: 5px; display: block;">电度电价 (元/kWh)</label>
+                                <input type="number" id="model-electricity-price" class="price-config-input" value="${model.electricityPrice}" step="0.01">
+                            </div>
+                            <div>
+                                <label style="color: #a7bed3; font-size: 12px; margin-bottom: 5px; display: block;">峰时电价 (元/kWh)</label>
+                                <input type="number" id="model-peak-price" class="price-config-input" value="${model.peakPrice}" step="0.01">
+                            </div>
+                            <div>
+                                <label style="color: #a7bed3; font-size: 12px; margin-bottom: 5px; display: block;">平时电价 (元/kWh)</label>
+                                <input type="number" id="model-flat-price" class="price-config-input" value="${model.flatPrice}" step="0.01">
+                            </div>
+                            <div>
+                                <label style="color: #a7bed3; font-size: 12px; margin-bottom: 5px; display: block;">谷时电价 (元/kWh)</label>
+                                <input type="number" id="model-valley-price" class="price-config-input" value="${model.valleyPrice}" step="0.01">
+                            </div>
+                            <div>
+                                <label style="color: #a7bed3; font-size: 12px; margin-bottom: 5px; display: block;">容量电价 (元/kVA·月)</label>
+                                <input type="number" id="model-capacity-price" class="price-config-input" value="${model.capacityPrice}" step="0.01">
+                            </div>
+                            <div>
+                                <label style="color: #a7bed3; font-size: 12px; margin-bottom: 5px; display: block;">需量电价 (元/kW·月)</label>
+                                <input type="number" id="model-demand-price" class="price-config-input" value="${model.demandPrice}" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="color: #a7bed3; font-size: 13px; margin-bottom: 5px; display: block;">模型描述</label>
+                        <textarea id="model-description" class="price-config-input" rows="3" placeholder="请输入模型描述（可选）">${model.description || ''}</textarea>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 保存模型
+        function saveModel() {
+            const name = document.getElementById('model-name').value.trim();
+            if (!name) {
+                alert('请输入模型名称');
+                return;
+            }
+            
+            const model = {
+                id: currentEditingModel ? currentEditingModel.id : 'model-' + Date.now(),
+                name: name,
+                transformer: document.getElementById('model-transformer').value,
+                capacity: parseFloat(document.getElementById('model-capacity').value) || 1000,
+                electricityPrice: parseFloat(document.getElementById('model-electricity-price').value) || 0.65,
+                peakPrice: parseFloat(document.getElementById('model-peak-price').value) || 0.95,
+                flatPrice: parseFloat(document.getElementById('model-flat-price').value) || 0.65,
+                valleyPrice: parseFloat(document.getElementById('model-valley-price').value) || 0.35,
+                capacityPrice: parseFloat(document.getElementById('model-capacity-price').value) || 28,
+                demandPrice: parseFloat(document.getElementById('model-demand-price').value) || 38,
+                billingMethod: document.getElementById('model-billing-method').value,
+                description: document.getElementById('model-description').value.trim(),
+                createTime: currentEditingModel ? currentEditingModel.createTime : new Date().toISOString(),
+                updateTime: new Date().toISOString()
+            };
+            
+            if (currentEditingModel) {
+                const index = models.findIndex(m => m.id === currentEditingModel.id);
+                if (index >= 0) {
+                    models[index] = model;
+                }
+            } else {
+                models.push(model);
+            }
+            
+            saveModelsToStorage();
+            loadModelList();
+            closeModelModal();
+        }
+
+        // 应用模型
+        function applyModel(modelId) {
+            const model = models.find(m => m.id === modelId);
+            if (!model) return;
+            
+            // 应用到电价配置
+            document.getElementById('electricity-price').value = model.electricityPrice;
+            document.getElementById('peak-price').value = model.peakPrice;
+            document.getElementById('flat-price').value = model.flatPrice;
+            document.getElementById('valley-price').value = model.valleyPrice;
+            document.getElementById('capacity-price').value = model.capacityPrice;
+            document.getElementById('demand-price').value = model.demandPrice;
+            
+            // 重新计算费用
+            if (currentData) {
+                calculateCosts(currentData);
+                renderCostComparisonChart(currentData);
+            }
+            
+            // 切换到费用分析标签页
+            const costTab = document.querySelector('.tab-button[onclick*="cost-analysis-tab"]');
+            if (costTab) {
+                switchTab('cost-analysis-tab', costTab);
+            }
+            
+            alert(`已应用模型"${model.name}"`);
+        }
+
+        // 删除模型
+        function deleteModel(modelId) {
+            if (!confirm('确定要删除这个模型吗？')) return;
+            
+            models = models.filter(m => m.id !== modelId);
+            saveModelsToStorage();
+            loadModelList();
+        }
+
+        // 关闭模型模态框
+        function closeModelModal() {
+            document.getElementById('model-modal').style.display = 'none';
+            currentEditingModel = null;
+        }
+
+        // ========== 需量申报功能 ==========
+        
+        // 更新需量预测
+        function updateDemandForecast() {
+            const container = document.getElementById('demand-forecast-chart');
+            if (!container) return;
+            
+            // 使用当前数据或生成预测数据
+            const forecastPeriod = parseInt(document.getElementById('forecast-period')?.value || 1);
+            const data = currentData || generateMockData('month', 'all');
+            
+            // 计算历史统计
+            const maxDemand = Math.max(...data.map(d => d.actualDemand));
+            const avgDemand = data.reduce((sum, d) => sum + d.actualDemand, 0) / data.length;
+            const trend = (data[data.length - 1].actualDemand - data[0].actualDemand) / data.length;
+            
+            // 生成预测数据
+            const forecastData = [];
+            const baseDate = new Date();
+            for (let i = 0; i < forecastPeriod * 30; i++) {
+                baseDate.setDate(baseDate.getDate() + 1);
+                const predicted = avgDemand + trend * i + (Math.random() - 0.5) * 100;
+                forecastData.push({
+                    date: baseDate.toISOString().split('T')[0],
+                    demand: Math.max(0, predicted)
+                });
+            }
+            
+            // 渲染预测图表
+            renderForecastChart([...data.map(d => ({date: d.date, demand: d.actualDemand})), ...forecastData], maxDemand);
+        }
+
+        // 渲染预测图表
+        function renderForecastChart(data, maxDemand) {
+            const container = document.getElementById('demand-forecast-chart');
+            const containerWidth = container.offsetWidth || 800;
+            const containerHeight = 350;
+            const padding = 70;
+            const width = Math.max(containerWidth - 20, 600);
+            const height = containerHeight - 20;
+            const chartWidth = width - padding * 2;
+            const chartHeight = height - padding * 2 - 30;
+            
+            const maxValue = Math.max(...data.map(d => d.demand)) * 1.1;
+            const svgWidth = width;
+            const svgHeight = height;
+            
+            // 只显示部分数据点
+            const displayData = data.length > 60 ? data.filter((d, i) => i % Math.ceil(data.length / 60) === 0) : data;
+            const historicalEnd = data.length - displayData.filter((d, i) => i >= data.length - displayData.length).length;
+            
+            let svg = `
+                <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" preserveAspectRatio="xMidYMid meet" style="max-width: 100%;">
+                    <!-- 网格线 -->
+                    ${Array.from({length: 5}, (_, i) => {
+                        const y = padding + (chartHeight / 4) * i;
+                        return `<line x1="${padding}" y1="${y}" x2="${svgWidth - padding}" y2="${y}" stroke="#3c5472" stroke-width="0.5" opacity="0.5"/>`;
+                    }).join('')}
+                    
+                    <!-- Y轴标签 -->
+                    ${Array.from({length: 5}, (_, i) => {
+                        const y = padding + (chartHeight / 4) * i;
+                        const value = maxValue - (maxValue / 4) * i;
+                        return `<text x="${padding - 15}" y="${y + 5}" fill="#a7bed3" font-size="11" text-anchor="end">${Math.round(value)}</text>`;
+                    }).join('')}
+                    
+                    <!-- 历史/预测分界线 -->
+                    <line x1="${padding + (chartWidth / displayData.length) * historicalEnd}" y1="${padding}" 
+                          x2="${padding + (chartWidth / displayData.length) * historicalEnd}" y2="${padding + chartHeight}" 
+                          stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5" opacity="0.6"/>
+                    <text x="${padding + (chartWidth / displayData.length) * historicalEnd + 5}" y="${padding + 15}" fill="#ff9800" font-size="11" font-weight="bold">预测起点</text>
+                    
+                    <!-- 历史数据线 -->
+                    <polyline points="${displayData.slice(0, historicalEnd).map((d, i) => {
+                        const x = padding + (chartWidth / displayData.length) * i;
+                        const y = padding + chartHeight - (d.demand / maxValue) * chartHeight;
+                        return `${x},${y}`;
+                    }).join(' ')}" 
+                        fill="none" stroke="#00bcd4" stroke-width="2"/>
+                    
+                    <!-- 预测数据线 -->
+                    <polyline points="${displayData.slice(historicalEnd).map((d, i) => {
+                        const x = padding + (chartWidth / displayData.length) * (historicalEnd + i);
+                        const y = padding + chartHeight - (d.demand / maxValue) * chartHeight;
+                        return `${x},${y}`;
+                    }).join(' ')}" 
+                        fill="none" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
+                    
+                    <!-- 图例 -->
+                    <g transform="translate(${svgWidth - 200}, 20)">
+                        <line x1="0" y1="10" x2="30" y2="10" stroke="#00bcd4" stroke-width="2"/>
+                        <text x="35" y="13" fill="#a7bed3" font-size="11">历史需量</text>
+                        <line x1="0" y1="30" x2="30" y2="30" stroke="#ff9800" stroke-width="2" stroke-dasharray="5,5"/>
+                        <text x="35" y="33" fill="#a7bed3" font-size="11">预测需量</text>
+                    </g>
+                </svg>
+            `;
+            
+            container.innerHTML = svg;
+        }
+
+        // 更新推荐申报值
+        function updateRecommendation() {
+            if (!currentData || currentData.length === 0) {
+                currentData = generateMockData('month', 'all');
+            }
+            
+            const maxDemand = Math.max(...currentData.map(d => d.actualDemand));
+            const avgDemand = currentData.reduce((sum, d) => sum + d.actualDemand, 0) / currentData.length;
+            const p95Demand = [...currentData.map(d => d.actualDemand)].sort((a, b) => b - a)[Math.floor(currentData.length * 0.05)];
+            const currentReported = currentData[0]?.reportedDemand || maxDemand;
+            
+            const demandPrice = parseFloat(document.getElementById('demand-price')?.value || 38);
+            
+            // 计算不同申报值的费用
+            const recommendations = [
+                {
+                    name: '保守方案',
+                    value: Math.ceil(maxDemand * 1.1),
+                    desc: '基于历史最大需量增加10%安全余量',
+                    cost: Math.ceil(maxDemand * 1.1) * demandPrice,
+                    risk: '低',
+                    color: '#4caf50'
+                },
+                {
+                    name: '推荐方案',
+                    value: Math.ceil(maxDemand * 1.05),
+                    desc: '基于历史最大需量增加5%安全余量',
+                    cost: Math.ceil(maxDemand * 1.05) * demandPrice,
+                    risk: '中',
+                    color: '#00bcd4'
+                },
+                {
+                    name: '优化方案',
+                    value: Math.ceil(maxDemand),
+                    desc: '基于历史最大需量，风险可控',
+                    cost: Math.ceil(maxDemand) * demandPrice,
+                    risk: '中高',
+                    color: '#ff9800'
+                },
+                {
+                    name: '激进方案',
+                    value: Math.ceil(p95Demand),
+                    desc: '基于95%分位数，需密切监控',
+                    cost: Math.ceil(p95Demand) * demandPrice,
+                    risk: '高',
+                    color: '#f44336'
+                }
+            ];
+            
+            const container = document.getElementById('recommendation-cards');
+            if (container) {
+                container.innerHTML = recommendations.map(rec => `
+                    <div style="background-color: #1a2a3a; border: 1px solid #3c5472; border-left: 4px solid ${rec.color}; border-radius: 6px; padding: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div style="color: #e0e6ed; font-size: 16px; font-weight: bold;">${rec.name}</div>
+                            <div style="padding: 4px 8px; border-radius: 4px; background-color: ${rec.color}20; color: ${rec.color}; font-size: 11px; font-weight: bold;">${rec.risk}风险</div>
+                        </div>
+                        <div style="color: ${rec.color}; font-size: 28px; font-weight: bold; margin-bottom: 5px;">${rec.value} kW</div>
+                        <div style="color: #a7bed3; font-size: 12px; margin-bottom: 8px;">${rec.desc}</div>
+                        <div style="color: #5d7d9a; font-size: 12px;">月度基本电费: ¥${rec.cost.toLocaleString()}</div>
+                        <button class="query-button" style="width: 100%; margin-top: 10px; padding: 8px;" onclick="setDeclaredDemand(${rec.value})">
+                            <i class="fas fa-check"></i> 采用此方案
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            const explanation = document.getElementById('recommendation-explanation');
+            if (explanation) {
+                explanation.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <strong>当前统计:</strong> 历史最大需量 ${Math.round(maxDemand)} kW，平均需量 ${Math.round(avgDemand)} kW，当前申报值 ${Math.round(currentReported)} kW
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>推荐说明:</strong> 建议采用"推荐方案"（${Math.ceil(maxDemand * 1.05)} kW），既能保证安全余量，又能控制电费成本。如果用电模式稳定，可考虑"优化方案"。
+                    </div>
+                    <div>
+                        <strong>注意事项:</strong> 申报值低于实际最大需量时，超出部分将按2倍需量电价收费，请谨慎选择。
+                    </div>
+                `;
+            }
+            
+            // 更新当前申报值显示
+            const currentDeclared = document.getElementById('current-declared-demand');
+            if (currentDeclared) {
+                currentDeclared.textContent = Math.round(currentReported) + ' kW';
+            }
+        }
+
+        // 设置申报需量
+        function setDeclaredDemand(value) {
+            document.getElementById('adjusted-declared-demand').value = value;
+            analyzeDeclarationImpact();
+        }
+
+        // 分析申报影响
+        function analyzeDeclarationImpact() {
+            const adjustedValue = parseFloat(document.getElementById('adjusted-declared-demand')?.value);
+            if (!adjustedValue || !currentData) return;
+            
+            const currentValue = currentData[0]?.reportedDemand || 0;
+            const maxActualDemand = Math.max(...currentData.map(d => d.actualDemand));
+            const demandPrice = parseFloat(document.getElementById('demand-price')?.value || 38);
+            
+            const currentMonthlyCost = currentValue * demandPrice;
+            const adjustedMonthlyCost = adjustedValue * demandPrice;
+            const costDifference = adjustedMonthlyCost - currentMonthlyCost;
+            
+            // 计算风险
+            let riskLevel = '低';
+            let riskDesc = '';
+            let riskColor = '#4caf50';
+            
+            if (adjustedValue < maxActualDemand) {
+                riskLevel = '高';
+                riskDesc = `申报值低于历史最大需量，超出部分将按2倍需量电价（¥${(demandPrice * 2).toFixed(2)}/kW）收费`;
+                riskColor = '#f44336';
+            } else if (adjustedValue < maxActualDemand * 1.05) {
+                riskLevel = '中';
+                riskDesc = '申报值接近历史最大需量，建议密切监控实际需量';
+                riskColor = '#ff9800';
+            } else {
+                riskLevel = '低';
+                riskDesc = '申报值有足够安全余量，风险可控';
+                riskColor = '#4caf50';
+            }
+            
+            const container = document.getElementById('declaration-impact-analysis');
+            if (container) {
+                container.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                        <div style="background-color: #1a2a3a; border: 1px solid #3c5472; border-radius: 6px; padding: 15px; text-align: center;">
+                            <div style="color: #a7bed3; font-size: 13px; margin-bottom: 5px;">月度基本电费变化</div>
+                            <div style="font-size: 24px; font-weight: bold; color: ${costDifference >= 0 ? '#f44336' : '#4caf50'}">
+                                ${costDifference >= 0 ? '+' : ''}¥${Math.abs(costDifference).toFixed(2)}
+                            </div>
+                        </div>
+                        <div style="background-color: #1a2a3a; border: 1px solid #3c5472; border-radius: 6px; padding: 15px; text-align: center;">
+                            <div style="color: #a7bed3; font-size: 13px; margin-bottom: 5px;">调整后月度基本电费</div>
+                            <div style="font-size: 24px; font-weight: bold; color: #e0e6ed;">¥${adjustedMonthlyCost.toFixed(2)}</div>
+                        </div>
+                        <div style="background-color: #1a2a3a; border: 1px solid ${riskColor}; border-radius: 6px; padding: 15px; text-align: center;">
+                            <div style="color: #a7bed3; font-size: 13px; margin-bottom: 5px;">风险等级</div>
+                            <div style="font-size: 24px; font-weight: bold; color: ${riskColor}">${riskLevel}</div>
+                        </div>
+                    </div>
+                    <div style="background-color: #1a2a3a; border: 1px solid #3c5472; border-radius: 6px; padding: 15px;">
+                        <div style="color: #e0e6ed; font-size: 14px; margin-bottom: 8px;"><strong>影响分析:</strong></div>
+                        <div style="color: #a7bed3; font-size: 13px; line-height: 1.6;">
+                            ${riskDesc}<br>
+                            ${costDifference > 0 ? `调整后将增加月度基本电费 ¥${costDifference.toFixed(2)}` : costDifference < 0 ? `调整后将减少月度基本电费 ¥${Math.abs(costDifference).toFixed(2)}` : '月度基本电费不变'}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // 加载申报历史
+        function loadDeclarationHistory() {
+            const tbody = document.getElementById('declaration-history-table');
+            if (!tbody) return;
+            
+            // 模拟申报历史数据
+            const history = [
+                { date: '2024-01-15', transformer: '1号变压器', declared: 850, actual: 820, cost: 32300, status: '正常' },
+                { date: '2023-12-15', transformer: '1号变压器', declared: 880, actual: 850, cost: 33440, status: '正常' },
+                { date: '2023-11-15', transformer: '1号变压器', declared: 900, actual: 870, cost: 34200, status: '正常' },
+                { date: '2023-10-15', transformer: '1号变压器', declared: 850, actual: 890, cost: 32300, status: '超量' }
+            ];
+            
+            tbody.innerHTML = history.map(h => `
+                <tr>
+                    <td>${h.date}</td>
+                    <td>${h.transformer}</td>
+                    <td>${h.declared}</td>
+                    <td>${h.actual}</td>
+                    <td>¥${h.cost.toLocaleString()}</td>
+                    <td><span style="color: ${h.status === '正常' ? '#4caf50' : '#f44336'}">${h.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        // 页面加载时自动初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCapacityDemand);
+        } else {
+            initCapacityDemand();
+        }
+        window.initCapacityDemand = initCapacityDemand;
+        window.switchTab = switchTab;
+        window.queryData = queryData;
+        window.exportData = exportData;
+        window.showCreateModelModal = showCreateModelModal;
+        window.closeModelModal = closeModelModal;
+        window.saveModel = saveModel;
+        window.applyModel = applyModel;
+        window.editModel = editModel;
+        window.deleteModel = deleteModel;
+        window.setDeclaredDemand = setDeclaredDemand;
+        window.updateDemandForecast = updateDemandForecast;
+        window.analyzeDeclarationImpact = analyzeDeclarationImpact;
+        })();
+    </script>
+</div>
