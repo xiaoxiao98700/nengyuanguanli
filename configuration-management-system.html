@@ -1,2 +1,1348 @@
-<h2>系统配置</h2>
-<p>这是系统配置页面的内容。</p>
+<div class="system-config-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+        
+        .system-config-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+            min-height: auto;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Tab导航 */
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3c5472;
+            padding-bottom: 0;
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: #a7bed3;
+            padding: 12px 24px;
+            font-size: 15px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .tab-button:hover {
+            color: #00bcd4;
+            background: rgba(0, 188, 212, 0.1);
+        }
+
+        .tab-button.active {
+            color: #00bcd4;
+            border-bottom-color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .tab-button i {
+            font-size: 16px;
+        }
+
+        /* Tab内容 */
+        .tab-content {
+            display: none !important;
+        }
+
+        .tab-content.active {
+            display: block !important;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            border: none;
+            color: #1a2a3a;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.2);
+        }
+
+        .action-button:hover {
+            background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+        }
+
+        .action-button.secondary {
+            background: linear-gradient(135deg, #3c5472 0%, #2a3d54 100%);
+            color: #e0e6ed;
+            box-shadow: 0 2px 8px rgba(60, 84, 114, 0.2);
+        }
+
+        .action-button.secondary:hover {
+            background: linear-gradient(135deg, #4a6a8a 0%, #3c5472 100%);
+            box-shadow: 0 4px 12px rgba(60, 84, 114, 0.3);
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a7bed3;
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 15px 10px 40px;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .search-input::placeholder {
+            color: #6b7d8f;
+        }
+
+        /* 数据表格 */
+        .data-table-container {
+            background: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #1a2a3a 0%, #2a3d54 100%);
+        }
+
+        .data-table th {
+            padding: 14px 12px;
+            text-align: left;
+            color: #e0e6ed;
+            font-weight: 600;
+            border-bottom: 2px solid #3c5472;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px;
+            color: #a7bed3;
+            border-bottom: 1px solid #3c5472;
+        }
+
+        .data-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(0, 188, 212, 0.1);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-link {
+            color: #00bcd4;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+        }
+
+        .action-link:hover {
+            background: rgba(0, 188, 212, 0.2);
+            color: #00e5ff;
+        }
+
+        .action-link.danger {
+            color: #f44336;
+        }
+
+        .action-link.danger:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #ff5252;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a7bed3;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #3c5472;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.enabled {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .status-badge.disabled {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+            border: 1px solid #9e9e9e;
+        }
+
+        /* 类型标签 */
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background: rgba(0, 188, 212, 0.2);
+            color: #00bcd4;
+            border: 1px solid #00bcd4;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999999 !important;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex !important;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%);
+            border: 1px solid #3c5472;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+            position: relative;
+            margin: auto;
+            z-index: 1000000;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #3c5472;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #1a2a3a 0%, #2a3d54 100%);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            color: #00bcd4;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #a7bed3;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            color: #a7bed3;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #f44336;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-actions {
+            padding: 20px 24px;
+            border-top: 1px solid #3c5472;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <div class="system-config-container">
+        <div class="page-header">
+            <h2 class="page-title">
+                <i class="fas fa-cog"></i> 系统配置
+            </h2>
+            <p class="page-description">
+                配置系统的全局参数，包括系统基本信息、数据采集参数、数据存储参数、系统安全参数等，为系统运行提供配置支撑。
+            </p>
+        </div>
+
+        <!-- Tab导航 -->
+        <div class="tab-nav">
+            <button class="tab-button active" data-tab="basic">
+                <i class="fas fa-info-circle"></i> 系统基本信息
+            </button>
+            <button class="tab-button" data-tab="collection">
+                <i class="fas fa-download"></i> 数据采集配置
+            </button>
+            <button class="tab-button" data-tab="storage">
+                <i class="fas fa-database"></i> 数据存储配置
+            </button>
+            <button class="tab-button" data-tab="security">
+                <i class="fas fa-shield-alt"></i> 系统安全配置
+            </button>
+        </div>
+
+        <!-- 系统基本信息配置 -->
+        <div id="tab-basic" class="tab-content active">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showConfigForm('basic')">
+                        <i class="fas fa-plus"></i> 新增配置项
+                    </button>
+                    <button class="action-button secondary" onclick="exportConfig('basic')">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importConfig('basic')">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-basic" placeholder="搜索配置项名称..." oninput="filterConfig('basic')">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>配置ID</th>
+                            <th>配置项名称</th>
+                            <th>配置项类型</th>
+                            <th>配置值</th>
+                            <th>配置分组</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="basic-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 数据采集配置 -->
+        <div id="tab-collection" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showConfigForm('collection')">
+                        <i class="fas fa-plus"></i> 新增配置项
+                    </button>
+                    <button class="action-button secondary" onclick="exportConfig('collection')">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importConfig('collection')">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-collection" placeholder="搜索配置项名称..." oninput="filterConfig('collection')">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>配置ID</th>
+                            <th>配置项名称</th>
+                            <th>配置项类型</th>
+                            <th>配置值</th>
+                            <th>配置分组</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="collection-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 数据存储配置 -->
+        <div id="tab-storage" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showConfigForm('storage')">
+                        <i class="fas fa-plus"></i> 新增配置项
+                    </button>
+                    <button class="action-button secondary" onclick="exportConfig('storage')">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importConfig('storage')">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-storage" placeholder="搜索配置项名称..." oninput="filterConfig('storage')">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>配置ID</th>
+                            <th>配置项名称</th>
+                            <th>配置项类型</th>
+                            <th>配置值</th>
+                            <th>配置分组</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="storage-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 系统安全配置 -->
+        <div id="tab-security" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showConfigForm('security')">
+                        <i class="fas fa-plus"></i> 新增配置项
+                    </button>
+                    <button class="action-button secondary" onclick="exportConfig('security')">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importConfig('security')">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-security" placeholder="搜索配置项名称..." oninput="filterConfig('security')">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>配置ID</th>
+                            <th>配置项名称</th>
+                            <th>配置项类型</th>
+                            <th>配置值</th>
+                            <th>配置分组</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="security-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 配置项编辑模态框 -->
+    <div class="modal-overlay" id="config-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-cog"></i> <span id="config-modal-title">新增配置项</span>
+                </h3>
+                <button class="modal-close" onclick="closeConfigModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="config-form" onsubmit="saveConfig(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">配置项名称</label>
+                            <input type="text" class="form-input" id="config-name" required maxlength="50" placeholder="如：系统名称">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">配置项类型</label>
+                            <select class="form-select" id="config-type" required onchange="updateConfigValueInput()">
+                                <option value="">请选择类型</option>
+                                <option value="text">文本</option>
+                                <option value="number">数字</option>
+                                <option value="date">日期</option>
+                                <option value="boolean">布尔值</option>
+                                <option value="option">选项</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">配置值</label>
+                            <input type="text" class="form-input" id="config-value" required maxlength="200" placeholder="如：智慧能源管理系统">
+                            <select class="form-select" id="config-value-select" style="display: none;">
+                                <option value="true">是/启用</option>
+                                <option value="false">否/禁用</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">配置分组</label>
+                            <select class="form-select" id="config-group">
+                                <option value="basic">系统基本信息</option>
+                                <option value="collection">数据采集</option>
+                                <option value="storage">数据存储</option>
+                                <option value="security">系统安全</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">启用状态</label>
+                            <select class="form-select" id="config-enabled" required>
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">配置说明</label>
+                            <textarea class="form-textarea" id="config-remark" maxlength="500" placeholder="请输入配置说明（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeConfigModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ========== 全局数据 ==========
+const SystemConfig = {
+    currentEditingId: null,
+    currentEditingGroup: null,
+    currentConfigType: null,
+    // 系统基本信息配置
+    basic: [
+        { 
+            id: 1, 
+            name: '系统名称', 
+            type: 'text', 
+            typeName: '文本',
+            value: '智慧能源管理系统', 
+            group: 'basic', 
+            groupName: '系统基本信息',
+            enabled: true, 
+            remark: '系统显示名称' 
+        },
+        { 
+            id: 2, 
+            name: '系统版本', 
+            type: 'text', 
+            typeName: '文本',
+            value: 'v1.0.0', 
+            group: 'basic', 
+            groupName: '系统基本信息',
+            enabled: true, 
+            remark: '系统版本号' 
+        },
+        { 
+            id: 3, 
+            name: '公司名称', 
+            type: 'text', 
+            typeName: '文本',
+            value: 'XX制造有限公司', 
+            group: 'basic', 
+            groupName: '系统基本信息',
+            enabled: true, 
+            remark: '公司全称' 
+        },
+        { 
+            id: 4, 
+            name: '公司地址', 
+            type: 'text', 
+            typeName: '文本',
+            value: 'XX省XX市XX区XX路XX号', 
+            group: 'basic', 
+            groupName: '系统基本信息',
+            enabled: true, 
+            remark: '公司详细地址' 
+        },
+        { 
+            id: 5, 
+            name: '联系电话', 
+            type: 'text', 
+            typeName: '文本',
+            value: '400-XXX-XXXX', 
+            group: 'basic', 
+            groupName: '系统基本信息',
+            enabled: true, 
+            remark: '公司联系电话' 
+        }
+    ],
+    // 数据采集配置
+    collection: [
+        { 
+            id: 1, 
+            name: '采集频率', 
+            type: 'number', 
+            typeName: '数字',
+            value: '60', 
+            group: 'collection', 
+            groupName: '数据采集',
+            enabled: true, 
+            remark: '数据采集频率（秒）' 
+        },
+        { 
+            id: 2, 
+            name: '采集协议', 
+            type: 'option', 
+            typeName: '选项',
+            value: 'Modbus TCP', 
+            group: 'collection', 
+            groupName: '数据采集',
+            enabled: true, 
+            remark: '数据采集协议类型' 
+        },
+        { 
+            id: 3, 
+            name: '网关地址', 
+            type: 'text', 
+            typeName: '文本',
+            value: '192.168.1.100', 
+            group: 'collection', 
+            groupName: '数据采集',
+            enabled: true, 
+            remark: '数据采集网关IP地址' 
+        },
+        { 
+            id: 4, 
+            name: '网关端口', 
+            type: 'number', 
+            typeName: '数字',
+            value: '502', 
+            group: 'collection', 
+            groupName: '数据采集',
+            enabled: true, 
+            remark: '数据采集网关端口号' 
+        },
+        { 
+            id: 5, 
+            name: '超时时间', 
+            type: 'number', 
+            typeName: '数字',
+            value: '30', 
+            group: 'collection', 
+            groupName: '数据采集',
+            enabled: true, 
+            remark: '采集超时时间（秒）' 
+        },
+        { 
+            id: 6, 
+            name: '重试次数', 
+            type: 'number', 
+            typeName: '数字',
+            value: '3', 
+            group: 'collection', 
+            groupName: '数据采集',
+            enabled: true, 
+            remark: '采集失败重试次数' 
+        }
+    ],
+    // 数据存储配置
+    storage: [
+        { 
+            id: 1, 
+            name: '存储周期', 
+            type: 'number', 
+            typeName: '数字',
+            value: '365', 
+            group: 'storage', 
+            groupName: '数据存储',
+            enabled: true, 
+            remark: '数据存储周期（天）' 
+        },
+        { 
+            id: 2, 
+            name: '备份频率', 
+            type: 'option', 
+            typeName: '选项',
+            value: '每日', 
+            group: 'storage', 
+            groupName: '数据存储',
+            enabled: true, 
+            remark: '数据备份频率' 
+        },
+        { 
+            id: 3, 
+            name: '备份时间', 
+            type: 'text', 
+            typeName: '文本',
+            value: '02:00', 
+            group: 'storage', 
+            groupName: '数据存储',
+            enabled: true, 
+            remark: '数据备份执行时间' 
+        },
+        { 
+            id: 4, 
+            name: '备份路径', 
+            type: 'text', 
+            typeName: '文本',
+            value: '/backup/data', 
+            group: 'storage', 
+            groupName: '数据存储',
+            enabled: true, 
+            remark: '数据备份存储路径' 
+        },
+        { 
+            id: 5, 
+            name: '保留备份数', 
+            type: 'number', 
+            typeName: '数字',
+            value: '30', 
+            group: 'storage', 
+            groupName: '数据存储',
+            enabled: true, 
+            remark: '保留的备份文件数量' 
+        }
+    ],
+    // 系统安全配置
+    security: [
+        { 
+            id: 1, 
+            name: '密码最小长度', 
+            type: 'number', 
+            typeName: '数字',
+            value: '8', 
+            group: 'security', 
+            groupName: '系统安全',
+            enabled: true, 
+            remark: '用户密码最小长度' 
+        },
+        { 
+            id: 2, 
+            name: '密码复杂度', 
+            type: 'boolean', 
+            typeName: '布尔值',
+            value: 'true', 
+            group: 'security', 
+            groupName: '系统安全',
+            enabled: true, 
+            remark: '是否启用密码复杂度要求' 
+        },
+        { 
+            id: 3, 
+            name: '密码有效期', 
+            type: 'number', 
+            typeName: '数字',
+            value: '90', 
+            group: 'security', 
+            groupName: '系统安全',
+            enabled: true, 
+            remark: '密码有效期（天）' 
+        },
+        { 
+            id: 4, 
+            name: '登录失败锁定', 
+            type: 'boolean', 
+            typeName: '布尔值',
+            value: 'true', 
+            group: 'security', 
+            groupName: '系统安全',
+            enabled: true, 
+            remark: '是否启用登录失败锁定' 
+        },
+        { 
+            id: 5, 
+            name: '最大失败次数', 
+            type: 'number', 
+            typeName: '数字',
+            value: '5', 
+            group: 'security', 
+            groupName: '系统安全',
+            enabled: true, 
+            remark: '登录最大失败次数' 
+        },
+        { 
+            id: 6, 
+            name: '锁定时间', 
+            type: 'number', 
+            typeName: '数字',
+            value: '30', 
+            group: 'security', 
+            groupName: '系统安全',
+            enabled: true, 
+            remark: '账户锁定时间（分钟）' 
+        },
+        { 
+            id: 7, 
+            name: '会话超时时间', 
+            type: 'number', 
+            typeName: '数字',
+            value: '30', 
+            group: 'security', 
+            groupName: '系统安全',
+            enabled: true, 
+            remark: '会话超时时间（分钟）' 
+        }
+    ]
+};
+
+// ========== Tab切换功能 ==========
+function switchTab(tabName) {
+    // 更新按钮状态
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-tab') === tabName) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // 更新内容显示
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+        content.style.display = 'none';
+    });
+    
+    const targetContent = document.getElementById('tab-' + tabName);
+    if (targetContent) {
+        targetContent.classList.add('active');
+        targetContent.style.display = 'block';
+    }
+    
+    // 渲染对应数据
+    renderTable(tabName);
+}
+
+// 绑定Tab按钮事件
+function initTabButtons() {
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            if (tabName) {
+                switchTab(tabName);
+            }
+        });
+    });
+}
+
+// ========== 表格渲染 ==========
+const typeMap = {
+    'text': '文本',
+    'number': '数字',
+    'date': '日期',
+    'boolean': '布尔值',
+    'option': '选项'
+};
+
+const groupMap = {
+    'basic': '系统基本信息',
+    'collection': '数据采集',
+    'storage': '数据存储',
+    'security': '系统安全'
+};
+
+function renderTable(tabName) {
+    let data = SystemConfig[tabName] || [];
+    const tbody = document.getElementById(tabName + '-table-body');
+    if (!tbody) return;
+    
+    const columns = 7;
+    
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${columns}" class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p></td></tr>`;
+        return;
+    }
+    
+    let html = '';
+    data.forEach(item => {
+        html += `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.name}</td>
+                <td><span class="type-badge">${item.typeName || '-'}</span></td>
+                <td>${item.value || '-'}</td>
+                <td>${item.groupName || '-'}</td>
+                <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editConfig('${tabName}', ${item.id})">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteConfig('${tabName}', ${item.id})">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+}
+
+// ========== 全局函数暴露 ==========
+window.switchTab = switchTab;
+
+// ========== 配置表单功能 ==========
+window.showConfigForm = function(group) {
+    SystemConfig.currentEditingId = null;
+    SystemConfig.currentEditingGroup = group;
+    SystemConfig.currentConfigType = null;
+    document.getElementById('config-modal-title').textContent = '新增配置项';
+    document.getElementById('config-form').reset();
+    
+    // 设置配置分组
+    document.getElementById('config-group').value = group;
+    
+    // 重置配置值输入框
+    document.getElementById('config-value').style.display = 'block';
+    document.getElementById('config-value-select').style.display = 'none';
+    document.getElementById('config-value').type = 'text';
+    
+    document.getElementById('config-modal').classList.add('active');
+};
+
+window.editConfig = function(group, id) {
+    const item = SystemConfig[group].find(d => d.id === id);
+    if (!item) return;
+    
+    SystemConfig.currentEditingId = id;
+    SystemConfig.currentEditingGroup = group;
+    SystemConfig.currentConfigType = item.type;
+    document.getElementById('config-modal-title').textContent = '编辑配置项';
+    
+    document.getElementById('config-name').value = item.name;
+    document.getElementById('config-type').value = item.type;
+    document.getElementById('config-group').value = item.group;
+    document.getElementById('config-enabled').value = item.enabled ? 'true' : 'false';
+    document.getElementById('config-remark').value = item.remark || '';
+    
+    // 根据配置项类型设置配置值输入框
+    updateConfigValueInput();
+    
+    if (item.type === 'boolean') {
+        document.getElementById('config-value-select').value = item.value;
+    } else {
+        document.getElementById('config-value').value = item.value;
+    }
+    
+    document.getElementById('config-modal').classList.add('active');
+};
+
+window.deleteConfig = function(group, id) {
+    if (confirm('确定要删除这条配置项吗？')) {
+        SystemConfig[group] = SystemConfig[group].filter(item => item.id !== id);
+        renderTable(group);
+    }
+};
+
+window.updateConfigValueInput = function() {
+    const type = document.getElementById('config-type').value;
+    const valueInput = document.getElementById('config-value');
+    const valueSelect = document.getElementById('config-value-select');
+    
+    if (type === 'boolean') {
+        valueInput.style.display = 'none';
+        valueSelect.style.display = 'block';
+    } else {
+        valueInput.style.display = 'block';
+        valueSelect.style.display = 'none';
+        
+        if (type === 'number') {
+            valueInput.type = 'number';
+            valueInput.placeholder = '请输入数字';
+        } else if (type === 'date') {
+            valueInput.type = 'date';
+            valueInput.placeholder = '请选择日期';
+        } else {
+            valueInput.type = 'text';
+            valueInput.placeholder = '请输入配置值';
+        }
+    }
+};
+
+window.saveConfig = function(e) {
+    e.preventDefault();
+    
+    const group = SystemConfig.currentEditingGroup || document.getElementById('config-group').value;
+    const type = document.getElementById('config-type').value;
+    const typeName = typeMap[type] || '文本';
+    
+    // 获取配置值
+    let value = '';
+    if (type === 'boolean') {
+        value = document.getElementById('config-value-select').value;
+    } else {
+        value = document.getElementById('config-value').value;
+    }
+    
+    if (!value) {
+        alert('请输入配置值');
+        return;
+    }
+    
+    const data = {
+        name: document.getElementById('config-name').value,
+        type: type,
+        typeName: typeName,
+        value: value,
+        group: group,
+        groupName: groupMap[group] || group,
+        enabled: document.getElementById('config-enabled').value === 'true',
+        remark: document.getElementById('config-remark').value || ''
+    };
+    
+    // 验证配置项名称长度
+    if (data.name.length > 50) {
+        alert('配置项名称不能超过50个字符');
+        return;
+    }
+    
+    // 验证配置值长度
+    if (data.value.length > 200) {
+        alert('配置值不能超过200个字符');
+        return;
+    }
+    
+    // 验证配置说明长度
+    if (data.remark && data.remark.length > 500) {
+        alert('配置说明不能超过500个字符');
+        return;
+    }
+    
+    if (SystemConfig.currentEditingId) {
+        const index = SystemConfig[group].findIndex(d => d.id === SystemConfig.currentEditingId);
+        if (index !== -1) {
+            SystemConfig[group][index] = { ...SystemConfig[group][index], ...data };
+        }
+    } else {
+        const newId = Math.max(...SystemConfig[group].map(d => d.id), 0) + 1;
+        SystemConfig[group].push({ id: newId, ...data });
+    }
+    
+    renderTable(group);
+    window.closeConfigModal();
+};
+
+window.filterConfig = function(group) {
+    const keyword = document.getElementById('search-' + group).value.toLowerCase();
+    const filtered = SystemConfig[group].filter(item => 
+        item.name.toLowerCase().includes(keyword) || 
+        (item.value && item.value.toString().toLowerCase().includes(keyword))
+    );
+    renderFilteredTable(group, filtered);
+};
+
+window.closeConfigModal = function() {
+    document.getElementById('config-modal').classList.remove('active');
+    SystemConfig.currentEditingId = null;
+    SystemConfig.currentEditingGroup = null;
+    SystemConfig.currentConfigType = null;
+};
+
+window.exportConfig = function(group) {
+    alert('导出功能开发中...');
+};
+
+window.importConfig = function(group) {
+    alert('导入功能开发中...');
+};
+
+function renderFilteredTable(group, data) {
+    const tbody = document.getElementById(group + '-table-body');
+    if (!tbody) return;
+    
+    const columns = 7;
+    
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${columns}" class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p></td></tr>`;
+        return;
+    }
+    
+    let html = '';
+    data.forEach(item => {
+        html += `
+            <tr>
+                <td>${item.id}</td>
+                <td>${item.name}</td>
+                <td><span class="type-badge">${item.typeName || '-'}</span></td>
+                <td>${item.value || '-'}</td>
+                <td>${item.groupName || '-'}</td>
+                <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                <td class="action-cell">
+                    <a class="action-link" href="javascript:void(0)" onclick="editConfig('${group}', ${item.id})">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <a class="action-link danger" href="javascript:void(0)" onclick="deleteConfig('${group}', ${item.id})">
+                        <i class="fas fa-trash"></i> 删除
+                    </a>
+                </td>
+            </tr>
+        `;
+    });
+    
+    tbody.innerHTML = html;
+}
+
+// ========== 初始化 ==========
+function init() {
+    try {
+        initTabButtons();
+        // 渲染所有tab的数据
+        renderTable('basic');
+        renderTable('collection');
+        renderTable('storage');
+        renderTable('security');
+        
+        // 确保默认tab显示正确
+        const defaultTabContent = document.getElementById('tab-basic');
+        if (defaultTabContent) {
+            defaultTabContent.classList.add('active');
+            defaultTabContent.style.display = 'block';
+        }
+        
+        // 确保其他tab隐藏
+        document.querySelectorAll('.tab-content:not(#tab-basic)').forEach(content => {
+            content.classList.remove('active');
+            content.style.display = 'none';
+        });
+        
+        console.log('System Config initialized successfully');
+    } catch (error) {
+        console.error('Error initializing System Config:', error);
+    }
+}
+
+// 确保在iframe环境中也能正常工作
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// 备用初始化（针对iframe环境）
+setTimeout(init, 100);
+setTimeout(init, 500);
+if (window.parent !== window) {
+    window.addEventListener('load', function() {
+        setTimeout(init, 1000);
+    });
+}
+</script>
