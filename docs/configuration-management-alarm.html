@@ -1831,16 +1831,18 @@ window.filterRule = function() {
 
 window.filterRuleByType = function() {
     const type = document.getElementById('rule-type-filter').value;
-    let allRules = [
-        ...(AlarmConfig.threshold || []).map(item => ({ ...item, ruleType: 'threshold', ruleTypeName: '越限告警' })),
-        ...(AlarmConfig.statistical || []).map(item => ({ ...item, ruleType: 'statistical', ruleTypeName: '统计告警' }))
-    ];
     
-    if (type !== 'all') {
-        allRules = allRules.filter(item => item.ruleType === type);
+    if (type === 'all') {
+        renderTable('rule');
+    } else {
+        let filteredRules = [];
+        if (type === 'threshold') {
+            filteredRules = (AlarmConfig.threshold || []).map(item => ({ ...item, ruleType: 'threshold', ruleTypeName: '越限告警' }));
+        } else if (type === 'statistical') {
+            filteredRules = (AlarmConfig.statistical || []).map(item => ({ ...item, ruleType: 'statistical', ruleTypeName: '统计告警' }));
+        }
+        renderFilteredTable('rule', filteredRules);
     }
-    
-    renderTable('rule');
 };
 
 window.editRule = function(ruleType, id) {

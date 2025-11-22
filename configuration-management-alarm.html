@@ -470,22 +470,202 @@
                 <i class="fas fa-bell"></i> 告警配置
             </h2>
             <p class="page-description">
-                实现对监测的各个参数指标的越限配置和用量的限制告警配置，为能源管理系统提供告警功能支撑。
+                配置系统的告警相关参数，包括告警通知方式、告警处理流程、告警级别定义、告警规则等，为告警管理功能提供配置支撑。
             </p>
         </div>
 
         <!-- Tab导航 -->
         <div class="tab-nav">
-            <button class="tab-button active" data-tab="threshold">
-                <i class="fas fa-exclamation-triangle"></i> 越限告警配置
+            <button class="tab-button active" data-tab="notification">
+                <i class="fas fa-envelope"></i> 告警通知配置
             </button>
-            <button class="tab-button" data-tab="statistical">
-                <i class="fas fa-chart-bar"></i> 统计告警配置
+            <button class="tab-button" data-tab="workflow">
+                <i class="fas fa-project-diagram"></i> 告警处理流程配置
+            </button>
+            <button class="tab-button" data-tab="level">
+                <i class="fas fa-layer-group"></i> 告警级别定义
+            </button>
+            <button class="tab-button" data-tab="rule">
+                <i class="fas fa-cog"></i> 告警规则配置
             </button>
         </div>
 
-        <!-- 越限告警配置 -->
-        <div id="tab-threshold" class="tab-content active">
+        <!-- 告警通知配置 -->
+        <div id="tab-notification" class="tab-content active">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showNotificationForm()">
+                        <i class="fas fa-plus"></i> 新增通知配置
+                    </button>
+                    <button class="action-button secondary" onclick="exportNotification()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importNotification()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-notification" placeholder="搜索配置项名称..." oninput="filterNotification()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>配置ID</th>
+                            <th>配置项名称</th>
+                            <th>配置项类型</th>
+                            <th>配置值</th>
+                            <th>通知方式</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notification-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 告警处理流程配置 -->
+        <div id="tab-workflow" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showWorkflowForm()">
+                        <i class="fas fa-plus"></i> 新增流程配置
+                    </button>
+                    <button class="action-button secondary" onclick="exportWorkflow()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importWorkflow()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-workflow" placeholder="搜索流程名称..." oninput="filterWorkflow()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>流程ID</th>
+                            <th>流程名称</th>
+                            <th>审批级别</th>
+                            <th>审批节点数</th>
+                            <th>适用告警级别</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workflow-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 告警级别定义 -->
+        <div id="tab-level" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showLevelForm()">
+                        <i class="fas fa-plus"></i> 新增级别定义
+                    </button>
+                    <button class="action-button secondary" onclick="exportLevel()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importLevel()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-level" placeholder="搜索级别名称..." oninput="filterLevel()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>级别ID</th>
+                            <th>级别名称</th>
+                            <th>级别代码</th>
+                            <th>颜色标识</th>
+                            <th>处理优先级</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="level-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 告警规则配置（包含越限告警和统计告警） -->
+        <div id="tab-rule" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showThresholdForm()">
+                        <i class="fas fa-plus"></i> 新增越限告警
+                    </button>
+                    <button class="action-button" onclick="showStatisticalForm()">
+                        <i class="fas fa-plus"></i> 新增统计告警
+                    </button>
+                    <button class="action-button secondary" onclick="exportRule()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importRule()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-rule" placeholder="搜索规则名称..." oninput="filterRule()">
+                </div>
+            </div>
+
+            <!-- 规则类型筛选 -->
+            <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+                <label style="color: #a7bed3; font-size: 14px;">规则类型：</label>
+                <select class="form-select" id="rule-type-filter" onchange="filterRuleByType()" style="width: 200px;">
+                    <option value="all">全部</option>
+                    <option value="threshold">越限告警</option>
+                    <option value="statistical">统计告警</option>
+                </select>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>规则ID</th>
+                            <th>规则类型</th>
+                            <th>规则名称</th>
+                            <th>监测对象</th>
+                            <th>告警条件</th>
+                            <th>告警级别</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rule-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 越限告警配置（已整合到告警规则配置中，保留以便兼容） -->
+        <div id="tab-threshold" class="tab-content" style="display: none !important;">
             <div class="action-bar">
                 <div class="action-group">
                     <button class="action-button" onclick="showThresholdForm()">
@@ -732,12 +912,318 @@
         </div>
     </div>
 
+    <!-- 告警通知配置模态框 -->
+    <div class="modal-overlay" id="notification-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-envelope"></i> <span id="notification-modal-title">新增通知配置</span>
+                </h3>
+                <button class="modal-close" onclick="closeNotificationModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="notification-form" onsubmit="saveNotification(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">配置项名称</label>
+                            <input type="text" class="form-input" id="notification-name" required maxlength="50" placeholder="如：邮件通知配置">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">配置项类型</label>
+                            <select class="form-select" id="notification-type" required>
+                                <option value="">请选择类型</option>
+                                <option value="email">邮件</option>
+                                <option value="sms">短信</option>
+                                <option value="system">系统消息</option>
+                                <option value="combined">组合通知</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label required">通知方式</label>
+                            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                                <label style="display: flex; align-items: center; gap: 5px; color: #a7bed3; cursor: pointer;">
+                                    <input type="checkbox" id="notification-method-email" value="email" style="cursor: pointer;">
+                                    <span>邮件</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 5px; color: #a7bed3; cursor: pointer;">
+                                    <input type="checkbox" id="notification-method-sms" value="sms" style="cursor: pointer;">
+                                    <span>短信</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 5px; color: #a7bed3; cursor: pointer;">
+                                    <input type="checkbox" id="notification-method-system" value="system" style="cursor: pointer;">
+                                    <span>系统消息</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label required">配置值</label>
+                            <input type="text" class="form-input" id="notification-value" required maxlength="200" placeholder="如：smtp.example.com:587 或 短信网关地址">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">启用状态</label>
+                            <select class="form-select" id="notification-enabled" required>
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">配置说明</label>
+                            <textarea class="form-textarea" id="notification-remark" maxlength="500" placeholder="请输入配置说明（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeNotificationModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 告警处理流程配置模态框 -->
+    <div class="modal-overlay" id="workflow-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-project-diagram"></i> <span id="workflow-modal-title">新增流程配置</span>
+                </h3>
+                <button class="modal-close" onclick="closeWorkflowModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="workflow-form" onsubmit="saveWorkflow(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">流程名称</label>
+                            <input type="text" class="form-input" id="workflow-name" required maxlength="50" placeholder="如：严重告警处理流程">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">审批级别</label>
+                            <select class="form-select" id="workflow-level" required>
+                                <option value="">请选择级别</option>
+                                <option value="0">0级（无需审批）</option>
+                                <option value="1">1级审批</option>
+                                <option value="2">2级审批</option>
+                                <option value="3">3级审批</option>
+                                <option value="4">4级审批</option>
+                                <option value="5">5级审批</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">审批节点数</label>
+                            <input type="number" class="form-input" id="workflow-node-count" required min="0" max="5" placeholder="如：2">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">适用告警级别</label>
+                            <select class="form-select" id="workflow-alarm-level" required>
+                                <option value="">请选择级别</option>
+                                <option value="critical">严重</option>
+                                <option value="warning">警告</option>
+                                <option value="info">信息</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">启用状态</label>
+                            <select class="form-select" id="workflow-enabled" required>
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">流程说明</label>
+                            <textarea class="form-textarea" id="workflow-remark" maxlength="500" placeholder="请输入流程说明（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeWorkflowModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 告警级别定义模态框 -->
+    <div class="modal-overlay" id="level-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-layer-group"></i> <span id="level-modal-title">新增级别定义</span>
+                </h3>
+                <button class="modal-close" onclick="closeLevelModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="level-form" onsubmit="saveLevel(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">级别名称</label>
+                            <input type="text" class="form-input" id="level-name" required maxlength="50" placeholder="如：严重">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">级别代码</label>
+                            <input type="text" class="form-input" id="level-code" required maxlength="50" placeholder="如：critical">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">颜色标识</label>
+                            <input type="color" class="form-input" id="level-color" required value="#f44336" style="height: 40px; cursor: pointer;">
+                            <select class="form-select" id="level-color-preset" style="margin-top: 10px;" onchange="updateLevelColor()">
+                                <option value="">选择预设颜色</option>
+                                <option value="#f44336">红色（严重）</option>
+                                <option value="#ff9800">橙色（警告）</option>
+                                <option value="#2196f3">蓝色（提示）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">处理优先级</label>
+                            <input type="number" class="form-input" id="level-priority" required min="1" max="10" placeholder="如：1">
+                            <small style="color: #a7bed3; font-size: 12px; margin-top: 5px; display: block;">数字越小优先级越高</small>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">启用状态</label>
+                            <select class="form-select" id="level-enabled" required>
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">级别说明</label>
+                            <textarea class="form-textarea" id="level-remark" maxlength="500" placeholder="请输入级别说明（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeLevelModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
 // ========== 全局数据 ==========
 const AlarmConfig = {
     currentEditingId: null,
+    currentEditingType: null, // 当前编辑的类型：notification, workflow, level, threshold, statistical
+    // 告警通知配置
+    notification: [
+        { 
+            id: 1, 
+            name: '邮件通知配置', 
+            type: 'email', 
+            typeName: '邮件',
+            value: 'smtp.example.com:587', 
+            methods: ['email'], 
+            methodsName: '邮件',
+            enabled: true, 
+            remark: '系统邮件通知配置' 
+        },
+        { 
+            id: 2, 
+            name: '短信通知配置', 
+            type: 'sms', 
+            typeName: '短信',
+            value: 'sms.gateway.com', 
+            methods: ['sms'], 
+            methodsName: '短信',
+            enabled: true, 
+            remark: '短信网关配置' 
+        },
+        { 
+            id: 3, 
+            name: '系统消息配置', 
+            type: 'system', 
+            typeName: '系统消息',
+            value: 'ws://system.example.com', 
+            methods: ['system'], 
+            methodsName: '系统消息',
+            enabled: true, 
+            remark: '系统消息推送配置' 
+        },
+        { 
+            id: 4, 
+            name: '组合通知配置', 
+            type: 'combined', 
+            typeName: '组合通知',
+            value: 'email,sms,system', 
+            methods: ['email', 'sms', 'system'], 
+            methodsName: '邮件、短信、系统消息',
+            enabled: true, 
+            remark: '多渠道组合通知配置' 
+        }
+    ],
+    // 告警处理流程配置
+    workflow: [
+        { 
+            id: 1, 
+            name: '严重告警处理流程', 
+            level: 2, 
+            nodeCount: 2, 
+            alarmLevel: 'critical', 
+            alarmLevelName: '严重',
+            enabled: true, 
+            remark: '严重告警需要两级审批' 
+        },
+        { 
+            id: 2, 
+            name: '警告告警处理流程', 
+            level: 1, 
+            nodeCount: 1, 
+            alarmLevel: 'warning', 
+            alarmLevelName: '警告',
+            enabled: true, 
+            remark: '警告告警需要一级审批' 
+        },
+        { 
+            id: 3, 
+            name: '信息告警处理流程', 
+            level: 0, 
+            nodeCount: 0, 
+            alarmLevel: 'info', 
+            alarmLevelName: '信息',
+            enabled: true, 
+            remark: '信息告警无需审批，直接记录' 
+        }
+    ],
+    // 告警级别定义
+    level: [
+        { 
+            id: 1, 
+            name: '严重', 
+            code: 'critical', 
+            color: '#f44336', 
+            colorName: '红色',
+            priority: 1, 
+            enabled: true, 
+            remark: '严重告警，需要立即处理' 
+        },
+        { 
+            id: 2, 
+            name: '警告', 
+            code: 'warning', 
+            color: '#ff9800', 
+            colorName: '橙色',
+            priority: 2, 
+            enabled: true, 
+            remark: '警告告警，需要及时处理' 
+        },
+        { 
+            id: 3, 
+            name: '提示', 
+            code: 'info', 
+            color: '#2196f3', 
+            colorName: '蓝色',
+            priority: 3, 
+            enabled: true, 
+            remark: '信息告警，仅作记录' 
+        }
+    ],
     threshold: [
         { 
             id: 1, 
@@ -929,7 +1415,28 @@ const comparisonMap = {
 function renderTable(tabName) {
     let data, tbody, columns;
     
-    if (tabName === 'threshold') {
+    if (tabName === 'notification') {
+        data = AlarmConfig.notification || [];
+        tbody = document.getElementById('notification-table-body');
+        columns = 7;
+    } else if (tabName === 'workflow') {
+        data = AlarmConfig.workflow || [];
+        tbody = document.getElementById('workflow-table-body');
+        columns = 7;
+    } else if (tabName === 'level') {
+        data = AlarmConfig.level || [];
+        tbody = document.getElementById('level-table-body');
+        columns = 7;
+    } else if (tabName === 'rule') {
+        // 整合越限告警和统计告警
+        const allRules = [
+            ...(AlarmConfig.threshold || []).map(item => ({ ...item, ruleType: 'threshold', ruleTypeName: '越限告警' })),
+            ...(AlarmConfig.statistical || []).map(item => ({ ...item, ruleType: 'statistical', ruleTypeName: '统计告警' }))
+        ];
+        data = allRules;
+        tbody = document.getElementById('rule-table-body');
+        columns = 8;
+    } else if (tabName === 'threshold') {
         data = AlarmConfig.threshold || [];
         tbody = document.getElementById('threshold-table-body');
         columns = 9;
@@ -949,7 +1456,102 @@ function renderTable(tabName) {
     }
     
     let html = '';
-    if (tabName === 'threshold') {
+    if (tabName === 'notification') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.typeName || '-'}</td>
+                    <td>${item.value || '-'}</td>
+                    <td>${item.methodsName || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editNotification(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteNotification(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'workflow') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.level || '-'}</td>
+                    <td>${item.nodeCount || '-'}</td>
+                    <td>${item.alarmLevelName || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editWorkflow(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteWorkflow(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'level') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.code}</td>
+                    <td><span style="display: inline-block; width: 60px; height: 20px; background-color: ${item.color}; border-radius: 4px;"></span> ${item.colorName}</td>
+                    <td>${item.priority || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editLevel(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteLevel(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'rule') {
+        data.forEach(item => {
+            const condition = item.ruleType === 'threshold' 
+                ? `上限: ${item.upperLimit || '-'}, 下限: ${item.lowerLimit || '-'}`
+                : `${item.comparisonName || '-'} ${item.limit || '-'}`;
+            const ruleName = item.ruleType === 'threshold' 
+                ? (item.parameterName || '-')
+                : (item.indicatorName || '-');
+            const monitorObject = item.ruleType === 'threshold' 
+                ? (item.equipmentName || '-')
+                : (item.typeName || '-');
+            
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.ruleTypeName || '-'}</td>
+                    <td>${ruleName}</td>
+                    <td>${monitorObject}</td>
+                    <td>${condition}</td>
+                    <td>${item.levelName || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editRule('${item.ruleType}', ${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteRule('${item.ruleType}', ${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'threshold') {
         data.forEach(item => {
             html += `
                 <tr>
@@ -1053,6 +1655,7 @@ window.deleteThreshold = function(id) {
     if (confirm('确定要删除这条越限告警配置吗？')) {
         AlarmConfig.threshold = AlarmConfig.threshold.filter(item => item.id !== id);
         renderTable('threshold');
+        renderTable('rule'); // 同时更新规则配置Tab
     }
 };
 
@@ -1091,6 +1694,7 @@ window.saveThreshold = function(e) {
     }
     
     renderTable('threshold');
+    renderTable('rule'); // 同时更新规则配置Tab
     window.closeThresholdModal();
 };
 
@@ -1146,6 +1750,7 @@ window.deleteStatistical = function(id) {
     if (confirm('确定要删除这条统计告警配置吗？')) {
         AlarmConfig.statistical = AlarmConfig.statistical.filter(item => item.id !== id);
         renderTable('statistical');
+        renderTable('rule'); // 同时更新规则配置Tab
     }
 };
 
@@ -1183,6 +1788,7 @@ window.saveStatistical = function(e) {
     }
     
     renderTable('statistical');
+    renderTable('rule'); // 同时更新规则配置Tab
     window.closeStatisticalModal();
 };
 
@@ -1205,6 +1811,372 @@ window.exportStatistical = function() {
 };
 
 window.importStatistical = function() {
+    alert('导入功能开发中...');
+};
+
+// ========== 告警规则配置功能（整合越限告警和统计告警）==========
+window.filterRule = function() {
+    const keyword = document.getElementById('search-rule').value.toLowerCase();
+    const allRules = [
+        ...(AlarmConfig.threshold || []).map(item => ({ ...item, ruleType: 'threshold', ruleTypeName: '越限告警' })),
+        ...(AlarmConfig.statistical || []).map(item => ({ ...item, ruleType: 'statistical', ruleTypeName: '统计告警' }))
+    ];
+    const filtered = allRules.filter(item => {
+        const ruleName = item.ruleType === 'threshold' ? (item.parameterName || '') : (item.indicatorName || '');
+        return ruleName.toLowerCase().includes(keyword) || 
+               (item.ruleTypeName && item.ruleTypeName.toLowerCase().includes(keyword));
+    });
+    renderFilteredTable('rule', filtered);
+};
+
+window.filterRuleByType = function() {
+    const type = document.getElementById('rule-type-filter').value;
+    
+    if (type === 'all') {
+        renderTable('rule');
+    } else {
+        let filteredRules = [];
+        if (type === 'threshold') {
+            filteredRules = (AlarmConfig.threshold || []).map(item => ({ ...item, ruleType: 'threshold', ruleTypeName: '越限告警' }));
+        } else if (type === 'statistical') {
+            filteredRules = (AlarmConfig.statistical || []).map(item => ({ ...item, ruleType: 'statistical', ruleTypeName: '统计告警' }));
+        }
+        renderFilteredTable('rule', filteredRules);
+    }
+};
+
+window.editRule = function(ruleType, id) {
+    if (ruleType === 'threshold') {
+        window.editThreshold(id);
+    } else if (ruleType === 'statistical') {
+        window.editStatistical(id);
+    }
+};
+
+window.deleteRule = function(ruleType, id) {
+    if (ruleType === 'threshold') {
+        window.deleteThreshold(id);
+        renderTable('rule');
+    } else if (ruleType === 'statistical') {
+        window.deleteStatistical(id);
+        renderTable('rule');
+    }
+};
+
+window.exportRule = function() {
+    alert('导出功能开发中...');
+};
+
+window.importRule = function() {
+    alert('导入功能开发中...');
+};
+
+// ========== 告警通知配置功能 ==========
+window.showNotificationForm = function() {
+    AlarmConfig.currentEditingId = null;
+    AlarmConfig.currentEditingType = 'notification';
+    document.getElementById('notification-modal-title').textContent = '新增通知配置';
+    document.getElementById('notification-form').reset();
+    document.getElementById('notification-modal').classList.add('active');
+};
+
+window.editNotification = function(id) {
+    const item = AlarmConfig.notification.find(d => d.id === id);
+    if (!item) return;
+    
+    AlarmConfig.currentEditingId = id;
+    AlarmConfig.currentEditingType = 'notification';
+    document.getElementById('notification-modal-title').textContent = '编辑通知配置';
+    
+    document.getElementById('notification-name').value = item.name;
+    document.getElementById('notification-type').value = item.type;
+    document.getElementById('notification-value').value = item.value;
+    document.getElementById('notification-enabled').value = item.enabled ? 'true' : 'false';
+    document.getElementById('notification-remark').value = item.remark || '';
+    
+    // 设置通知方式复选框
+    document.getElementById('notification-method-email').checked = item.methods && item.methods.includes('email');
+    document.getElementById('notification-method-sms').checked = item.methods && item.methods.includes('sms');
+    document.getElementById('notification-method-system').checked = item.methods && item.methods.includes('system');
+    
+    document.getElementById('notification-modal').classList.add('active');
+};
+
+window.deleteNotification = function(id) {
+    if (confirm('确定要删除这条通知配置吗？')) {
+        AlarmConfig.notification = AlarmConfig.notification.filter(item => item.id !== id);
+        renderTable('notification');
+    }
+};
+
+window.saveNotification = function(e) {
+    e.preventDefault();
+    
+    const methods = [];
+    if (document.getElementById('notification-method-email').checked) methods.push('email');
+    if (document.getElementById('notification-method-sms').checked) methods.push('sms');
+    if (document.getElementById('notification-method-system').checked) methods.push('system');
+    
+    if (methods.length === 0) {
+        alert('请至少选择一种通知方式');
+        return;
+    }
+    
+    const type = document.getElementById('notification-type').value;
+    const typeNameMap = {
+        'email': '邮件',
+        'sms': '短信',
+        'system': '系统消息',
+        'combined': '组合通知'
+    };
+    
+    const methodsNameMap = {
+        'email': '邮件',
+        'sms': '短信',
+        'system': '系统消息'
+    };
+    
+    const methodsName = methods.map(m => methodsNameMap[m]).join('、');
+    
+    const data = {
+        name: document.getElementById('notification-name').value,
+        type: type,
+        typeName: typeNameMap[type] || '其他',
+        value: document.getElementById('notification-value').value,
+        methods: methods,
+        methodsName: methodsName,
+        enabled: document.getElementById('notification-enabled').value === 'true',
+        remark: document.getElementById('notification-remark').value || ''
+    };
+    
+    if (AlarmConfig.currentEditingId) {
+        const index = AlarmConfig.notification.findIndex(d => d.id === AlarmConfig.currentEditingId);
+        if (index !== -1) {
+            AlarmConfig.notification[index] = { ...AlarmConfig.notification[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...AlarmConfig.notification.map(d => d.id), 0) + 1;
+        AlarmConfig.notification.push({ id: newId, ...data });
+    }
+    
+    renderTable('notification');
+    window.closeNotificationModal();
+};
+
+window.filterNotification = function() {
+    const keyword = document.getElementById('search-notification').value.toLowerCase();
+    const filtered = AlarmConfig.notification.filter(item => 
+        item.name.toLowerCase().includes(keyword) || 
+        (item.typeName && item.typeName.toLowerCase().includes(keyword))
+    );
+    renderFilteredTable('notification', filtered);
+};
+
+window.closeNotificationModal = function() {
+    document.getElementById('notification-modal').classList.remove('active');
+    AlarmConfig.currentEditingId = null;
+    AlarmConfig.currentEditingType = null;
+};
+
+window.exportNotification = function() {
+    alert('导出功能开发中...');
+};
+
+window.importNotification = function() {
+    alert('导入功能开发中...');
+};
+
+// ========== 告警处理流程配置功能 ==========
+window.showWorkflowForm = function() {
+    AlarmConfig.currentEditingId = null;
+    AlarmConfig.currentEditingType = 'workflow';
+    document.getElementById('workflow-modal-title').textContent = '新增流程配置';
+    document.getElementById('workflow-form').reset();
+    document.getElementById('workflow-modal').classList.add('active');
+};
+
+window.editWorkflow = function(id) {
+    const item = AlarmConfig.workflow.find(d => d.id === id);
+    if (!item) return;
+    
+    AlarmConfig.currentEditingId = id;
+    AlarmConfig.currentEditingType = 'workflow';
+    document.getElementById('workflow-modal-title').textContent = '编辑流程配置';
+    
+    document.getElementById('workflow-name').value = item.name;
+    document.getElementById('workflow-level').value = item.level;
+    document.getElementById('workflow-node-count').value = item.nodeCount;
+    document.getElementById('workflow-alarm-level').value = item.alarmLevel;
+    document.getElementById('workflow-enabled').value = item.enabled ? 'true' : 'false';
+    document.getElementById('workflow-remark').value = item.remark || '';
+    
+    document.getElementById('workflow-modal').classList.add('active');
+};
+
+window.deleteWorkflow = function(id) {
+    if (confirm('确定要删除这条流程配置吗？')) {
+        AlarmConfig.workflow = AlarmConfig.workflow.filter(item => item.id !== id);
+        renderTable('workflow');
+    }
+};
+
+window.saveWorkflow = function(e) {
+    e.preventDefault();
+    
+    const alarmLevel = document.getElementById('workflow-alarm-level').value;
+    const alarmLevelNameMap = {
+        'critical': '严重',
+        'warning': '警告',
+        'info': '信息'
+    };
+    
+    const data = {
+        name: document.getElementById('workflow-name').value,
+        level: parseInt(document.getElementById('workflow-level').value),
+        nodeCount: parseInt(document.getElementById('workflow-node-count').value),
+        alarmLevel: alarmLevel,
+        alarmLevelName: alarmLevelNameMap[alarmLevel] || '信息',
+        enabled: document.getElementById('workflow-enabled').value === 'true',
+        remark: document.getElementById('workflow-remark').value || ''
+    };
+    
+    if (AlarmConfig.currentEditingId) {
+        const index = AlarmConfig.workflow.findIndex(d => d.id === AlarmConfig.currentEditingId);
+        if (index !== -1) {
+            AlarmConfig.workflow[index] = { ...AlarmConfig.workflow[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...AlarmConfig.workflow.map(d => d.id), 0) + 1;
+        AlarmConfig.workflow.push({ id: newId, ...data });
+    }
+    
+    renderTable('workflow');
+    window.closeWorkflowModal();
+};
+
+window.filterWorkflow = function() {
+    const keyword = document.getElementById('search-workflow').value.toLowerCase();
+    const filtered = AlarmConfig.workflow.filter(item => 
+        item.name.toLowerCase().includes(keyword)
+    );
+    renderFilteredTable('workflow', filtered);
+};
+
+window.closeWorkflowModal = function() {
+    document.getElementById('workflow-modal').classList.remove('active');
+    AlarmConfig.currentEditingId = null;
+    AlarmConfig.currentEditingType = null;
+};
+
+window.exportWorkflow = function() {
+    alert('导出功能开发中...');
+};
+
+window.importWorkflow = function() {
+    alert('导入功能开发中...');
+};
+
+// ========== 告警级别定义功能 ==========
+const colorNameMap = {
+    '#f44336': '红色',
+    '#ff9800': '橙色',
+    '#2196f3': '蓝色',
+    '#4caf50': '绿色',
+    '#9c27b0': '紫色',
+    '#00bcd4': '青色'
+};
+
+window.updateLevelColor = function() {
+    const preset = document.getElementById('level-color-preset').value;
+    if (preset) {
+        document.getElementById('level-color').value = preset;
+    }
+};
+
+window.showLevelForm = function() {
+    AlarmConfig.currentEditingId = null;
+    AlarmConfig.currentEditingType = 'level';
+    document.getElementById('level-modal-title').textContent = '新增级别定义';
+    document.getElementById('level-form').reset();
+    document.getElementById('level-color').value = '#f44336';
+    document.getElementById('level-modal').classList.add('active');
+};
+
+window.editLevel = function(id) {
+    const item = AlarmConfig.level.find(d => d.id === id);
+    if (!item) return;
+    
+    AlarmConfig.currentEditingId = id;
+    AlarmConfig.currentEditingType = 'level';
+    document.getElementById('level-modal-title').textContent = '编辑级别定义';
+    
+    document.getElementById('level-name').value = item.name;
+    document.getElementById('level-code').value = item.code;
+    document.getElementById('level-color').value = item.color;
+    document.getElementById('level-priority').value = item.priority;
+    document.getElementById('level-enabled').value = item.enabled ? 'true' : 'false';
+    document.getElementById('level-remark').value = item.remark || '';
+    
+    document.getElementById('level-modal').classList.add('active');
+};
+
+window.deleteLevel = function(id) {
+    if (confirm('确定要删除这条级别定义吗？')) {
+        AlarmConfig.level = AlarmConfig.level.filter(item => item.id !== id);
+        renderTable('level');
+    }
+};
+
+window.saveLevel = function(e) {
+    e.preventDefault();
+    
+    const color = document.getElementById('level-color').value;
+    const colorName = colorNameMap[color] || '自定义颜色';
+    
+    const data = {
+        name: document.getElementById('level-name').value,
+        code: document.getElementById('level-code').value,
+        color: color,
+        colorName: colorName,
+        priority: parseInt(document.getElementById('level-priority').value),
+        enabled: document.getElementById('level-enabled').value === 'true',
+        remark: document.getElementById('level-remark').value || ''
+    };
+    
+    if (AlarmConfig.currentEditingId) {
+        const index = AlarmConfig.level.findIndex(d => d.id === AlarmConfig.currentEditingId);
+        if (index !== -1) {
+            AlarmConfig.level[index] = { ...AlarmConfig.level[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...AlarmConfig.level.map(d => d.id), 0) + 1;
+        AlarmConfig.level.push({ id: newId, ...data });
+    }
+    
+    renderTable('level');
+    window.closeLevelModal();
+};
+
+window.filterLevel = function() {
+    const keyword = document.getElementById('search-level').value.toLowerCase();
+    const filtered = AlarmConfig.level.filter(item => 
+        item.name.toLowerCase().includes(keyword) || 
+        (item.code && item.code.toLowerCase().includes(keyword))
+    );
+    renderFilteredTable('level', filtered);
+};
+
+window.closeLevelModal = function() {
+    document.getElementById('level-modal').classList.remove('active');
+    AlarmConfig.currentEditingId = null;
+    AlarmConfig.currentEditingType = null;
+};
+
+window.exportLevel = function() {
+    alert('导出功能开发中...');
+};
+
+window.importLevel = function() {
     alert('导入功能开发中...');
 };
 
@@ -1287,18 +2259,22 @@ function init() {
     try {
         initTabButtons();
         // 渲染所有tab的数据
+        renderTable('notification');
+        renderTable('workflow');
+        renderTable('level');
+        renderTable('rule');
         renderTable('threshold');
         renderTable('statistical');
         
         // 确保默认tab显示正确
-        const defaultTabContent = document.getElementById('tab-threshold');
+        const defaultTabContent = document.getElementById('tab-notification');
         if (defaultTabContent) {
             defaultTabContent.classList.add('active');
             defaultTabContent.style.display = 'block';
         }
         
         // 确保其他tab隐藏
-        document.querySelectorAll('.tab-content:not(#tab-threshold)').forEach(content => {
+        document.querySelectorAll('.tab-content:not(#tab-notification)').forEach(content => {
             content.classList.remove('active');
             content.style.display = 'none';
         });
