@@ -1310,6 +1310,64 @@
 </div>
 
 <script>
+// 立即暴露关键函数到全局作用域，确保onclick可以访问
+(function() {
+    // 占位函数，防止onclick时函数未定义
+    window.switchTab = function(tab, event) {
+        console.log('switchTab called before initialization, tab:', tab);
+        // 如果主函数还未定义，延迟执行
+        setTimeout(function() {
+            if (window._switchTabImpl) {
+                window._switchTabImpl(tab, event);
+            } else {
+                console.error('switchTab implementation not ready');
+            }
+        }, 100);
+    };
+    
+    window.showFactoryForm = function() {
+        if (window._showFactoryFormImpl) {
+            window._showFactoryFormImpl();
+        } else {
+            console.error('showFactoryForm not ready');
+        }
+    };
+    
+    window.exportFactory = function() {
+        if (window._exportFactoryImpl) {
+            window._exportFactoryImpl();
+        } else {
+            alert('导出功能开发中...');
+        }
+    };
+    
+    window.importFactory = function() {
+        if (window._importFactoryImpl) {
+            window._importFactoryImpl();
+        } else {
+            alert('导入功能开发中...');
+        }
+    };
+    
+    window.filterFactory = function() {
+        if (window._filterFactoryImpl) {
+            window._filterFactoryImpl();
+        }
+    };
+    
+    window.editFactory = function(id) {
+        if (window._editFactoryImpl) {
+            window._editFactoryImpl(id);
+        }
+    };
+    
+    window.deleteFactory = function(id) {
+        if (window._deleteFactoryImpl) {
+            window._deleteFactoryImpl(id);
+        }
+    };
+})();
+
 (function() {
     // 从localStorage加载ECC数据
     function loadECCData() {
@@ -1400,7 +1458,8 @@
     let currentTab = 'factory';
 
     // Tab切换 - 确保在iframe环境中也能正常工作
-    window.switchTab = function(tab, event) {
+    // 实现函数并保存到全局
+    window._switchTabImpl = function(tab, event) {
         try {
             // 更新Tab按钮状态
             const allButtons = document.querySelectorAll('.tab-button');
@@ -1494,16 +1553,8 @@
         }
     };
     
-    // switchTab函数已经定义为window.switchTab，确保在iframe环境中全局可用
-    // 函数已经在上面定义，这里确保它可用
-    if (typeof window !== 'undefined') {
-        // 确保switchTab在全局作用域中
-        if (!window.switchTab) {
-            window.switchTab = function(tab, event) {
-                console.error('switchTab function not found');
-            };
-        }
-    }
+    // 更新window.switchTab为实际实现
+    window.switchTab = window._switchTabImpl;
 
     // 通用分页渲染函数
     function renderPagination(tabName, totalRecords, startRecord, endRecord) {
@@ -2402,8 +2453,10 @@
     };
 
     // 导出/导入函数（占位）
-    window.exportFactory = function() { alert('导出功能开发中...'); };
-    window.importFactory = function() { alert('导入功能开发中...'); };
+    window._exportFactoryImpl = function() { alert('导出功能开发中...'); };
+    window._importFactoryImpl = function() { alert('导入功能开发中...'); };
+    window.exportFactory = window._exportFactoryImpl;
+    window.importFactory = window._importFactoryImpl;
     window.exportWorkshop = function() { alert('导出功能开发中...'); };
     window.importWorkshop = function() { alert('导入功能开发中...'); };
     window.exportProductionLine = function() { alert('导出功能开发中...'); };
@@ -2538,20 +2591,21 @@
     }
 
     // 厂区相关函数（占位，需要完整实现）
-    window.showFactoryForm = function() {
+    window._showFactoryFormImpl = function() {
         currentEditingId = null;
         document.getElementById('factory-modal-title').textContent = '新增厂区';
         document.getElementById('factory-form').reset();
         updateECCOptions('factory-ecc', 'company');
         document.getElementById('factory-modal').classList.add('active');
     };
+    window.showFactoryForm = window._showFactoryFormImpl;
 
     window.closeFactoryModal = function() {
         document.getElementById('factory-modal').classList.remove('active');
         currentEditingId = null;
     };
 
-    window.editFactory = function(id) {
+    window._editFactoryImpl = function(id) {
         const item = factoryData.find(d => d.id === id);
         if (!item) return;
         currentEditingId = id;
@@ -2565,13 +2619,15 @@
         document.getElementById('factory-description').value = item.description || '';
         document.getElementById('factory-modal').classList.add('active');
     };
+    window.editFactory = window._editFactoryImpl;
 
-    window.deleteFactory = function(id) {
+    window._deleteFactoryImpl = function(id) {
         if (confirm('确定要删除这个厂区吗？删除后相关的车间、产线等数据也会受影响。')) {
             factoryData = factoryData.filter(d => d.id !== id);
             renderFactoryTable();
         }
     };
+    window.deleteFactory = window._deleteFactoryImpl;
 
     window.saveFactory = function(e) {
         e.preventDefault();
@@ -2607,7 +2663,7 @@
         closeFactoryModal();
     };
 
-    window.filterFactory = function() {
+    window._filterFactoryImpl = function() {
         const keyword = document.getElementById('search-factory').value.toLowerCase();
         const filtered = factoryData.filter(item => 
             item.code.toLowerCase().includes(keyword) ||
@@ -2616,6 +2672,7 @@
         );
         renderFactoryTable(filtered);
     };
+    window.filterFactory = window._filterFactoryImpl;
 
     // 车间、产线、工艺、工序、设备相关函数（类似实现，这里先占位）
     window.showWorkshopForm = function() {
