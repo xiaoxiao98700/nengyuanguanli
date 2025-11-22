@@ -470,22 +470,202 @@
                 <i class="fas fa-bell"></i> 告警配置
             </h2>
             <p class="page-description">
-                实现对监测的各个参数指标的越限配置和用量的限制告警配置，为能源管理系统提供告警功能支撑。
+                配置系统的告警相关参数，包括告警通知方式、告警处理流程、告警级别定义、告警规则等，为告警管理功能提供配置支撑。
             </p>
         </div>
 
         <!-- Tab导航 -->
         <div class="tab-nav">
-            <button class="tab-button active" data-tab="threshold">
-                <i class="fas fa-exclamation-triangle"></i> 越限告警配置
+            <button class="tab-button active" data-tab="notification">
+                <i class="fas fa-envelope"></i> 告警通知配置
             </button>
-            <button class="tab-button" data-tab="statistical">
-                <i class="fas fa-chart-bar"></i> 统计告警配置
+            <button class="tab-button" data-tab="workflow">
+                <i class="fas fa-project-diagram"></i> 告警处理流程配置
+            </button>
+            <button class="tab-button" data-tab="level">
+                <i class="fas fa-layer-group"></i> 告警级别定义
+            </button>
+            <button class="tab-button" data-tab="rule">
+                <i class="fas fa-cog"></i> 告警规则配置
             </button>
         </div>
 
-        <!-- 越限告警配置 -->
-        <div id="tab-threshold" class="tab-content active">
+        <!-- 告警通知配置 -->
+        <div id="tab-notification" class="tab-content active">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showNotificationForm()">
+                        <i class="fas fa-plus"></i> 新增通知配置
+                    </button>
+                    <button class="action-button secondary" onclick="exportNotification()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importNotification()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-notification" placeholder="搜索配置项名称..." oninput="filterNotification()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>配置ID</th>
+                            <th>配置项名称</th>
+                            <th>配置项类型</th>
+                            <th>配置值</th>
+                            <th>通知方式</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notification-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 告警处理流程配置 -->
+        <div id="tab-workflow" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showWorkflowForm()">
+                        <i class="fas fa-plus"></i> 新增流程配置
+                    </button>
+                    <button class="action-button secondary" onclick="exportWorkflow()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importWorkflow()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-workflow" placeholder="搜索流程名称..." oninput="filterWorkflow()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>流程ID</th>
+                            <th>流程名称</th>
+                            <th>审批级别</th>
+                            <th>审批节点数</th>
+                            <th>适用告警级别</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workflow-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 告警级别定义 -->
+        <div id="tab-level" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showLevelForm()">
+                        <i class="fas fa-plus"></i> 新增级别定义
+                    </button>
+                    <button class="action-button secondary" onclick="exportLevel()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importLevel()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-level" placeholder="搜索级别名称..." oninput="filterLevel()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>级别ID</th>
+                            <th>级别名称</th>
+                            <th>级别代码</th>
+                            <th>颜色标识</th>
+                            <th>处理优先级</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="level-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 告警规则配置（包含越限告警和统计告警） -->
+        <div id="tab-rule" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showThresholdForm()">
+                        <i class="fas fa-plus"></i> 新增越限告警
+                    </button>
+                    <button class="action-button" onclick="showStatisticalForm()">
+                        <i class="fas fa-plus"></i> 新增统计告警
+                    </button>
+                    <button class="action-button secondary" onclick="exportRule()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importRule()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-rule" placeholder="搜索规则名称..." oninput="filterRule()">
+                </div>
+            </div>
+
+            <!-- 规则类型筛选 -->
+            <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+                <label style="color: #a7bed3; font-size: 14px;">规则类型：</label>
+                <select class="form-select" id="rule-type-filter" onchange="filterRuleByType()" style="width: 200px;">
+                    <option value="all">全部</option>
+                    <option value="threshold">越限告警</option>
+                    <option value="statistical">统计告警</option>
+                </select>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>规则ID</th>
+                            <th>规则类型</th>
+                            <th>规则名称</th>
+                            <th>监测对象</th>
+                            <th>告警条件</th>
+                            <th>告警级别</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rule-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 越限告警配置（已整合到告警规则配置中，保留以便兼容） -->
+        <div id="tab-threshold" class="tab-content" style="display: none !important;">
             <div class="action-bar">
                 <div class="action-group">
                     <button class="action-button" onclick="showThresholdForm()">
@@ -738,6 +918,120 @@
 // ========== 全局数据 ==========
 const AlarmConfig = {
     currentEditingId: null,
+    currentEditingType: null, // 当前编辑的类型：notification, workflow, level, threshold, statistical
+    // 告警通知配置
+    notification: [
+        { 
+            id: 1, 
+            name: '邮件通知配置', 
+            type: 'email', 
+            typeName: '邮件',
+            value: 'smtp.example.com:587', 
+            methods: ['email'], 
+            methodsName: '邮件',
+            enabled: true, 
+            remark: '系统邮件通知配置' 
+        },
+        { 
+            id: 2, 
+            name: '短信通知配置', 
+            type: 'sms', 
+            typeName: '短信',
+            value: 'sms.gateway.com', 
+            methods: ['sms'], 
+            methodsName: '短信',
+            enabled: true, 
+            remark: '短信网关配置' 
+        },
+        { 
+            id: 3, 
+            name: '系统消息配置', 
+            type: 'system', 
+            typeName: '系统消息',
+            value: 'ws://system.example.com', 
+            methods: ['system'], 
+            methodsName: '系统消息',
+            enabled: true, 
+            remark: '系统消息推送配置' 
+        },
+        { 
+            id: 4, 
+            name: '组合通知配置', 
+            type: 'combined', 
+            typeName: '组合通知',
+            value: 'email,sms,system', 
+            methods: ['email', 'sms', 'system'], 
+            methodsName: '邮件、短信、系统消息',
+            enabled: true, 
+            remark: '多渠道组合通知配置' 
+        }
+    ],
+    // 告警处理流程配置
+    workflow: [
+        { 
+            id: 1, 
+            name: '严重告警处理流程', 
+            level: 2, 
+            nodeCount: 2, 
+            alarmLevel: 'critical', 
+            alarmLevelName: '严重',
+            enabled: true, 
+            remark: '严重告警需要两级审批' 
+        },
+        { 
+            id: 2, 
+            name: '警告告警处理流程', 
+            level: 1, 
+            nodeCount: 1, 
+            alarmLevel: 'warning', 
+            alarmLevelName: '警告',
+            enabled: true, 
+            remark: '警告告警需要一级审批' 
+        },
+        { 
+            id: 3, 
+            name: '信息告警处理流程', 
+            level: 0, 
+            nodeCount: 0, 
+            alarmLevel: 'info', 
+            alarmLevelName: '信息',
+            enabled: true, 
+            remark: '信息告警无需审批，直接记录' 
+        }
+    ],
+    // 告警级别定义
+    level: [
+        { 
+            id: 1, 
+            name: '严重', 
+            code: 'critical', 
+            color: '#f44336', 
+            colorName: '红色',
+            priority: 1, 
+            enabled: true, 
+            remark: '严重告警，需要立即处理' 
+        },
+        { 
+            id: 2, 
+            name: '警告', 
+            code: 'warning', 
+            color: '#ff9800', 
+            colorName: '橙色',
+            priority: 2, 
+            enabled: true, 
+            remark: '警告告警，需要及时处理' 
+        },
+        { 
+            id: 3, 
+            name: '提示', 
+            code: 'info', 
+            color: '#2196f3', 
+            colorName: '蓝色',
+            priority: 3, 
+            enabled: true, 
+            remark: '信息告警，仅作记录' 
+        }
+    ],
     threshold: [
         { 
             id: 1, 
@@ -929,7 +1223,28 @@ const comparisonMap = {
 function renderTable(tabName) {
     let data, tbody, columns;
     
-    if (tabName === 'threshold') {
+    if (tabName === 'notification') {
+        data = AlarmConfig.notification || [];
+        tbody = document.getElementById('notification-table-body');
+        columns = 7;
+    } else if (tabName === 'workflow') {
+        data = AlarmConfig.workflow || [];
+        tbody = document.getElementById('workflow-table-body');
+        columns = 7;
+    } else if (tabName === 'level') {
+        data = AlarmConfig.level || [];
+        tbody = document.getElementById('level-table-body');
+        columns = 7;
+    } else if (tabName === 'rule') {
+        // 整合越限告警和统计告警
+        const allRules = [
+            ...(AlarmConfig.threshold || []).map(item => ({ ...item, ruleType: 'threshold', ruleTypeName: '越限告警' })),
+            ...(AlarmConfig.statistical || []).map(item => ({ ...item, ruleType: 'statistical', ruleTypeName: '统计告警' }))
+        ];
+        data = allRules;
+        tbody = document.getElementById('rule-table-body');
+        columns = 8;
+    } else if (tabName === 'threshold') {
         data = AlarmConfig.threshold || [];
         tbody = document.getElementById('threshold-table-body');
         columns = 9;
@@ -949,7 +1264,102 @@ function renderTable(tabName) {
     }
     
     let html = '';
-    if (tabName === 'threshold') {
+    if (tabName === 'notification') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.typeName || '-'}</td>
+                    <td>${item.value || '-'}</td>
+                    <td>${item.methodsName || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editNotification(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteNotification(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'workflow') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.level || '-'}</td>
+                    <td>${item.nodeCount || '-'}</td>
+                    <td>${item.alarmLevelName || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editWorkflow(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteWorkflow(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'level') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.code}</td>
+                    <td><span style="display: inline-block; width: 60px; height: 20px; background-color: ${item.color}; border-radius: 4px;"></span> ${item.colorName}</td>
+                    <td>${item.priority || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editLevel(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteLevel(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'rule') {
+        data.forEach(item => {
+            const condition = item.ruleType === 'threshold' 
+                ? `上限: ${item.upperLimit || '-'}, 下限: ${item.lowerLimit || '-'}`
+                : `${item.comparisonName || '-'} ${item.limit || '-'}`;
+            const ruleName = item.ruleType === 'threshold' 
+                ? (item.parameterName || '-')
+                : (item.indicatorName || '-');
+            const monitorObject = item.ruleType === 'threshold' 
+                ? (item.equipmentName || '-')
+                : (item.typeName || '-');
+            
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.ruleTypeName || '-'}</td>
+                    <td>${ruleName}</td>
+                    <td>${monitorObject}</td>
+                    <td>${condition}</td>
+                    <td>${item.levelName || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editRule('${item.ruleType}', ${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteRule('${item.ruleType}', ${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'threshold') {
         data.forEach(item => {
             html += `
                 <tr>
@@ -1287,18 +1697,22 @@ function init() {
     try {
         initTabButtons();
         // 渲染所有tab的数据
+        renderTable('notification');
+        renderTable('workflow');
+        renderTable('level');
+        renderTable('rule');
         renderTable('threshold');
         renderTable('statistical');
         
         // 确保默认tab显示正确
-        const defaultTabContent = document.getElementById('tab-threshold');
+        const defaultTabContent = document.getElementById('tab-notification');
         if (defaultTabContent) {
             defaultTabContent.classList.add('active');
             defaultTabContent.style.display = 'block';
         }
         
         // 确保其他tab隐藏
-        document.querySelectorAll('.tab-content:not(#tab-threshold)').forEach(content => {
+        document.querySelectorAll('.tab-content:not(#tab-notification)').forEach(content => {
             content.classList.remove('active');
             content.style.display = 'none';
         });
