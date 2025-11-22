@@ -334,15 +334,15 @@
                 body .tab-content.active {
                     display: block !important;
                 }
-                /* 确保卡片样式正确 */
-                body .card {
+                /* 确保卡片样式正确 - 但排除能源拓扑图页面，保持其原有样式 */
+                body:not([data-page="energy-topology"]) .card {
                     background-color: #1a2a3a !important;
                     padding: 25px !important;
                     border-radius: 8px !important;
                     box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
                     margin-bottom: 20px !important;
                 }
-                body .card-title {
+                body:not([data-page="energy-topology"]) .card-title {
                     font-size: 1.1em !important;
                     font-weight: bold !important;
                     color: #e0e6ed !important;
@@ -350,22 +350,50 @@
                     display: flex !important;
                     align-items: center !important;
                 }
-                body .card-title i {
+                body:not([data-page="energy-topology"]) .card-title i {
                     margin-right: 10px !important;
                     color: #00bcd4 !important;
                 }
                 /* 确保图表容器能够正确显示其指定的高度，不被全局样式限制 */
-                /* 只移除限制，不覆盖内联样式 */
-                body .chart-container {
+                /* 只移除限制，不覆盖内联样式 - 但排除能源拓扑图页面 */
+                body:not([data-page="energy-topology"]) .chart-container {
                     min-height: auto !important;
                     max-height: none !important;
                     /* 不设置height、position、overflow，让内联样式生效 */
                     box-sizing: border-box !important;
                 }
-                /* 确保卡片的min-height不会影响内容 */
-                body .card {
+                /* 确保卡片的min-height不会影响内容 - 但排除能源拓扑图页面 */
+                body:not([data-page="energy-topology"]) .card {
                     min-height: auto !important;
                     max-height: none !important;
+                }
+                /* 能源拓扑图页面：完全保护其原有样式，不应用任何覆盖 */
+                /* 使用更具体的选择器，确保不覆盖能源拓扑图页面的样式 */
+                body[data-page="energy-topology"] .card {
+                    background-color: revert !important;
+                    padding: revert !important;
+                    border-radius: revert !important;
+                    box-shadow: revert !important;
+                    margin-bottom: revert !important;
+                    min-height: revert !important;
+                    max-height: revert !important;
+                }
+                body[data-page="energy-topology"] .card-title {
+                    font-size: revert !important;
+                    font-weight: revert !important;
+                    color: revert !important;
+                    margin-bottom: revert !important;
+                    display: revert !important;
+                    align-items: revert !important;
+                }
+                body[data-page="energy-topology"] .card-title i {
+                    margin-right: revert !important;
+                    color: revert !important;
+                }
+                body[data-page="energy-topology"] .chart-container {
+                    min-height: revert !important;
+                    max-height: revert !important;
+                    box-sizing: revert !important;
                 }
                 /* 移除body的min-height限制 */
                 body {
