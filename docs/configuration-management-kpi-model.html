@@ -97,13 +97,13 @@
             font-size: 16px;
         }
 
-        /* Tab内容 */
+        /* Tab内容 - 确保样式优先级 */
         .tab-content {
-            display: none;
+            display: none !important;
         }
 
         .tab-content.active {
-            display: block;
+            display: block !important;
         }
 
         /* 操作栏 */
@@ -1495,8 +1495,14 @@
     };
     
     // switchTab函数已经定义为window.switchTab，确保在iframe环境中全局可用
+    // 函数已经在上面定义，这里确保它可用
     if (typeof window !== 'undefined') {
-        window.switchTab = window.switchTab;
+        // 确保switchTab在全局作用域中
+        if (!window.switchTab) {
+            window.switchTab = function(tab, event) {
+                console.error('switchTab function not found');
+            };
+        }
     }
 
     // 通用分页渲染函数
@@ -3075,14 +3081,36 @@
         // 重新加载ECC数据
         eccList = loadECCData();
         
-        // 渲染所有表格
-        renderFactoryTable();
-        renderWorkshopTable();
-        renderProductionLineTable();
-        renderCraftTable();
-        renderProcessTable();
-        renderEquipmentTable();
-        renderMeterTable();
+        // 渲染所有表格 - 确保在iframe环境中也能正确执行
+        try {
+            renderFactoryTable();
+            renderWorkshopTable();
+            renderProductionLineTable();
+            renderCraftTable();
+            renderProcessTable();
+            renderEquipmentTable();
+            renderMeterTable();
+            
+            // 确保默认tab显示正确
+            const defaultTabContent = document.getElementById('tab-factory');
+            if (defaultTabContent) {
+                defaultTabContent.classList.add('active');
+                defaultTabContent.style.display = 'block';
+            }
+            
+            // 确保默认tab按钮激活
+            const defaultTabButton = document.querySelector('.tab-button.active');
+            if (!defaultTabButton) {
+                const firstButton = document.querySelector('.tab-button');
+                if (firstButton) {
+                    firstButton.classList.add('active');
+                }
+            }
+            
+            console.log('KPI Model Config initialized successfully');
+        } catch (error) {
+            console.error('Error initializing KPI Model Config:', error);
+        }
     }
 
     // 确保在iframe中也能正常初始化
