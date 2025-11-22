@@ -1621,11 +1621,23 @@ window.filterFactory = function() {
 window.editFactory = function(id) { 
     const item = KPIConfig.factory.find(d => d.id === id);
     if (!item) return;
+    
     KPIConfig.currentEditingId = id;
     document.getElementById('factory-modal-title').textContent = '编辑厂区';
+    
+    // 更新ECC下拉框
+    const eccSelect = document.getElementById('factory-ecc');
+    eccSelect.innerHTML = '<option value="">请选择ECC（可选）</option>';
+    KPIConfig.eccList.forEach(ecc => {
+        const option = document.createElement('option');
+        option.value = ecc.id;
+        option.textContent = `${ecc.code} - ${ecc.name}`;
+        if (ecc.id === item.eccId) option.selected = true;
+        eccSelect.appendChild(option);
+    });
+    
     document.getElementById('factory-code').value = item.code;
     document.getElementById('factory-name').value = item.name;
-    document.getElementById('factory-ecc').value = item.eccId || '';
     document.getElementById('factory-manager').value = item.manager || '';
     document.getElementById('factory-phone').value = item.phone || '';
     document.getElementById('factory-description').value = item.description || '';
@@ -1674,16 +1686,116 @@ window.saveFactory = function(e) {
     window.closeFactoryModal();
 };
 
-// 其他tab的函数（简化版）
-window.showWorkshopForm = function() { alert('新增车间功能开发中...'); };
-window.editWorkshop = function(id) { alert('编辑车间功能开发中... ID: ' + id); };
+// ========== 车间配置功能 ==========
+window.showWorkshopForm = function() { 
+    KPIConfig.currentEditingId = null;
+    document.getElementById('workshop-modal-title').textContent = '新增车间';
+    document.getElementById('workshop-form').reset();
+    
+    // 更新厂区下拉框
+    const factorySelect = document.getElementById('workshop-factory');
+    factorySelect.innerHTML = '<option value="">请选择厂区</option>';
+    KPIConfig.factory.forEach(factory => {
+        const option = document.createElement('option');
+        option.value = factory.id;
+        option.textContent = `${factory.code} - ${factory.name}`;
+        factorySelect.appendChild(option);
+    });
+    
+    // 更新ECC下拉框
+    const eccSelect = document.getElementById('workshop-ecc');
+    eccSelect.innerHTML = '<option value="">请选择ECC（可选）</option>';
+    KPIConfig.eccList.forEach(ecc => {
+        const option = document.createElement('option');
+        option.value = ecc.id;
+        option.textContent = `${ecc.code} - ${ecc.name}`;
+        eccSelect.appendChild(option);
+    });
+    
+    document.getElementById('workshop-modal').classList.add('active');
+};
+window.editWorkshop = function(id) { 
+    const item = KPIConfig.workshop.find(d => d.id === id);
+    if (!item) return;
+    
+    KPIConfig.currentEditingId = id;
+    document.getElementById('workshop-modal-title').textContent = '编辑车间';
+    
+    // 更新厂区下拉框
+    const factorySelect = document.getElementById('workshop-factory');
+    factorySelect.innerHTML = '<option value="">请选择厂区</option>';
+    KPIConfig.factory.forEach(factory => {
+        const option = document.createElement('option');
+        option.value = factory.id;
+        option.textContent = `${factory.code} - ${factory.name}`;
+        if (factory.id === item.factoryId) option.selected = true;
+        factorySelect.appendChild(option);
+    });
+    
+    // 更新ECC下拉框
+    const eccSelect = document.getElementById('workshop-ecc');
+    eccSelect.innerHTML = '<option value="">请选择ECC（可选）</option>';
+    KPIConfig.eccList.forEach(ecc => {
+        const option = document.createElement('option');
+        option.value = ecc.id;
+        option.textContent = `${ecc.code} - ${ecc.name}`;
+        if (ecc.id === item.eccId) option.selected = true;
+        eccSelect.appendChild(option);
+    });
+    
+    document.getElementById('workshop-code').value = item.code;
+    document.getElementById('workshop-name').value = item.name;
+    document.getElementById('workshop-manager').value = item.manager || '';
+    document.getElementById('workshop-phone').value = item.phone || '';
+    document.getElementById('workshop-modal').classList.add('active');
+};
 window.deleteWorkshop = function(id) { 
     if (confirm('确定要删除这个车间吗？')) {
         KPIConfig.workshop = KPIConfig.workshop.filter(item => item.id !== id);
         renderTable('workshop');
     }
 };
-window.saveWorkshop = function(e) { e.preventDefault(); alert('保存车间功能开发中...'); };
+window.saveWorkshop = function(e) { 
+    e.preventDefault();
+    const factoryId = parseInt(document.getElementById('workshop-factory').value);
+    const factory = KPIConfig.factory.find(f => f.id === factoryId);
+    if (!factory) {
+        alert('请选择有效的厂区');
+        return;
+    }
+    
+    const data = {
+        code: document.getElementById('workshop-code').value,
+        name: document.getElementById('workshop-name').value,
+        factoryId: factoryId,
+        factoryName: factory.name,
+        manager: document.getElementById('workshop-manager').value || '',
+        phone: document.getElementById('workshop-phone').value || ''
+    };
+    
+    const eccId = document.getElementById('workshop-ecc').value;
+    if (eccId) {
+        const ecc = KPIConfig.eccList.find(e => e.id === eccId);
+        if (ecc) {
+            data.eccId = eccId;
+            data.eccName = ecc.name;
+            data.eccCode = ecc.code;
+        }
+    }
+    
+    if (KPIConfig.currentEditingId) {
+        const index = KPIConfig.workshop.findIndex(d => d.id === KPIConfig.currentEditingId);
+        if (index !== -1) {
+            KPIConfig.workshop[index] = { ...KPIConfig.workshop[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...KPIConfig.workshop.map(d => d.id), 0) + 1;
+        KPIConfig.workshop.push({ id: newId, ...data });
+    }
+    
+    renderTable('workshop');
+    window.closeWorkshopModal();
+};
 window.filterWorkshop = function() { 
     const keyword = document.getElementById('search-workshop').value.toLowerCase();
     const filtered = KPIConfig.workshop.filter(item => 
@@ -1694,17 +1806,119 @@ window.filterWorkshop = function() {
 };
 window.closeWorkshopModal = function() { 
     document.getElementById('workshop-modal').classList.remove('active');
+    KPIConfig.currentEditingId = null;
 };
 
-window.showProductionLineForm = function() { alert('新增产线功能开发中...'); };
-window.editProductionLine = function(id) { alert('编辑产线功能开发中... ID: ' + id); };
+// ========== 产线配置功能 ==========
+window.showProductionLineForm = function() { 
+    KPIConfig.currentEditingId = null;
+    document.getElementById('production-line-modal-title').textContent = '新增产线';
+    document.getElementById('production-line-form').reset();
+    
+    // 更新车间下拉框
+    const workshopSelect = document.getElementById('production-line-workshop');
+    workshopSelect.innerHTML = '<option value="">请选择车间</option>';
+    KPIConfig.workshop.forEach(workshop => {
+        const option = document.createElement('option');
+        option.value = workshop.id;
+        option.textContent = `${workshop.code} - ${workshop.name}`;
+        workshopSelect.appendChild(option);
+    });
+    
+    // 更新ECC下拉框
+    const eccSelect = document.getElementById('production-line-ecc');
+    eccSelect.innerHTML = '<option value="">请选择ECC（可选）</option>';
+    KPIConfig.eccList.forEach(ecc => {
+        const option = document.createElement('option');
+        option.value = ecc.id;
+        option.textContent = `${ecc.code} - ${ecc.name}`;
+        eccSelect.appendChild(option);
+    });
+    
+    document.getElementById('production-line-modal').classList.add('active');
+};
+window.editProductionLine = function(id) { 
+    const item = KPIConfig.productionLine.find(d => d.id === id);
+    if (!item) return;
+    
+    KPIConfig.currentEditingId = id;
+    document.getElementById('production-line-modal-title').textContent = '编辑产线';
+    
+    // 更新车间下拉框
+    const workshopSelect = document.getElementById('production-line-workshop');
+    workshopSelect.innerHTML = '<option value="">请选择车间</option>';
+    KPIConfig.workshop.forEach(workshop => {
+        const option = document.createElement('option');
+        option.value = workshop.id;
+        option.textContent = `${workshop.code} - ${workshop.name}`;
+        if (workshop.id === item.workshopId) option.selected = true;
+        workshopSelect.appendChild(option);
+    });
+    
+    // 更新ECC下拉框
+    const eccSelect = document.getElementById('production-line-ecc');
+    eccSelect.innerHTML = '<option value="">请选择ECC（可选）</option>';
+    KPIConfig.eccList.forEach(ecc => {
+        const option = document.createElement('option');
+        option.value = ecc.id;
+        option.textContent = `${ecc.code} - ${ecc.name}`;
+        if (ecc.id === item.eccId) option.selected = true;
+        eccSelect.appendChild(option);
+    });
+    
+    document.getElementById('production-line-code').value = item.code;
+    document.getElementById('production-line-name').value = item.name;
+    document.getElementById('production-line-manager').value = item.manager || '';
+    document.getElementById('production-line-phone').value = item.phone || '';
+    document.getElementById('production-line-modal').classList.add('active');
+};
 window.deleteProductionLine = function(id) { 
     if (confirm('确定要删除这条产线吗？')) {
         KPIConfig.productionLine = KPIConfig.productionLine.filter(item => item.id !== id);
         renderTable('production-line');
     }
 };
-window.saveProductionLine = function(e) { e.preventDefault(); alert('保存产线功能开发中...'); };
+window.saveProductionLine = function(e) { 
+    e.preventDefault();
+    const workshopId = parseInt(document.getElementById('production-line-workshop').value);
+    const workshop = KPIConfig.workshop.find(w => w.id === workshopId);
+    if (!workshop) {
+        alert('请选择有效的车间');
+        return;
+    }
+    
+    const data = {
+        code: document.getElementById('production-line-code').value,
+        name: document.getElementById('production-line-name').value,
+        workshopId: workshopId,
+        workshopName: workshop.name,
+        manager: document.getElementById('production-line-manager').value || '',
+        phone: document.getElementById('production-line-phone').value || ''
+    };
+    
+    const eccId = document.getElementById('production-line-ecc').value;
+    if (eccId) {
+        const ecc = KPIConfig.eccList.find(e => e.id === eccId);
+        if (ecc) {
+            data.eccId = eccId;
+            data.eccName = ecc.name;
+            data.eccCode = ecc.code;
+        }
+    }
+    
+    if (KPIConfig.currentEditingId) {
+        const index = KPIConfig.productionLine.findIndex(d => d.id === KPIConfig.currentEditingId);
+        if (index !== -1) {
+            KPIConfig.productionLine[index] = { ...KPIConfig.productionLine[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...KPIConfig.productionLine.map(d => d.id), 0) + 1;
+        KPIConfig.productionLine.push({ id: newId, ...data });
+    }
+    
+    renderTable('production-line');
+    window.closeProductionLineModal();
+};
 window.filterProductionLine = function() { 
     const keyword = document.getElementById('search-production-line').value.toLowerCase();
     const filtered = KPIConfig.productionLine.filter(item => 
@@ -1715,17 +1929,86 @@ window.filterProductionLine = function() {
 };
 window.closeProductionLineModal = function() { 
     document.getElementById('production-line-modal').classList.remove('active');
+    KPIConfig.currentEditingId = null;
 };
 
-window.showCraftForm = function() { alert('新增工艺功能开发中...'); };
-window.editCraft = function(id) { alert('编辑工艺功能开发中... ID: ' + id); };
+// ========== 工艺配置功能 ==========
+window.showCraftForm = function() { 
+    KPIConfig.currentEditingId = null;
+    document.getElementById('craft-modal-title').textContent = '新增工艺';
+    document.getElementById('craft-form').reset();
+    
+    // 更新产线下拉框
+    const productionLineSelect = document.getElementById('craft-production-line');
+    productionLineSelect.innerHTML = '<option value="">请选择产线</option>';
+    KPIConfig.productionLine.forEach(pl => {
+        const option = document.createElement('option');
+        option.value = pl.id;
+        option.textContent = `${pl.code} - ${pl.name}`;
+        productionLineSelect.appendChild(option);
+    });
+    
+    document.getElementById('craft-modal').classList.add('active');
+};
+window.editCraft = function(id) { 
+    const item = KPIConfig.craft.find(d => d.id === id);
+    if (!item) return;
+    
+    KPIConfig.currentEditingId = id;
+    document.getElementById('craft-modal-title').textContent = '编辑工艺';
+    
+    // 更新产线下拉框
+    const productionLineSelect = document.getElementById('craft-production-line');
+    productionLineSelect.innerHTML = '<option value="">请选择产线</option>';
+    KPIConfig.productionLine.forEach(pl => {
+        const option = document.createElement('option');
+        option.value = pl.id;
+        option.textContent = `${pl.code} - ${pl.name}`;
+        if (pl.id === item.productionLineId) option.selected = true;
+        productionLineSelect.appendChild(option);
+    });
+    
+    document.getElementById('craft-code').value = item.code;
+    document.getElementById('craft-name').value = item.name;
+    document.getElementById('craft-description').value = item.description || '';
+    document.getElementById('craft-modal').classList.add('active');
+};
 window.deleteCraft = function(id) { 
     if (confirm('确定要删除这个工艺吗？')) {
         KPIConfig.craft = KPIConfig.craft.filter(item => item.id !== id);
         renderTable('craft');
     }
 };
-window.saveCraft = function(e) { e.preventDefault(); alert('保存工艺功能开发中...'); };
+window.saveCraft = function(e) { 
+    e.preventDefault();
+    const productionLineId = parseInt(document.getElementById('craft-production-line').value);
+    const pl = KPIConfig.productionLine.find(p => p.id === productionLineId);
+    if (!pl) {
+        alert('请选择有效的产线');
+        return;
+    }
+    
+    const data = {
+        code: document.getElementById('craft-code').value,
+        name: document.getElementById('craft-name').value,
+        productionLineId: productionLineId,
+        productionLineName: pl.name,
+        description: document.getElementById('craft-description').value || ''
+    };
+    
+    if (KPIConfig.currentEditingId) {
+        const index = KPIConfig.craft.findIndex(d => d.id === KPIConfig.currentEditingId);
+        if (index !== -1) {
+            KPIConfig.craft[index] = { ...KPIConfig.craft[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...KPIConfig.craft.map(d => d.id), 0) + 1;
+        KPIConfig.craft.push({ id: newId, ...data });
+    }
+    
+    renderTable('craft');
+    window.closeCraftModal();
+};
 window.filterCraft = function() { 
     const keyword = document.getElementById('search-craft').value.toLowerCase();
     const filtered = KPIConfig.craft.filter(item => 
@@ -1736,17 +2019,117 @@ window.filterCraft = function() {
 };
 window.closeCraftModal = function() { 
     document.getElementById('craft-modal').classList.remove('active');
+    KPIConfig.currentEditingId = null;
 };
 
-window.showProcessForm = function() { alert('新增工序功能开发中...'); };
-window.editProcess = function(id) { alert('编辑工序功能开发中... ID: ' + id); };
+// ========== 工序配置功能 ==========
+window.showProcessForm = function() { 
+    KPIConfig.currentEditingId = null;
+    document.getElementById('process-modal-title').textContent = '新增工序';
+    document.getElementById('process-form').reset();
+    
+    // 更新工艺下拉框
+    const craftSelect = document.getElementById('process-craft');
+    craftSelect.innerHTML = '<option value="">请选择工艺</option>';
+    KPIConfig.craft.forEach(craft => {
+        const option = document.createElement('option');
+        option.value = craft.id;
+        option.textContent = `${craft.code} - ${craft.name}`;
+        craftSelect.appendChild(option);
+    });
+    
+    // 更新ECC下拉框
+    const eccSelect = document.getElementById('process-ecc');
+    eccSelect.innerHTML = '<option value="">请选择ECC（可选）</option>';
+    KPIConfig.eccList.forEach(ecc => {
+        const option = document.createElement('option');
+        option.value = ecc.id;
+        option.textContent = `${ecc.code} - ${ecc.name}`;
+        eccSelect.appendChild(option);
+    });
+    
+    document.getElementById('process-modal').classList.add('active');
+};
+window.editProcess = function(id) { 
+    const item = KPIConfig.process.find(d => d.id === id);
+    if (!item) return;
+    
+    KPIConfig.currentEditingId = id;
+    document.getElementById('process-modal-title').textContent = '编辑工序';
+    
+    // 更新工艺下拉框
+    const craftSelect = document.getElementById('process-craft');
+    craftSelect.innerHTML = '<option value="">请选择工艺</option>';
+    KPIConfig.craft.forEach(craft => {
+        const option = document.createElement('option');
+        option.value = craft.id;
+        option.textContent = `${craft.code} - ${craft.name}`;
+        if (craft.id === item.craftId) option.selected = true;
+        craftSelect.appendChild(option);
+    });
+    
+    // 更新ECC下拉框
+    const eccSelect = document.getElementById('process-ecc');
+    eccSelect.innerHTML = '<option value="">请选择ECC（可选）</option>';
+    KPIConfig.eccList.forEach(ecc => {
+        const option = document.createElement('option');
+        option.value = ecc.id;
+        option.textContent = `${ecc.code} - ${ecc.name}`;
+        if (ecc.id === item.eccId) option.selected = true;
+        eccSelect.appendChild(option);
+    });
+    
+    document.getElementById('process-code').value = item.code;
+    document.getElementById('process-name').value = item.name;
+    document.getElementById('process-description').value = item.description || '';
+    document.getElementById('process-modal').classList.add('active');
+};
 window.deleteProcess = function(id) { 
     if (confirm('确定要删除这个工序吗？')) {
         KPIConfig.process = KPIConfig.process.filter(item => item.id !== id);
         renderTable('process');
     }
 };
-window.saveProcess = function(e) { e.preventDefault(); alert('保存工序功能开发中...'); };
+window.saveProcess = function(e) { 
+    e.preventDefault();
+    const craftId = parseInt(document.getElementById('process-craft').value);
+    const craft = KPIConfig.craft.find(c => c.id === craftId);
+    if (!craft) {
+        alert('请选择有效的工艺');
+        return;
+    }
+    
+    const data = {
+        code: document.getElementById('process-code').value,
+        name: document.getElementById('process-name').value,
+        craftId: craftId,
+        craftName: craft.name,
+        description: document.getElementById('process-description').value || ''
+    };
+    
+    const eccId = document.getElementById('process-ecc').value;
+    if (eccId) {
+        const ecc = KPIConfig.eccList.find(e => e.id === eccId);
+        if (ecc) {
+            data.eccId = eccId;
+            data.eccName = ecc.name;
+            data.eccCode = ecc.code;
+        }
+    }
+    
+    if (KPIConfig.currentEditingId) {
+        const index = KPIConfig.process.findIndex(d => d.id === KPIConfig.currentEditingId);
+        if (index !== -1) {
+            KPIConfig.process[index] = { ...KPIConfig.process[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...KPIConfig.process.map(d => d.id), 0) + 1;
+        KPIConfig.process.push({ id: newId, ...data });
+    }
+    
+    renderTable('process');
+    window.closeProcessModal();
+};
 window.filterProcess = function() { 
     const keyword = document.getElementById('search-process').value.toLowerCase();
     const filtered = KPIConfig.process.filter(item => 
@@ -1757,17 +2140,133 @@ window.filterProcess = function() {
 };
 window.closeProcessModal = function() { 
     document.getElementById('process-modal').classList.remove('active');
+    KPIConfig.currentEditingId = null;
 };
 
-window.showEquipmentForm = function() { alert('新增设备功能开发中...'); };
-window.editEquipment = function(id) { alert('编辑设备功能开发中... ID: ' + id); };
+// ========== 设备配置功能 ==========
+const equipmentTypeMap = {
+    'motor': '电机',
+    'compressor': '压缩机',
+    'pump': '水泵',
+    'fan': '风机',
+    'heater': '加热器',
+    'cooler': '冷却器',
+    'other': '其他'
+};
+
+window.showEquipmentForm = function() { 
+    KPIConfig.currentEditingId = null;
+    document.getElementById('equipment-modal-title').textContent = '新增设备';
+    document.getElementById('equipment-form').reset();
+    
+    // 更新工序下拉框
+    const processSelect = document.getElementById('equipment-process');
+    processSelect.innerHTML = '<option value="">请选择工序</option>';
+    KPIConfig.process.forEach(process => {
+        const option = document.createElement('option');
+        option.value = process.id;
+        option.textContent = `${process.code} - ${process.name}`;
+        processSelect.appendChild(option);
+    });
+    
+    // 更新ECC下拉框
+    const eccSelect = document.getElementById('equipment-ecc');
+    eccSelect.innerHTML = '<option value="">请选择ECC（可选）</option>';
+    KPIConfig.eccList.forEach(ecc => {
+        const option = document.createElement('option');
+        option.value = ecc.id;
+        option.textContent = `${ecc.code} - ${ecc.name}`;
+        eccSelect.appendChild(option);
+    });
+    
+    document.getElementById('equipment-modal').classList.add('active');
+};
+window.editEquipment = function(id) { 
+    const item = KPIConfig.equipment.find(d => d.id === id);
+    if (!item) return;
+    
+    KPIConfig.currentEditingId = id;
+    document.getElementById('equipment-modal-title').textContent = '编辑设备';
+    
+    // 更新工序下拉框
+    const processSelect = document.getElementById('equipment-process');
+    processSelect.innerHTML = '<option value="">请选择工序</option>';
+    KPIConfig.process.forEach(process => {
+        const option = document.createElement('option');
+        option.value = process.id;
+        option.textContent = `${process.code} - ${process.name}`;
+        if (process.id === item.processId) option.selected = true;
+        processSelect.appendChild(option);
+    });
+    
+    // 更新ECC下拉框
+    const eccSelect = document.getElementById('equipment-ecc');
+    eccSelect.innerHTML = '<option value="">请选择ECC（可选）</option>';
+    KPIConfig.eccList.forEach(ecc => {
+        const option = document.createElement('option');
+        option.value = ecc.id;
+        option.textContent = `${ecc.code} - ${ecc.name}`;
+        if (ecc.id === item.eccId) option.selected = true;
+        eccSelect.appendChild(option);
+    });
+    
+    document.getElementById('equipment-code').value = item.code;
+    document.getElementById('equipment-name').value = item.name;
+    document.getElementById('equipment-type').value = item.type;
+    document.getElementById('equipment-power').value = item.power || '';
+    document.getElementById('equipment-enabled').value = item.enabled ? 'true' : 'false';
+    document.getElementById('equipment-modal').classList.add('active');
+};
 window.deleteEquipment = function(id) { 
     if (confirm('确定要删除这个设备吗？')) {
         KPIConfig.equipment = KPIConfig.equipment.filter(item => item.id !== id);
         renderTable('equipment');
     }
 };
-window.saveEquipment = function(e) { e.preventDefault(); alert('保存设备功能开发中...'); };
+window.saveEquipment = function(e) { 
+    e.preventDefault();
+    const processId = parseInt(document.getElementById('equipment-process').value);
+    const process = KPIConfig.process.find(p => p.id === processId);
+    if (!process) {
+        alert('请选择有效的工序');
+        return;
+    }
+    
+    const type = document.getElementById('equipment-type').value;
+    const data = {
+        code: document.getElementById('equipment-code').value,
+        name: document.getElementById('equipment-name').value,
+        type: type,
+        typeName: equipmentTypeMap[type] || '其他',
+        processId: processId,
+        processName: process.name,
+        power: parseFloat(document.getElementById('equipment-power').value) || null,
+        enabled: document.getElementById('equipment-enabled').value === 'true'
+    };
+    
+    const eccId = document.getElementById('equipment-ecc').value;
+    if (eccId) {
+        const ecc = KPIConfig.eccList.find(e => e.id === eccId);
+        if (ecc) {
+            data.eccId = eccId;
+            data.eccName = ecc.name;
+            data.eccCode = ecc.code;
+        }
+    }
+    
+    if (KPIConfig.currentEditingId) {
+        const index = KPIConfig.equipment.findIndex(d => d.id === KPIConfig.currentEditingId);
+        if (index !== -1) {
+            KPIConfig.equipment[index] = { ...KPIConfig.equipment[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...KPIConfig.equipment.map(d => d.id), 0) + 1;
+        KPIConfig.equipment.push({ id: newId, ...data });
+    }
+    
+    renderTable('equipment');
+    window.closeEquipmentModal();
+};
 window.filterEquipment = function() { 
     const keyword = document.getElementById('search-equipment').value.toLowerCase();
     const filtered = KPIConfig.equipment.filter(item => 
@@ -1778,17 +2277,115 @@ window.filterEquipment = function() {
 };
 window.closeEquipmentModal = function() { 
     document.getElementById('equipment-modal').classList.remove('active');
+    KPIConfig.currentEditingId = null;
 };
 
-window.showMeterForm = function() { alert('新增仪表功能开发中...'); };
-window.editMeter = function(id) { alert('编辑仪表功能开发中... ID: ' + id); };
+// ========== 计量仪表配置功能 ==========
+const meterTypeMap = {
+    'electricity-meter': '电表',
+    'water-meter': '水表',
+    'flow-meter': '流量计',
+    'pressure-meter': '压力表',
+    'temperature-meter': '温度计',
+    'current-meter': '电流表',
+    'voltage-meter': '电压表',
+    'other': '其他'
+};
+
+const meterParameterMap = {
+    'current': '电流',
+    'voltage': '电压',
+    'power': '功率',
+    'consumption': '能耗',
+    'flow': '流量',
+    'pressure': '压力',
+    'temperature': '温度',
+    'other': '其他'
+};
+
+function updateMeterEquipmentOptions() {
+    const equipmentSelect = document.getElementById('meter-equipment');
+    equipmentSelect.innerHTML = '<option value="">请选择设备</option>';
+    KPIConfig.equipment.filter(eq => eq.enabled).forEach(equipment => {
+        const option = document.createElement('option');
+        option.value = equipment.id;
+        option.textContent = `${equipment.code} - ${equipment.name}`;
+        equipmentSelect.appendChild(option);
+    });
+}
+
+window.showMeterForm = function() { 
+    KPIConfig.currentEditingId = null;
+    document.getElementById('meter-modal-title').textContent = '新增仪表';
+    document.getElementById('meter-form').reset();
+    
+    // 更新设备下拉框
+    updateMeterEquipmentOptions();
+    
+    document.getElementById('meter-modal').classList.add('active');
+};
+window.editMeter = function(id) { 
+    const item = KPIConfig.meter.find(d => d.id === id);
+    if (!item) return;
+    
+    KPIConfig.currentEditingId = id;
+    document.getElementById('meter-modal-title').textContent = '编辑仪表';
+    
+    // 更新设备下拉框
+    updateMeterEquipmentOptions();
+    
+    document.getElementById('meter-code').value = item.code;
+    document.getElementById('meter-name').value = item.name;
+    document.getElementById('meter-type').value = item.type;
+    document.getElementById('meter-equipment').value = item.equipmentId;
+    document.getElementById('meter-parameter').value = item.parameter;
+    document.getElementById('meter-unit').value = item.unit;
+    document.getElementById('meter-enabled').value = item.enabled ? 'true' : 'false';
+    document.getElementById('meter-modal').classList.add('active');
+};
 window.deleteMeter = function(id) { 
     if (confirm('确定要删除这个仪表吗？')) {
         KPIConfig.meter = KPIConfig.meter.filter(item => item.id !== id);
         renderTable('meter');
     }
 };
-window.saveMeter = function(e) { e.preventDefault(); alert('保存仪表功能开发中...'); };
+window.saveMeter = function(e) { 
+    e.preventDefault();
+    const equipmentId = parseInt(document.getElementById('meter-equipment').value);
+    const equipment = KPIConfig.equipment.find(eq => eq.id === equipmentId);
+    if (!equipment) {
+        alert('请选择有效的设备');
+        return;
+    }
+    
+    const type = document.getElementById('meter-type').value;
+    const parameter = document.getElementById('meter-parameter').value;
+    const data = {
+        code: document.getElementById('meter-code').value,
+        name: document.getElementById('meter-name').value,
+        type: type,
+        typeName: meterTypeMap[type] || '其他',
+        equipmentId: equipmentId,
+        equipmentName: equipment.name,
+        parameter: parameter,
+        parameterName: meterParameterMap[parameter] || '其他',
+        unit: document.getElementById('meter-unit').value,
+        enabled: document.getElementById('meter-enabled').value === 'true'
+    };
+    
+    if (KPIConfig.currentEditingId) {
+        const index = KPIConfig.meter.findIndex(d => d.id === KPIConfig.currentEditingId);
+        if (index !== -1) {
+            KPIConfig.meter[index] = { ...KPIConfig.meter[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...KPIConfig.meter.map(d => d.id), 0) + 1;
+        KPIConfig.meter.push({ id: newId, ...data });
+    }
+    
+    renderTable('meter');
+    window.closeMeterModal();
+};
 window.filterMeter = function() { 
     const keyword = document.getElementById('search-meter').value.toLowerCase();
     const filtered = KPIConfig.meter.filter(item => 
@@ -1799,6 +2396,7 @@ window.filterMeter = function() {
 };
 window.closeMeterModal = function() { 
     document.getElementById('meter-modal').classList.remove('active');
+    KPIConfig.currentEditingId = null;
 };
 
 // 导出/导入函数
