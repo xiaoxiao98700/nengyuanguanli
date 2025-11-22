@@ -97,13 +97,13 @@
             font-size: 16px;
         }
 
-        /* Tab内容 */
+        /* Tab内容 - 确保样式优先级 */
         .tab-content {
-            display: none;
+            display: none !important;
         }
 
         .tab-content.active {
-            display: block;
+            display: block !important;
         }
 
         /* 操作栏 */
@@ -1426,13 +1426,17 @@
             targetButton.classList.add('active');
         }
 
-        // 更新Tab内容
-        document.querySelectorAll('.tab-content').forEach(content => {
+        // 更新Tab内容 - 使用内联样式确保优先级
+        const allTabContents = document.querySelectorAll('.tab-content');
+        allTabContents.forEach(content => {
             content.classList.remove('active');
+            content.style.cssText = (content.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: none !important;';
         });
+        
         const targetTabContent = document.getElementById('tab-' + tab);
         if (targetTabContent) {
             targetTabContent.classList.add('active');
+            targetTabContent.style.cssText = (targetTabContent.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: block !important;';
         }
 
         currentTab = tab;
@@ -3030,14 +3034,43 @@
         // 重新加载ECC数据
         eccList = loadECCData();
         
-        // 渲染所有表格
-        renderFactoryTable();
-        renderWorkshopTable();
-        renderProductionLineTable();
-        renderCraftTable();
-        renderProcessTable();
-        renderEquipmentTable();
-        renderMeterTable();
+        // 渲染所有表格 - 确保在iframe环境中也能正确执行
+        try {
+            renderFactoryTable();
+            renderWorkshopTable();
+            renderProductionLineTable();
+            renderCraftTable();
+            renderProcessTable();
+            renderEquipmentTable();
+            renderMeterTable();
+            
+            // 确保默认tab显示正确 - 使用内联样式确保优先级
+            const defaultTabContent = document.getElementById('tab-factory');
+            if (defaultTabContent) {
+                defaultTabContent.classList.add('active');
+                defaultTabContent.style.cssText = (defaultTabContent.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: block !important;';
+            }
+            
+            // 确保其他tab隐藏
+            const allTabContents = document.querySelectorAll('.tab-content:not(#tab-factory)');
+            allTabContents.forEach(content => {
+                content.classList.remove('active');
+                content.style.cssText = (content.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: none !important;';
+            });
+            
+            // 确保默认tab按钮激活
+            const defaultTabButton = document.querySelector('.tab-button.active');
+            if (!defaultTabButton) {
+                const firstButton = document.querySelector('.tab-button');
+                if (firstButton) {
+                    firstButton.classList.add('active');
+                }
+            }
+            
+            console.log('KPI Model Config initialized successfully. Factory data count:', factoryData.length);
+        } catch (error) {
+            console.error('Error initializing KPI Model Config:', error);
+        }
     }
 
     // 确保在iframe中也能正常初始化
