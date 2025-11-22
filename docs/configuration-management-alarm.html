@@ -1,2 +1,1327 @@
-<h2>告警配置</h2>
-<p>这是告警配置页面的内容。</p>
+<div class="alarm-config-container">
+    <style>
+        /* 统一滚动条样式 */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #3c5472 #1a2a3a;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a2a3a;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3c5472;
+            border-radius: 5px;
+            border: 2px solid #1a2a3a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a6a8a;
+        }
+        ::-webkit-scrollbar-thumb:active {
+            background: #00bcd4;
+        }
+        ::-webkit-scrollbar-corner {
+            background: #1a2a3a;
+        }
+        
+        .alarm-config-container {
+            padding: 20px;
+            background-color: #0f1e2d;
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+            min-height: auto;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            color: #00bcd4;
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .page-description {
+            color: #a7bed3;
+            margin-top: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Tab导航 */
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #3c5472;
+            padding-bottom: 0;
+        }
+
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: #a7bed3;
+            padding: 12px 24px;
+            font-size: 15px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .tab-button:hover {
+            color: #00bcd4;
+            background: rgba(0, 188, 212, 0.1);
+        }
+
+        .tab-button.active {
+            color: #00bcd4;
+            border-bottom-color: #00bcd4;
+            font-weight: 600;
+        }
+
+        .tab-button i {
+            font-size: 16px;
+        }
+
+        /* Tab内容 */
+        .tab-content {
+            display: none !important;
+        }
+
+        .tab-content.active {
+            display: block !important;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, #00bcd4 0%, #00acc1 100%);
+            border: none;
+            color: #1a2a3a;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 188, 212, 0.2);
+        }
+
+        .action-button:hover {
+            background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+        }
+
+        .action-button.secondary {
+            background: linear-gradient(135deg, #3c5472 0%, #2a3d54 100%);
+            color: #e0e6ed;
+            box-shadow: 0 2px 8px rgba(60, 84, 114, 0.2);
+        }
+
+        .action-button.secondary:hover {
+            background: linear-gradient(135deg, #4a6a8a 0%, #3c5472 100%);
+            box-shadow: 0 4px 12px rgba(60, 84, 114, 0.3);
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a7bed3;
+        }
+
+        .search-input {
+            width: 100%;
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 15px 10px 40px;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00bcd4;
+        }
+
+        .search-input::placeholder {
+            color: #6b7d8f;
+        }
+
+        /* 数据表格 */
+        .data-table-container {
+            background: #2a3d54;
+            border: 1px solid #3c5472;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #1a2a3a 0%, #2a3d54 100%);
+        }
+
+        .data-table th {
+            padding: 14px 12px;
+            text-align: left;
+            color: #e0e6ed;
+            font-weight: 600;
+            border-bottom: 2px solid #3c5472;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 12px;
+            color: #a7bed3;
+            border-bottom: 1px solid #3c5472;
+        }
+
+        .data-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: rgba(0, 188, 212, 0.1);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-link {
+            color: #00bcd4;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+        }
+
+        .action-link:hover {
+            background: rgba(0, 188, 212, 0.2);
+            color: #00e5ff;
+        }
+
+        .action-link.danger {
+            color: #f44336;
+        }
+
+        .action-link.danger:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #ff5252;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a7bed3;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #3c5472;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.enabled {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .status-badge.disabled {
+            background: rgba(158, 158, 158, 0.2);
+            color: #9e9e9e;
+            border: 1px solid #9e9e9e;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999999 !important;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active {
+            display: flex !important;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2a3d54 0%, #1a2a3a 100%);
+            border: 1px solid #3c5472;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+            position: relative;
+            margin: auto;
+            z-index: 1000000;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #3c5472;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #1a2a3a 0%, #2a3d54 100%);
+        }
+
+        .modal-title {
+            font-size: 20px;
+            color: #00bcd4;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #a7bed3;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            color: #a7bed3;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-label.required::after {
+            content: ' *';
+            color: #f44336;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            background-color: #1a2a3a;
+            border: 1px solid #3c5472;
+            color: #e0e6ed;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-actions {
+            padding: 20px 24px;
+            border-top: 1px solid #3c5472;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <div class="alarm-config-container">
+        <div class="page-header">
+            <h2 class="page-title">
+                <i class="fas fa-bell"></i> 告警配置
+            </h2>
+            <p class="page-description">
+                实现对监测的各个参数指标的越限配置和用量的限制告警配置，为能源管理系统提供告警功能支撑。
+            </p>
+        </div>
+
+        <!-- Tab导航 -->
+        <div class="tab-nav">
+            <button class="tab-button active" data-tab="threshold">
+                <i class="fas fa-exclamation-triangle"></i> 越限告警配置
+            </button>
+            <button class="tab-button" data-tab="statistical">
+                <i class="fas fa-chart-bar"></i> 统计告警配置
+            </button>
+        </div>
+
+        <!-- 越限告警配置 -->
+        <div id="tab-threshold" class="tab-content active">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showThresholdForm()">
+                        <i class="fas fa-plus"></i> 新增越限告警
+                    </button>
+                    <button class="action-button secondary" onclick="exportThreshold()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importThreshold()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-threshold" placeholder="搜索参数名称、设备名称..." oninput="filterThreshold()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>告警ID</th>
+                            <th>参数名称</th>
+                            <th>所属设备</th>
+                            <th>监测指标</th>
+                            <th>上限值</th>
+                            <th>下限值</th>
+                            <th>告警级别</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="threshold-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 统计告警配置 -->
+        <div id="tab-statistical" class="tab-content">
+            <div class="action-bar">
+                <div class="action-group">
+                    <button class="action-button" onclick="showStatisticalForm()">
+                        <i class="fas fa-plus"></i> 新增统计告警
+                    </button>
+                    <button class="action-button secondary" onclick="exportStatistical()">
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                    <button class="action-button secondary" onclick="importStatistical()">
+                        <i class="fas fa-upload"></i> 导入
+                    </button>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="search-statistical" placeholder="搜索指标名称、统计类型..." oninput="filterStatistical()">
+                </div>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>告警ID</th>
+                            <th>指标名称</th>
+                            <th>统计类型</th>
+                            <th>统计周期</th>
+                            <th>限制值</th>
+                            <th>比较方式</th>
+                            <th>告警级别</th>
+                            <th>启用状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statistical-table-body">
+                        <!-- 数据将通过JavaScript动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 越限告警配置模态框 -->
+    <div class="modal-overlay" id="threshold-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i> <span id="threshold-modal-title">新增越限告警</span>
+                </h3>
+                <button class="modal-close" onclick="closeThresholdModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="threshold-form" onsubmit="saveThreshold(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">参数名称</label>
+                            <input type="text" class="form-input" id="threshold-parameter-name" required placeholder="如：电流">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">所属设备</label>
+                            <select class="form-select" id="threshold-equipment" required>
+                                <option value="">请选择设备</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">监测指标</label>
+                            <select class="form-select" id="threshold-indicator" required>
+                                <option value="">请选择指标</option>
+                                <option value="current">电流</option>
+                                <option value="voltage">电压</option>
+                                <option value="power">功率</option>
+                                <option value="temperature">温度</option>
+                                <option value="pressure">压力</option>
+                                <option value="flow">流量</option>
+                                <option value="consumption">能耗</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">上限值</label>
+                            <input type="number" class="form-input" id="threshold-upper-limit" step="0.01" placeholder="如：100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">下限值</label>
+                            <input type="number" class="form-input" id="threshold-lower-limit" step="0.01" placeholder="如：0">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">告警级别</label>
+                            <select class="form-select" id="threshold-level" required>
+                                <option value="">请选择级别</option>
+                                <option value="info">信息</option>
+                                <option value="warning">警告</option>
+                                <option value="error">错误</option>
+                                <option value="critical">严重</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">启用状态</label>
+                            <select class="form-select" id="threshold-enabled" required>
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-textarea" id="threshold-remark" placeholder="请输入备注信息（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeThresholdModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计告警配置模态框 -->
+    <div class="modal-overlay" id="statistical-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-chart-bar"></i> <span id="statistical-modal-title">新增统计告警</span>
+                </h3>
+                <button class="modal-close" onclick="closeStatisticalModal()" title="关闭">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="statistical-form" onsubmit="saveStatistical(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">指标名称</label>
+                            <input type="text" class="form-input" id="statistical-indicator-name" required placeholder="如：日用电量">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">统计类型</label>
+                            <select class="form-select" id="statistical-type" required>
+                                <option value="">请选择类型</option>
+                                <option value="daily">日统计</option>
+                                <option value="weekly">周统计</option>
+                                <option value="monthly">月统计</option>
+                                <option value="yearly">年统计</option>
+                                <option value="custom">自定义</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">统计周期</label>
+                            <select class="form-select" id="statistical-period" required>
+                                <option value="">请选择周期</option>
+                                <option value="hour">小时</option>
+                                <option value="day">天</option>
+                                <option value="week">周</option>
+                                <option value="month">月</option>
+                                <option value="year">年</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">限制值</label>
+                            <input type="number" class="form-input" id="statistical-limit" step="0.01" required placeholder="如：1000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">比较方式</label>
+                            <select class="form-select" id="statistical-comparison" required>
+                                <option value="">请选择方式</option>
+                                <option value="greater">大于</option>
+                                <option value="less">小于</option>
+                                <option value="equal">等于</option>
+                                <option value="not-equal">不等于</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">告警级别</label>
+                            <select class="form-select" id="statistical-level" required>
+                                <option value="">请选择级别</option>
+                                <option value="info">信息</option>
+                                <option value="warning">警告</option>
+                                <option value="error">错误</option>
+                                <option value="critical">严重</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">启用状态</label>
+                            <select class="form-select" id="statistical-enabled" required>
+                                <option value="true">启用</option>
+                                <option value="false">禁用</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">备注</label>
+                            <textarea class="form-textarea" id="statistical-remark" placeholder="请输入备注信息（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="action-button secondary" onclick="closeStatisticalModal()">取消</button>
+                        <button type="submit" class="action-button">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ========== 全局数据 ==========
+const AlarmConfig = {
+    currentEditingId: null,
+    threshold: [
+        { 
+            id: 1, 
+            parameterName: '电流', 
+            equipmentId: 1, 
+            equipmentName: '主电机', 
+            indicator: 'current', 
+            indicatorName: '电流', 
+            upperLimit: 100, 
+            lowerLimit: 0, 
+            level: 'warning', 
+            levelName: '警告', 
+            enabled: true,
+            remark: '主电机电流监测'
+        },
+        { 
+            id: 2, 
+            parameterName: '温度', 
+            equipmentId: 6, 
+            equipmentName: '加热器', 
+            indicator: 'temperature', 
+            indicatorName: '温度', 
+            upperLimit: 200, 
+            lowerLimit: 50, 
+            level: 'error', 
+            levelName: '错误', 
+            enabled: true,
+            remark: '加热器温度监测'
+        },
+        { 
+            id: 3, 
+            parameterName: '压力', 
+            equipmentId: 4, 
+            equipmentName: '压缩机', 
+            indicator: 'pressure', 
+            indicatorName: '压力', 
+            upperLimit: 1.5, 
+            lowerLimit: 0.5, 
+            level: 'critical', 
+            levelName: '严重', 
+            enabled: true,
+            remark: '压缩机压力监测'
+        }
+    ],
+    statistical: [
+        { 
+            id: 1, 
+            indicatorName: '日用电量', 
+            type: 'daily', 
+            typeName: '日统计', 
+            period: 'day', 
+            periodName: '天', 
+            limit: 1000, 
+            comparison: 'greater', 
+            comparisonName: '大于', 
+            level: 'warning', 
+            levelName: '警告', 
+            enabled: true,
+            remark: '日用电量限制告警'
+        },
+        { 
+            id: 2, 
+            indicatorName: '周能耗总量', 
+            type: 'weekly', 
+            typeName: '周统计', 
+            period: 'week', 
+            periodName: '周', 
+            limit: 5000, 
+            comparison: 'greater', 
+            comparisonName: '大于', 
+            level: 'error', 
+            levelName: '错误', 
+            enabled: true,
+            remark: '周能耗总量限制告警'
+        },
+        { 
+            id: 3, 
+            indicatorName: '月用水量', 
+            type: 'monthly', 
+            typeName: '月统计', 
+            period: 'month', 
+            periodName: '月', 
+            limit: 10000, 
+            comparison: 'greater', 
+            comparisonName: '大于', 
+            level: 'info', 
+            levelName: '信息', 
+            enabled: true,
+            remark: '月用水量限制告警'
+        }
+    ],
+    // 从localStorage加载设备数据
+    equipmentList: (function() {
+        // 这里可以从KPI配置页面获取设备数据，或者从localStorage获取
+        // 为了简化，先使用静态数据
+        return [
+            { id: 1, code: 'EQ-001', name: '主电机' },
+            { id: 2, code: 'EQ-002', name: '注塑机' },
+            { id: 3, code: 'EQ-003', name: '冷却水泵' },
+            { id: 4, code: 'EQ-004', name: '压缩机' },
+            { id: 5, code: 'EQ-005', name: '循环风机' },
+            { id: 6, code: 'EQ-006', name: '加热器' },
+            { id: 7, code: 'EQ-007', name: '冷却塔' },
+            { id: 8, code: 'EQ-008', name: '包装机' }
+        ];
+    })()
+};
+
+// ========== Tab切换功能 ==========
+function switchTab(tabName) {
+    // 更新按钮状态
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-tab') === tabName) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // 更新内容显示
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+        content.style.display = 'none';
+    });
+    
+    const targetContent = document.getElementById('tab-' + tabName);
+    if (targetContent) {
+        targetContent.classList.add('active');
+        targetContent.style.display = 'block';
+    }
+    
+    // 渲染对应数据
+    renderTable(tabName);
+}
+
+// 绑定Tab按钮事件
+function initTabButtons() {
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            if (tabName) {
+                switchTab(tabName);
+            }
+        });
+    });
+}
+
+// ========== 表格渲染 ==========
+const indicatorMap = {
+    'current': '电流',
+    'voltage': '电压',
+    'power': '功率',
+    'temperature': '温度',
+    'pressure': '压力',
+    'flow': '流量',
+    'consumption': '能耗',
+    'other': '其他'
+};
+
+const levelMap = {
+    'info': '信息',
+    'warning': '警告',
+    'error': '错误',
+    'critical': '严重'
+};
+
+const typeMap = {
+    'daily': '日统计',
+    'weekly': '周统计',
+    'monthly': '月统计',
+    'yearly': '年统计',
+    'custom': '自定义'
+};
+
+const periodMap = {
+    'hour': '小时',
+    'day': '天',
+    'week': '周',
+    'month': '月',
+    'year': '年'
+};
+
+const comparisonMap = {
+    'greater': '大于',
+    'less': '小于',
+    'equal': '等于',
+    'not-equal': '不等于'
+};
+
+function renderTable(tabName) {
+    let data, tbody, columns;
+    
+    if (tabName === 'threshold') {
+        data = AlarmConfig.threshold || [];
+        tbody = document.getElementById('threshold-table-body');
+        columns = 9;
+    } else if (tabName === 'statistical') {
+        data = AlarmConfig.statistical || [];
+        tbody = document.getElementById('statistical-table-body');
+        columns = 9;
+    } else {
+        return;
+    }
+    
+    if (!tbody) return;
+    
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${columns}" class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p></td></tr>`;
+        return;
+    }
+    
+    let html = '';
+    if (tabName === 'threshold') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.parameterName}</td>
+                    <td>${item.equipmentName || '-'}</td>
+                    <td>${item.indicatorName || '-'}</td>
+                    <td>${item.upperLimit !== null && item.upperLimit !== undefined ? item.upperLimit : '-'}</td>
+                    <td>${item.lowerLimit !== null && item.lowerLimit !== undefined ? item.lowerLimit : '-'}</td>
+                    <td>${item.levelName || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editThreshold(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteThreshold(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'statistical') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.indicatorName}</td>
+                    <td>${item.typeName || '-'}</td>
+                    <td>${item.periodName || '-'}</td>
+                    <td>${item.limit || '-'}</td>
+                    <td>${item.comparisonName || '-'}</td>
+                    <td>${item.levelName || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editStatistical(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteStatistical(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    tbody.innerHTML = html;
+}
+
+// ========== 越限告警配置功能 ==========
+window.switchTab = switchTab;
+
+window.showThresholdForm = function() {
+    AlarmConfig.currentEditingId = null;
+    document.getElementById('threshold-modal-title').textContent = '新增越限告警';
+    document.getElementById('threshold-form').reset();
+    
+    // 更新设备下拉框
+    const equipmentSelect = document.getElementById('threshold-equipment');
+    equipmentSelect.innerHTML = '<option value="">请选择设备</option>';
+    AlarmConfig.equipmentList.forEach(equipment => {
+        const option = document.createElement('option');
+        option.value = equipment.id;
+        option.textContent = `${equipment.code} - ${equipment.name}`;
+        equipmentSelect.appendChild(option);
+    });
+    
+    document.getElementById('threshold-modal').classList.add('active');
+};
+
+window.editThreshold = function(id) {
+    const item = AlarmConfig.threshold.find(d => d.id === id);
+    if (!item) return;
+    
+    AlarmConfig.currentEditingId = id;
+    document.getElementById('threshold-modal-title').textContent = '编辑越限告警';
+    
+    // 更新设备下拉框
+    const equipmentSelect = document.getElementById('threshold-equipment');
+    equipmentSelect.innerHTML = '<option value="">请选择设备</option>';
+    AlarmConfig.equipmentList.forEach(equipment => {
+        const option = document.createElement('option');
+        option.value = equipment.id;
+        option.textContent = `${equipment.code} - ${equipment.name}`;
+        if (equipment.id === item.equipmentId) option.selected = true;
+        equipmentSelect.appendChild(option);
+    });
+    
+    document.getElementById('threshold-parameter-name').value = item.parameterName;
+    document.getElementById('threshold-indicator').value = item.indicator;
+    document.getElementById('threshold-upper-limit').value = item.upperLimit !== null && item.upperLimit !== undefined ? item.upperLimit : '';
+    document.getElementById('threshold-lower-limit').value = item.lowerLimit !== null && item.lowerLimit !== undefined ? item.lowerLimit : '';
+    document.getElementById('threshold-level').value = item.level;
+    document.getElementById('threshold-enabled').value = item.enabled ? 'true' : 'false';
+    document.getElementById('threshold-remark').value = item.remark || '';
+    document.getElementById('threshold-modal').classList.add('active');
+};
+
+window.deleteThreshold = function(id) {
+    if (confirm('确定要删除这条越限告警配置吗？')) {
+        AlarmConfig.threshold = AlarmConfig.threshold.filter(item => item.id !== id);
+        renderTable('threshold');
+    }
+};
+
+window.saveThreshold = function(e) {
+    e.preventDefault();
+    const equipmentId = parseInt(document.getElementById('threshold-equipment').value);
+    const equipment = AlarmConfig.equipmentList.find(eq => eq.id === equipmentId);
+    if (!equipment) {
+        alert('请选择有效的设备');
+        return;
+    }
+    
+    const indicator = document.getElementById('threshold-indicator').value;
+    const data = {
+        parameterName: document.getElementById('threshold-parameter-name').value,
+        equipmentId: equipmentId,
+        equipmentName: equipment.name,
+        indicator: indicator,
+        indicatorName: indicatorMap[indicator] || '其他',
+        upperLimit: document.getElementById('threshold-upper-limit').value ? parseFloat(document.getElementById('threshold-upper-limit').value) : null,
+        lowerLimit: document.getElementById('threshold-lower-limit').value ? parseFloat(document.getElementById('threshold-lower-limit').value) : null,
+        level: document.getElementById('threshold-level').value,
+        levelName: levelMap[document.getElementById('threshold-level').value] || '信息',
+        enabled: document.getElementById('threshold-enabled').value === 'true',
+        remark: document.getElementById('threshold-remark').value || ''
+    };
+    
+    if (AlarmConfig.currentEditingId) {
+        const index = AlarmConfig.threshold.findIndex(d => d.id === AlarmConfig.currentEditingId);
+        if (index !== -1) {
+            AlarmConfig.threshold[index] = { ...AlarmConfig.threshold[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...AlarmConfig.threshold.map(d => d.id), 0) + 1;
+        AlarmConfig.threshold.push({ id: newId, ...data });
+    }
+    
+    renderTable('threshold');
+    window.closeThresholdModal();
+};
+
+window.filterThreshold = function() {
+    const keyword = document.getElementById('search-threshold').value.toLowerCase();
+    const filtered = AlarmConfig.threshold.filter(item => 
+        item.parameterName.toLowerCase().includes(keyword) || 
+        (item.equipmentName && item.equipmentName.toLowerCase().includes(keyword))
+    );
+    renderFilteredTable('threshold', filtered);
+};
+
+window.closeThresholdModal = function() {
+    document.getElementById('threshold-modal').classList.remove('active');
+    AlarmConfig.currentEditingId = null;
+};
+
+window.exportThreshold = function() {
+    alert('导出功能开发中...');
+};
+
+window.importThreshold = function() {
+    alert('导入功能开发中...');
+};
+
+// ========== 统计告警配置功能 ==========
+window.showStatisticalForm = function() {
+    AlarmConfig.currentEditingId = null;
+    document.getElementById('statistical-modal-title').textContent = '新增统计告警';
+    document.getElementById('statistical-form').reset();
+    document.getElementById('statistical-modal').classList.add('active');
+};
+
+window.editStatistical = function(id) {
+    const item = AlarmConfig.statistical.find(d => d.id === id);
+    if (!item) return;
+    
+    AlarmConfig.currentEditingId = id;
+    document.getElementById('statistical-modal-title').textContent = '编辑统计告警';
+    
+    document.getElementById('statistical-indicator-name').value = item.indicatorName;
+    document.getElementById('statistical-type').value = item.type;
+    document.getElementById('statistical-period').value = item.period;
+    document.getElementById('statistical-limit').value = item.limit;
+    document.getElementById('statistical-comparison').value = item.comparison;
+    document.getElementById('statistical-level').value = item.level;
+    document.getElementById('statistical-enabled').value = item.enabled ? 'true' : 'false';
+    document.getElementById('statistical-remark').value = item.remark || '';
+    document.getElementById('statistical-modal').classList.add('active');
+};
+
+window.deleteStatistical = function(id) {
+    if (confirm('确定要删除这条统计告警配置吗？')) {
+        AlarmConfig.statistical = AlarmConfig.statistical.filter(item => item.id !== id);
+        renderTable('statistical');
+    }
+};
+
+window.saveStatistical = function(e) {
+    e.preventDefault();
+    
+    const type = document.getElementById('statistical-type').value;
+    const period = document.getElementById('statistical-period').value;
+    const comparison = document.getElementById('statistical-comparison').value;
+    const level = document.getElementById('statistical-level').value;
+    
+    const data = {
+        indicatorName: document.getElementById('statistical-indicator-name').value,
+        type: type,
+        typeName: typeMap[type] || '自定义',
+        period: period,
+        periodName: periodMap[period] || '天',
+        limit: parseFloat(document.getElementById('statistical-limit').value),
+        comparison: comparison,
+        comparisonName: comparisonMap[comparison] || '大于',
+        level: level,
+        levelName: levelMap[level] || '信息',
+        enabled: document.getElementById('statistical-enabled').value === 'true',
+        remark: document.getElementById('statistical-remark').value || ''
+    };
+    
+    if (AlarmConfig.currentEditingId) {
+        const index = AlarmConfig.statistical.findIndex(d => d.id === AlarmConfig.currentEditingId);
+        if (index !== -1) {
+            AlarmConfig.statistical[index] = { ...AlarmConfig.statistical[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...AlarmConfig.statistical.map(d => d.id), 0) + 1;
+        AlarmConfig.statistical.push({ id: newId, ...data });
+    }
+    
+    renderTable('statistical');
+    window.closeStatisticalModal();
+};
+
+window.filterStatistical = function() {
+    const keyword = document.getElementById('search-statistical').value.toLowerCase();
+    const filtered = AlarmConfig.statistical.filter(item => 
+        item.indicatorName.toLowerCase().includes(keyword) || 
+        (item.typeName && item.typeName.toLowerCase().includes(keyword))
+    );
+    renderFilteredTable('statistical', filtered);
+};
+
+window.closeStatisticalModal = function() {
+    document.getElementById('statistical-modal').classList.remove('active');
+    AlarmConfig.currentEditingId = null;
+};
+
+window.exportStatistical = function() {
+    alert('导出功能开发中...');
+};
+
+window.importStatistical = function() {
+    alert('导入功能开发中...');
+};
+
+function renderFilteredTable(tabName, data) {
+    let tbody, columns;
+    
+    if (tabName === 'threshold') {
+        tbody = document.getElementById('threshold-table-body');
+        columns = 9;
+    } else if (tabName === 'statistical') {
+        tbody = document.getElementById('statistical-table-body');
+        columns = 9;
+    } else {
+        return;
+    }
+    
+    if (!tbody) return;
+    
+    if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${columns}" class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p></td></tr>`;
+        return;
+    }
+    
+    // 使用相同的渲染逻辑
+    if (tabName === 'threshold') {
+        let html = '';
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.parameterName}</td>
+                    <td>${item.equipmentName || '-'}</td>
+                    <td>${item.indicatorName || '-'}</td>
+                    <td>${item.upperLimit !== null && item.upperLimit !== undefined ? item.upperLimit : '-'}</td>
+                    <td>${item.lowerLimit !== null && item.lowerLimit !== undefined ? item.lowerLimit : '-'}</td>
+                    <td>${item.levelName || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editThreshold(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteThreshold(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    } else if (tabName === 'statistical') {
+        let html = '';
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.indicatorName}</td>
+                    <td>${item.typeName || '-'}</td>
+                    <td>${item.periodName || '-'}</td>
+                    <td>${item.limit || '-'}</td>
+                    <td>${item.comparisonName || '-'}</td>
+                    <td>${item.levelName || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editStatistical(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteStatistical(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+    }
+}
+
+// ========== 初始化 ==========
+function init() {
+    try {
+        initTabButtons();
+        // 渲染所有tab的数据
+        renderTable('threshold');
+        renderTable('statistical');
+        
+        // 确保默认tab显示正确
+        const defaultTabContent = document.getElementById('tab-threshold');
+        if (defaultTabContent) {
+            defaultTabContent.classList.add('active');
+            defaultTabContent.style.display = 'block';
+        }
+        
+        // 确保其他tab隐藏
+        document.querySelectorAll('.tab-content:not(#tab-threshold)').forEach(content => {
+            content.classList.remove('active');
+            content.style.display = 'none';
+        });
+        
+        console.log('Alarm Config initialized successfully');
+    } catch (error) {
+        console.error('Error initializing Alarm Config:', error);
+    }
+}
+
+// 确保在iframe环境中也能正常工作
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// 备用初始化（针对iframe环境）
+setTimeout(init, 100);
+setTimeout(init, 500);
+if (window.parent !== window) {
+    window.addEventListener('load', function() {
+        setTimeout(init, 1000);
+    });
+}
+</script>
