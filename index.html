@@ -257,12 +257,15 @@
                     background-color: #1a2a3a;
                 }
                 /* 统一容器样式，移除min-height和max-height限制，确保高度根据内容自适应 */
+                /* 注释掉：这个规则影响了能源拓扑图页面的图表容器 */
+                /*
                 body div[class*="-container"]:not(.iframe-page-wrapper):not(.modal-overlay):not(.modal),
                 body .home-overview {
                     min-height: auto !important;
                     max-height: none !important;
                     height: auto !important;
                 }
+                */
                 /* 处理sub-menu-content-container，保持其原有样式 */
                 body .sub-menu-content-container {
                     min-height: auto !important;
