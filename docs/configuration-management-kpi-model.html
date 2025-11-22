@@ -1454,17 +1454,17 @@
                 }
             }
 
-            // 更新Tab内容
+            // 更新Tab内容 - 使用内联样式确保优先级
             const allTabContents = document.querySelectorAll('.tab-content');
             allTabContents.forEach(content => {
                 content.classList.remove('active');
-                content.style.display = 'none';
+                content.style.cssText = (content.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: none !important;';
             });
             
             const targetTabContent = document.getElementById('tab-' + tab);
             if (targetTabContent) {
                 targetTabContent.classList.add('active');
-                targetTabContent.style.display = 'block';
+                targetTabContent.style.cssText = (targetTabContent.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: block !important;';
             }
 
             currentTab = tab;
@@ -3091,12 +3091,19 @@
             renderEquipmentTable();
             renderMeterTable();
             
-            // 确保默认tab显示正确
+            // 确保默认tab显示正确 - 使用内联样式确保优先级
             const defaultTabContent = document.getElementById('tab-factory');
             if (defaultTabContent) {
                 defaultTabContent.classList.add('active');
-                defaultTabContent.style.display = 'block';
+                defaultTabContent.style.cssText = (defaultTabContent.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: block !important;';
             }
+            
+            // 确保其他tab隐藏
+            const allTabContents = document.querySelectorAll('.tab-content:not(#tab-factory)');
+            allTabContents.forEach(content => {
+                content.classList.remove('active');
+                content.style.cssText = (content.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: none !important;';
+            });
             
             // 确保默认tab按钮激活
             const defaultTabButton = document.querySelector('.tab-button.active');
@@ -3107,7 +3114,7 @@
                 }
             }
             
-            console.log('KPI Model Config initialized successfully');
+            console.log('KPI Model Config initialized successfully. Factory data count:', factoryData.length);
         } catch (error) {
             console.error('Error initializing KPI Model Config:', error);
         }
