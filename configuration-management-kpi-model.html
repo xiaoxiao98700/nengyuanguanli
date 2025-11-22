@@ -1414,9 +1414,27 @@ function initTabButtons() {
 
 // ========== 表格渲染 ==========
 function renderTable(tabName) {
-    const data = KPIConfig[tabName] || [];
-    const tbody = document.getElementById(tabName + '-table-body');
-    if (!tbody) return;
+    // 处理tab名称映射（production-line -> productionLine）
+    const dataKeyMap = {
+        'production-line': 'productionLine',
+        'productionLine': 'productionLine',
+        'factory': 'factory',
+        'workshop': 'workshop',
+        'craft': 'craft',
+        'process': 'process',
+        'equipment': 'equipment',
+        'meter': 'meter'
+    };
+    const dataKey = dataKeyMap[tabName] || tabName;
+    const data = KPIConfig[dataKey] || [];
+    
+    // 处理tbody ID（保持原样，如：production-line-table-body）
+    const tbodyId = tabName + '-table-body';
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) {
+        console.warn('Table body not found for tab:', tabName, 'tbodyId:', tbodyId);
+        return;
+    }
     
     if (data.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p></td></tr>';
