@@ -1468,8 +1468,116 @@ function renderTable(tabName) {
                 </tr>
             `;
         });
+    } else if (tabName === 'production-line' || tabName === 'productionLine') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.code}</td>
+                    <td>${item.name}</td>
+                    <td>${item.workshopName || '-'}</td>
+                    <td>${item.eccName ? item.eccName + ' (' + item.eccCode + ')' : '-'}</td>
+                    <td>${item.manager || '-'}</td>
+                    <td>${item.phone || '-'}</td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editProductionLine(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteProductionLine(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'craft') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.code}</td>
+                    <td>${item.name}</td>
+                    <td>${item.productionLineName || '-'}</td>
+                    <td>${item.description || '-'}</td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editCraft(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteCraft(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'process') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.code}</td>
+                    <td>${item.name}</td>
+                    <td>${item.craftName || '-'}</td>
+                    <td>${item.eccName ? item.eccName + ' (' + item.eccCode + ')' : '-'}</td>
+                    <td>${item.description || '-'}</td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editProcess(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteProcess(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'equipment') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.code}</td>
+                    <td>${item.name}</td>
+                    <td>${item.typeName || '-'}</td>
+                    <td>${item.processName || '-'}</td>
+                    <td>${item.eccName ? item.eccName + ' (' + item.eccCode + ')' : '-'}</td>
+                    <td>${item.power || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editEquipment(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteEquipment(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'meter') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.code}</td>
+                    <td>${item.name}</td>
+                    <td>${item.typeName || '-'}</td>
+                    <td>${item.equipmentName || '-'}</td>
+                    <td>${item.parameterName || '-'}</td>
+                    <td>${item.unit || '-'}</td>
+                    <td><span class="status-badge ${item.enabled ? 'enabled' : 'disabled'}">${item.enabled ? '启用' : '禁用'}</span></td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editMeter(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteMeter(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
     }
-    // 其他tab的渲染逻辑类似...
     
     tbody.innerHTML = html;
 }
@@ -1768,8 +1876,13 @@ if (document.readyState === 'loading') {
 // 备用初始化（针对iframe环境）
 setTimeout(init, 100);
 setTimeout(init, 500);
+if (window.parent !== window) {
+    window.addEventListener('load', function() {
+        setTimeout(init, 1000);
+    });
+}
 
-// ========== 以下为旧代码，将被删除 ==========
+// ========== 以下为旧代码，已注释 ==========
 /*
 (function() {
     // 从localStorage加载ECC数据
@@ -3663,4 +3776,5 @@ setTimeout(init, 500);
         ensureInit();
     }
 })();
+*/
 </script>
