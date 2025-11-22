@@ -1,4 +1,4 @@
-<div class="sub-menu-content-container">
+<div class="kpi-model-config-container">
     <style>
         /* 统一滚动条样式 */
         * {
@@ -31,8 +31,8 @@
         .kpi-model-config-container {
             padding: 20px;
             background-color: #0f1e2d;
-            min-height: 100vh;
             font-family: 'Microsoft YaHei', 'PingFang SC', 'Source Han Sans', Arial, sans-serif;
+            min-height: auto;
         }
 
         .page-header {
@@ -583,25 +583,25 @@
 
         <!-- Tab导航 -->
         <div class="tab-nav">
-            <button class="tab-button active" onclick="switchTab('factory', event)">
+            <button class="tab-button active" data-tab="factory">
                 <i class="fas fa-building"></i> 厂区配置
             </button>
-            <button class="tab-button" onclick="switchTab('workshop', event)">
+            <button class="tab-button" data-tab="workshop">
                 <i class="fas fa-industry"></i> 车间配置
             </button>
-            <button class="tab-button" onclick="switchTab('production-line', event)">
+            <button class="tab-button" data-tab="production-line">
                 <i class="fas fa-stream"></i> 产线配置
             </button>
-            <button class="tab-button" onclick="switchTab('craft', event)">
+            <button class="tab-button" data-tab="craft">
                 <i class="fas fa-flask"></i> 工艺配置
             </button>
-            <button class="tab-button" onclick="switchTab('process', event)">
+            <button class="tab-button" data-tab="process">
                 <i class="fas fa-project-diagram"></i> 工序配置
             </button>
-            <button class="tab-button" onclick="switchTab('equipment', event)">
+            <button class="tab-button" data-tab="equipment">
                 <i class="fas fa-cogs"></i> 设备配置
             </button>
-            <button class="tab-button" onclick="switchTab('meter', event)">
+            <button class="tab-button" data-tab="meter">
                 <i class="fas fa-tachometer-alt"></i> 计量仪表配置
             </button>
         </div>
@@ -1310,6 +1310,467 @@
 </div>
 
 <script>
+// ========== 全局数据 ==========
+const KPIConfig = {
+    eccList: (function() {
+        const stored = localStorage.getItem('ecc-list');
+        return stored ? JSON.parse(stored) : [];
+    })(),
+    pageSize: 10,
+    paginationState: {
+        factory: { currentPage: 1 },
+        workshop: { currentPage: 1 },
+        productionLine: { currentPage: 1 },
+        craft: { currentPage: 1 },
+        process: { currentPage: 1 },
+        equipment: { currentPage: 1 },
+        meter: { currentPage: 1 }
+    },
+    factory: [
+        { id: 1, code: 'FACT-001', name: 'XX制造有限公司', eccId: 'ecc-1', eccName: 'XX制造有限公司', eccCode: 'ECC001', manager: '张总', phone: '13800138000', description: '公司总部，负责整体能源管理' }
+    ],
+    workshop: [
+        { id: 1, code: 'WS-001', name: '生产车间A', factoryId: 1, factoryName: 'XX制造有限公司', eccId: 'ecc-2', eccName: '生产车间A', eccCode: 'ECC002', manager: '李主任', phone: '13800138001' },
+        { id: 2, code: 'WS-002', name: '生产车间B', factoryId: 1, factoryName: 'XX制造有限公司', eccId: 'ecc-3', eccName: '生产车间B', eccCode: 'ECC003', manager: '王主任', phone: '13800138002' },
+        { id: 3, code: 'WS-003', name: '包装车间', factoryId: 1, factoryName: 'XX制造有限公司', eccId: 'ecc-4', eccName: '包装车间', eccCode: 'ECC004', manager: '赵主任', phone: '13800138003' }
+    ],
+    productionLine: [
+        { id: 1, code: 'PL-001', name: '注塑产线1', workshopId: 1, workshopName: '生产车间A', eccId: 'ecc-5', eccName: '注塑产线1', eccCode: 'ECC005', manager: '刘班长', phone: '13800138004' },
+        { id: 2, code: 'PL-002', name: '注塑产线2', workshopId: 1, workshopName: '生产车间A', eccId: 'ecc-6', eccName: '注塑产线2', eccCode: 'ECC006', manager: '陈班长', phone: '13800138005' },
+        { id: 3, code: 'PL-003', name: '冲压产线1', workshopId: 2, workshopName: '生产车间B', eccId: 'ecc-7', eccName: '冲压产线1', eccCode: 'ECC007', manager: '周班长', phone: '13800138006' },
+        { id: 4, code: 'PL-004', name: '包装产线1', workshopId: 3, workshopName: '包装车间', eccId: 'ecc-8', eccName: '包装产线1', eccCode: 'ECC008', manager: '吴班长', phone: '13800138007' }
+    ],
+    craft: [
+        { id: 1, code: 'CRAFT-001', name: '注塑工艺', productionLineId: 1, productionLineName: '注塑产线1', description: '注塑成型工艺，包括原料处理、注塑、冷却等环节' },
+        { id: 2, code: 'CRAFT-002', name: '冲压工艺', productionLineId: 3, productionLineName: '冲压产线1', description: '金属冲压成型工艺' },
+        { id: 3, code: 'CRAFT-003', name: '包装工艺', productionLineId: 4, productionLineName: '包装产线1', description: '产品包装工艺，包括分拣、包装、贴标等' }
+    ],
+    process: [
+        { id: 1, code: 'PROC-001', name: '注塑成型', craftId: 1, craftName: '注塑工艺', eccId: 'ecc-10', eccName: '注塑工序', eccCode: 'ECC010', description: '塑料制品注塑成型工序，包括原料加热、注塑、冷却等环节' },
+        { id: 2, code: 'PROC-002', name: '冷却工序', craftId: 1, craftName: '注塑工艺', eccId: 'ecc-11', eccName: '冷却工序', eccCode: 'ECC011', description: '产品冷却工序，确保产品尺寸稳定' },
+        { id: 3, code: 'PROC-003', name: '冲压成型', craftId: 2, craftName: '冲压工艺', eccId: 'ecc-13', eccName: '冲压工序', eccCode: 'ECC013', description: '金属冲压成型工序' },
+        { id: 4, code: 'PROC-004', name: '分拣包装', craftId: 3, craftName: '包装工艺', eccId: 'ecc-14', eccName: '包装工序', eccCode: 'ECC014', description: '产品分拣和包装工序' }
+    ],
+    equipment: [
+        { id: 1, code: 'EQ-001', name: '主电机', type: 'motor', typeName: '电机', processId: 1, processName: '注塑成型', eccId: 'ecc-15', eccName: '主电机', eccCode: 'ECC015', power: 100, enabled: true },
+        { id: 2, code: 'EQ-002', name: '注塑机', type: 'other', typeName: '其他', processId: 1, processName: '注塑成型', eccId: 'ecc-16', eccName: '注塑机', eccCode: 'ECC016', power: 150, enabled: true },
+        { id: 3, code: 'EQ-003', name: '冷却水泵', type: 'pump', typeName: '水泵', processId: 2, processName: '冷却工序', eccId: null, eccName: null, eccCode: null, power: 30, enabled: true },
+        { id: 4, code: 'EQ-004', name: '压缩机', type: 'compressor', typeName: '压缩机', processId: 3, processName: '冲压成型', eccId: 'ecc-18', eccName: '压缩机', eccCode: 'ECC018', power: 75, enabled: true },
+        { id: 5, code: 'EQ-005', name: '循环风机', type: 'fan', typeName: '风机', processId: 1, processName: '注塑成型', eccId: null, eccName: null, eccCode: null, power: 45, enabled: true },
+        { id: 6, code: 'EQ-006', name: '加热器', type: 'heater', typeName: '加热器', processId: 1, processName: '注塑成型', eccId: null, eccName: null, eccCode: null, power: 200, enabled: true },
+        { id: 7, code: 'EQ-007', name: '冷却塔', type: 'cooler', typeName: '冷却器', processId: 2, processName: '冷却工序', eccId: null, eccName: null, eccCode: null, power: 50, enabled: true },
+        { id: 8, code: 'EQ-008', name: '包装机', type: 'other', typeName: '其他', processId: 4, processName: '分拣包装', eccId: 'ecc-19', eccName: '包装机', eccCode: 'ECC019', power: 60, enabled: true }
+    ],
+    meter: [
+        { id: 1, code: 'MTR-001', name: '主电机电流表', type: 'current-meter', typeName: '电流表', equipmentId: 1, equipmentName: '主电机', parameter: 'current', parameterName: '电流', unit: 'A', enabled: true },
+        { id: 2, code: 'MTR-002', name: '主电机电压表', type: 'voltage-meter', typeName: '电压表', equipmentId: 1, equipmentName: '主电机', parameter: 'voltage', parameterName: '电压', unit: 'V', enabled: true },
+        { id: 3, code: 'MTR-003', name: '主电机电表', type: 'electricity-meter', typeName: '电表', equipmentId: 1, equipmentName: '主电机', parameter: 'consumption', parameterName: '能耗', unit: 'kWh', enabled: true },
+        { id: 4, code: 'MTR-004', name: '冷却水泵流量计', type: 'flow-meter', typeName: '流量计', equipmentId: 3, equipmentName: '冷却水泵', parameter: 'flow', parameterName: '流量', unit: 'm³/h', enabled: true },
+        { id: 5, code: 'MTR-005', name: '压缩机压力表', type: 'pressure-meter', typeName: '压力表', equipmentId: 4, equipmentName: '压缩机', parameter: 'pressure', parameterName: '压力', unit: 'MPa', enabled: true },
+        { id: 6, code: 'MTR-006', name: '加热器温度计', type: 'temperature-meter', typeName: '温度计', equipmentId: 6, equipmentName: '加热器', parameter: 'temperature', parameterName: '温度', unit: '℃', enabled: true },
+        { id: 7, code: 'MTR-007', name: '冷却塔水表', type: 'water-meter', typeName: '水表', equipmentId: 7, equipmentName: '冷却塔', parameter: 'flow', parameterName: '流量', unit: 'm³/h', enabled: true },
+        { id: 8, code: 'MTR-008', name: '注塑机功率表', type: 'electricity-meter', typeName: '电表', equipmentId: 2, equipmentName: '注塑机', parameter: 'power', parameterName: '功率', unit: 'kW', enabled: true }
+    ],
+    currentEditingId: null
+};
+
+// ========== Tab切换功能 ==========
+function switchTab(tabName) {
+    // 更新按钮状态
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-tab') === tabName) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // 更新内容显示
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+        content.style.display = 'none';
+    });
+    
+    const targetContent = document.getElementById('tab-' + tabName);
+    if (targetContent) {
+        targetContent.classList.add('active');
+        targetContent.style.display = 'block';
+    }
+    
+    // 渲染对应数据
+    renderTable(tabName);
+}
+
+// 绑定Tab按钮事件
+function initTabButtons() {
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabName = this.getAttribute('data-tab');
+            if (tabName) {
+                switchTab(tabName);
+            }
+        });
+    });
+}
+
+// ========== 表格渲染 ==========
+function renderTable(tabName) {
+    const data = KPIConfig[tabName] || [];
+    const tbody = document.getElementById(tabName + '-table-body');
+    if (!tbody) return;
+    
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p></td></tr>';
+        return;
+    }
+    
+    let html = '';
+    if (tabName === 'factory') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.code}</td>
+                    <td>${item.name}</td>
+                    <td>${item.eccName ? item.eccName + ' (' + item.eccCode + ')' : '-'}</td>
+                    <td>${item.manager || '-'}</td>
+                    <td>${item.phone || '-'}</td>
+                    <td>${item.description || '-'}</td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editFactory(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteFactory(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'workshop') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.code}</td>
+                    <td>${item.name}</td>
+                    <td>${item.factoryName || '-'}</td>
+                    <td>${item.eccName ? item.eccName + ' (' + item.eccCode + ')' : '-'}</td>
+                    <td>${item.manager || '-'}</td>
+                    <td>${item.phone || '-'}</td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editWorkshop(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteWorkshop(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    // 其他tab的渲染逻辑类似...
+    
+    tbody.innerHTML = html;
+}
+
+// ========== 全局函数暴露 ==========
+window.switchTab = switchTab;
+window.showFactoryForm = function() { 
+    document.getElementById('factory-modal-title').textContent = '新增厂区';
+    document.getElementById('factory-form').reset();
+    KPIConfig.currentEditingId = null;
+    document.getElementById('factory-modal').classList.add('active');
+};
+window.exportFactory = function() { alert('导出功能开发中...'); };
+window.importFactory = function() { alert('导入功能开发中...'); };
+window.filterFactory = function() { 
+    const keyword = document.getElementById('search-factory').value.toLowerCase();
+    const filtered = KPIConfig.factory.filter(item => 
+        item.code.toLowerCase().includes(keyword) || 
+        item.name.toLowerCase().includes(keyword)
+    );
+    renderFilteredTable('factory', filtered);
+};
+window.editFactory = function(id) { 
+    const item = KPIConfig.factory.find(d => d.id === id);
+    if (!item) return;
+    KPIConfig.currentEditingId = id;
+    document.getElementById('factory-modal-title').textContent = '编辑厂区';
+    document.getElementById('factory-code').value = item.code;
+    document.getElementById('factory-name').value = item.name;
+    document.getElementById('factory-ecc').value = item.eccId || '';
+    document.getElementById('factory-manager').value = item.manager || '';
+    document.getElementById('factory-phone').value = item.phone || '';
+    document.getElementById('factory-description').value = item.description || '';
+    document.getElementById('factory-modal').classList.add('active');
+};
+window.deleteFactory = function(id) { 
+    if (confirm('确定要删除这个厂区吗？')) {
+        KPIConfig.factory = KPIConfig.factory.filter(item => item.id !== id);
+        renderTable('factory');
+    }
+};
+window.closeFactoryModal = function() {
+    document.getElementById('factory-modal').classList.remove('active');
+    KPIConfig.currentEditingId = null;
+};
+window.saveFactory = function(e) {
+    e.preventDefault();
+    const data = {
+        code: document.getElementById('factory-code').value,
+        name: document.getElementById('factory-name').value,
+        eccId: document.getElementById('factory-ecc').value || null,
+        manager: document.getElementById('factory-manager').value || '',
+        phone: document.getElementById('factory-phone').value || '',
+        description: document.getElementById('factory-description').value || ''
+    };
+    
+    if (data.eccId) {
+        const ecc = KPIConfig.eccList.find(e => e.id === data.eccId);
+        if (ecc) {
+            data.eccName = ecc.name;
+            data.eccCode = ecc.code;
+        }
+    }
+    
+    if (KPIConfig.currentEditingId) {
+        const index = KPIConfig.factory.findIndex(d => d.id === KPIConfig.currentEditingId);
+        if (index !== -1) {
+            KPIConfig.factory[index] = { ...KPIConfig.factory[index], ...data };
+        }
+    } else {
+        const newId = Math.max(...KPIConfig.factory.map(d => d.id), 0) + 1;
+        KPIConfig.factory.push({ id: newId, ...data });
+    }
+    
+    renderTable('factory');
+    window.closeFactoryModal();
+};
+
+// 其他tab的函数（简化版）
+window.showWorkshopForm = function() { alert('新增车间功能开发中...'); };
+window.editWorkshop = function(id) { alert('编辑车间功能开发中... ID: ' + id); };
+window.deleteWorkshop = function(id) { 
+    if (confirm('确定要删除这个车间吗？')) {
+        KPIConfig.workshop = KPIConfig.workshop.filter(item => item.id !== id);
+        renderTable('workshop');
+    }
+};
+window.saveWorkshop = function(e) { e.preventDefault(); alert('保存车间功能开发中...'); };
+window.filterWorkshop = function() { 
+    const keyword = document.getElementById('search-workshop').value.toLowerCase();
+    const filtered = KPIConfig.workshop.filter(item => 
+        item.code.toLowerCase().includes(keyword) || 
+        item.name.toLowerCase().includes(keyword)
+    );
+    renderFilteredTable('workshop', filtered);
+};
+window.closeWorkshopModal = function() { 
+    document.getElementById('workshop-modal').classList.remove('active');
+};
+
+window.showProductionLineForm = function() { alert('新增产线功能开发中...'); };
+window.editProductionLine = function(id) { alert('编辑产线功能开发中... ID: ' + id); };
+window.deleteProductionLine = function(id) { 
+    if (confirm('确定要删除这条产线吗？')) {
+        KPIConfig.productionLine = KPIConfig.productionLine.filter(item => item.id !== id);
+        renderTable('production-line');
+    }
+};
+window.saveProductionLine = function(e) { e.preventDefault(); alert('保存产线功能开发中...'); };
+window.filterProductionLine = function() { 
+    const keyword = document.getElementById('search-production-line').value.toLowerCase();
+    const filtered = KPIConfig.productionLine.filter(item => 
+        item.code.toLowerCase().includes(keyword) || 
+        item.name.toLowerCase().includes(keyword)
+    );
+    renderFilteredTable('production-line', filtered);
+};
+window.closeProductionLineModal = function() { 
+    document.getElementById('production-line-modal').classList.remove('active');
+};
+
+window.showCraftForm = function() { alert('新增工艺功能开发中...'); };
+window.editCraft = function(id) { alert('编辑工艺功能开发中... ID: ' + id); };
+window.deleteCraft = function(id) { 
+    if (confirm('确定要删除这个工艺吗？')) {
+        KPIConfig.craft = KPIConfig.craft.filter(item => item.id !== id);
+        renderTable('craft');
+    }
+};
+window.saveCraft = function(e) { e.preventDefault(); alert('保存工艺功能开发中...'); };
+window.filterCraft = function() { 
+    const keyword = document.getElementById('search-craft').value.toLowerCase();
+    const filtered = KPIConfig.craft.filter(item => 
+        item.code.toLowerCase().includes(keyword) || 
+        item.name.toLowerCase().includes(keyword)
+    );
+    renderFilteredTable('craft', filtered);
+};
+window.closeCraftModal = function() { 
+    document.getElementById('craft-modal').classList.remove('active');
+};
+
+window.showProcessForm = function() { alert('新增工序功能开发中...'); };
+window.editProcess = function(id) { alert('编辑工序功能开发中... ID: ' + id); };
+window.deleteProcess = function(id) { 
+    if (confirm('确定要删除这个工序吗？')) {
+        KPIConfig.process = KPIConfig.process.filter(item => item.id !== id);
+        renderTable('process');
+    }
+};
+window.saveProcess = function(e) { e.preventDefault(); alert('保存工序功能开发中...'); };
+window.filterProcess = function() { 
+    const keyword = document.getElementById('search-process').value.toLowerCase();
+    const filtered = KPIConfig.process.filter(item => 
+        item.code.toLowerCase().includes(keyword) || 
+        item.name.toLowerCase().includes(keyword)
+    );
+    renderFilteredTable('process', filtered);
+};
+window.closeProcessModal = function() { 
+    document.getElementById('process-modal').classList.remove('active');
+};
+
+window.showEquipmentForm = function() { alert('新增设备功能开发中...'); };
+window.editEquipment = function(id) { alert('编辑设备功能开发中... ID: ' + id); };
+window.deleteEquipment = function(id) { 
+    if (confirm('确定要删除这个设备吗？')) {
+        KPIConfig.equipment = KPIConfig.equipment.filter(item => item.id !== id);
+        renderTable('equipment');
+    }
+};
+window.saveEquipment = function(e) { e.preventDefault(); alert('保存设备功能开发中...'); };
+window.filterEquipment = function() { 
+    const keyword = document.getElementById('search-equipment').value.toLowerCase();
+    const filtered = KPIConfig.equipment.filter(item => 
+        item.code.toLowerCase().includes(keyword) || 
+        item.name.toLowerCase().includes(keyword)
+    );
+    renderFilteredTable('equipment', filtered);
+};
+window.closeEquipmentModal = function() { 
+    document.getElementById('equipment-modal').classList.remove('active');
+};
+
+window.showMeterForm = function() { alert('新增仪表功能开发中...'); };
+window.editMeter = function(id) { alert('编辑仪表功能开发中... ID: ' + id); };
+window.deleteMeter = function(id) { 
+    if (confirm('确定要删除这个仪表吗？')) {
+        KPIConfig.meter = KPIConfig.meter.filter(item => item.id !== id);
+        renderTable('meter');
+    }
+};
+window.saveMeter = function(e) { e.preventDefault(); alert('保存仪表功能开发中...'); };
+window.filterMeter = function() { 
+    const keyword = document.getElementById('search-meter').value.toLowerCase();
+    const filtered = KPIConfig.meter.filter(item => 
+        item.code.toLowerCase().includes(keyword) || 
+        item.name.toLowerCase().includes(keyword)
+    );
+    renderFilteredTable('meter', filtered);
+};
+window.closeMeterModal = function() { 
+    document.getElementById('meter-modal').classList.remove('active');
+};
+
+// 导出/导入函数
+window.exportWorkshop = function() { alert('导出功能开发中...'); };
+window.importWorkshop = function() { alert('导入功能开发中...'); };
+window.exportProductionLine = function() { alert('导出功能开发中...'); };
+window.importProductionLine = function() { alert('导入功能开发中...'); };
+window.exportCraft = function() { alert('导出功能开发中...'); };
+window.importCraft = function() { alert('导入功能开发中...'); };
+window.exportProcess = function() { alert('导出功能开发中...'); };
+window.importProcess = function() { alert('导入功能开发中...'); };
+window.exportEquipment = function() { alert('导出功能开发中...'); };
+window.importEquipment = function() { alert('导入功能开发中...'); };
+window.exportMeter = function() { alert('导出功能开发中...'); };
+window.importMeter = function() { alert('导入功能开发中...'); };
+
+function renderFilteredTable(tabName, data) {
+    const tbody = document.getElementById(tabName + '-table-body');
+    if (!tbody) return;
+    
+    if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i><p>暂无数据</p></td></tr>';
+        return;
+    }
+    
+    let html = '';
+    if (tabName === 'factory') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.code}</td>
+                    <td>${item.name}</td>
+                    <td>${item.eccName ? item.eccName + ' (' + item.eccCode + ')' : '-'}</td>
+                    <td>${item.manager || '-'}</td>
+                    <td>${item.phone || '-'}</td>
+                    <td>${item.description || '-'}</td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editFactory(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteFactory(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else if (tabName === 'workshop') {
+        data.forEach(item => {
+            html += `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.code}</td>
+                    <td>${item.name}</td>
+                    <td>${item.factoryName || '-'}</td>
+                    <td>${item.eccName ? item.eccName + ' (' + item.eccCode + ')' : '-'}</td>
+                    <td>${item.manager || '-'}</td>
+                    <td>${item.phone || '-'}</td>
+                    <td class="action-cell">
+                        <a class="action-link" href="javascript:void(0)" onclick="editWorkshop(${item.id})">
+                            <i class="fas fa-edit"></i> 编辑
+                        </a>
+                        <a class="action-link danger" href="javascript:void(0)" onclick="deleteWorkshop(${item.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </a>
+                    </td>
+                </tr>
+            `;
+        });
+    } else {
+        // 其他tab使用相同的渲染逻辑
+        renderTable(tabName);
+        return;
+    }
+    
+    tbody.innerHTML = html;
+}
+
+// ========== 初始化 ==========
+function init() {
+    initTabButtons();
+    renderTable('factory');
+}
+
+// 确保在iframe环境中也能正常工作
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// 备用初始化（针对iframe环境）
+setTimeout(init, 100);
+setTimeout(init, 500);
+
+// ========== 以下为旧代码，将被删除 ==========
+/*
 (function() {
     // 从localStorage加载ECC数据
     function loadECCData() {
@@ -1399,65 +1860,104 @@
     let currentEditingId = null;
     let currentTab = 'factory';
 
-    // Tab切换
-    window.switchTab = function(tab, event) {
-        // 更新Tab按钮状态
-        document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        // 找到被点击的按钮（通过event或通过tab名称）
-        let targetButton = null;
-        if (event && event.target) {
-            targetButton = event.target.closest('.tab-button');
-        }
-        
-        // 如果找不到，通过onclick属性查找
-        if (!targetButton) {
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                const onclickAttr = btn.getAttribute('onclick');
-                if (onclickAttr && (onclickAttr.includes(`switchTab('${tab}'`) || onclickAttr.includes(`switchTab("${tab}"`))) {
-                    targetButton = btn;
-                }
+    // Tab切换 - 确保在iframe环境中也能正常工作
+    // 实现函数并保存到全局
+    window._switchTabImpl = function(tab, event) {
+        try {
+            // 更新Tab按钮状态
+            const allButtons = document.querySelectorAll('.tab-button');
+            allButtons.forEach(btn => {
+                btn.classList.remove('active');
             });
-        }
-        
-        if (targetButton) {
-            targetButton.classList.add('active');
-        }
+            
+            // 找到被点击的按钮（通过event或通过tab名称）
+            let targetButton = null;
+            if (event && event.target) {
+                targetButton = event.target.closest('.tab-button');
+                // 如果event.target本身就是按钮，也接受
+                if (!targetButton && event.target.classList.contains('tab-button')) {
+                    targetButton = event.target;
+                }
+            }
+            
+            // 如果找不到，通过onclick属性查找
+            if (!targetButton) {
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    const onclickAttr = btn.getAttribute('onclick');
+                    if (onclickAttr && (onclickAttr.includes(`switchTab('${tab}'`) || onclickAttr.includes(`switchTab("${tab}"`))) {
+                        targetButton = btn;
+                    }
+                });
+            }
+            
+            if (targetButton) {
+                targetButton.classList.add('active');
+            } else {
+                // 如果还是找不到，尝试通过按钮文本来匹配
+                const tabNames = {
+                    'factory': '厂区',
+                    'workshop': '车间',
+                    'production-line': '产线',
+                    'craft': '工艺',
+                    'process': '工序',
+                    'equipment': '设备',
+                    'meter': '仪表'
+                };
+                const searchText = tabNames[tab];
+                if (searchText) {
+                    document.querySelectorAll('.tab-button').forEach(btn => {
+                        if (btn.textContent.includes(searchText) && !targetButton) {
+                            targetButton = btn;
+                        }
+                    });
+                }
+                if (targetButton) {
+                    targetButton.classList.add('active');
+                }
+            }
 
-        // 更新Tab内容 - 使用内联样式确保优先级
-        const allTabContents = document.querySelectorAll('.tab-content');
-        allTabContents.forEach(content => {
-            content.classList.remove('active');
-            content.style.cssText = (content.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: none !important;';
-        });
-        
-        const targetTabContent = document.getElementById('tab-' + tab);
-        if (targetTabContent) {
-            targetTabContent.classList.add('active');
-            targetTabContent.style.cssText = (targetTabContent.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: block !important;';
-        }
+            // 更新Tab内容 - 使用内联样式确保优先级
+            const allTabContents = document.querySelectorAll('.tab-content');
+            allTabContents.forEach(content => {
+                content.classList.remove('active');
+                content.style.cssText = (content.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: none !important;';
+            });
+            
+            const targetTabContent = document.getElementById('tab-' + tab);
+            if (targetTabContent) {
+                targetTabContent.classList.add('active');
+                targetTabContent.style.cssText = (targetTabContent.style.cssText || '').replace(/display\s*:\s*[^;!]+(?:!important)?;?/gi, '') + ' display: block !important;';
+            }
 
-        currentTab = tab;
-        
-        // 重新渲染当前Tab的数据
-        if (tab === 'factory') {
-            renderFactoryTable();
-        } else if (tab === 'workshop') {
-            renderWorkshopTable();
-        } else if (tab === 'production-line') {
-            renderProductionLineTable();
-        } else if (tab === 'craft') {
-            renderCraftTable();
-        } else if (tab === 'process') {
-            renderProcessTable();
-        } else if (tab === 'equipment') {
-            renderEquipmentTable();
-        } else if (tab === 'meter') {
-            renderMeterTable();
+            currentTab = tab;
+            
+            // 重新渲染当前Tab的数据
+            try {
+                if (tab === 'factory') {
+                    renderFactoryTable();
+                } else if (tab === 'workshop') {
+                    renderWorkshopTable();
+                } else if (tab === 'production-line') {
+                    renderProductionLineTable();
+                } else if (tab === 'craft') {
+                    renderCraftTable();
+                } else if (tab === 'process') {
+                    renderProcessTable();
+                } else if (tab === 'equipment') {
+                    renderEquipmentTable();
+                } else if (tab === 'meter') {
+                    renderMeterTable();
+                }
+            } catch (error) {
+                console.error('Error rendering table for tab:', tab, error);
+            }
+        } catch (error) {
+            console.error('Error in switchTab:', error);
         }
     };
+    
+    // 更新window.switchTab为实际实现
+    window.switchTab = window._switchTabImpl;
 
     // 通用分页渲染函数
     function renderPagination(tabName, totalRecords, startRecord, endRecord) {
@@ -1698,7 +2198,8 @@
                     </a>
                 </td>
             </tr>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // 渲染车间表格（带分页）
@@ -2355,8 +2856,10 @@
     };
 
     // 导出/导入函数（占位）
-    window.exportFactory = function() { alert('导出功能开发中...'); };
-    window.importFactory = function() { alert('导入功能开发中...'); };
+    window._exportFactoryImpl = function() { alert('导出功能开发中...'); };
+    window._importFactoryImpl = function() { alert('导入功能开发中...'); };
+    window.exportFactory = window._exportFactoryImpl;
+    window.importFactory = window._importFactoryImpl;
     window.exportWorkshop = function() { alert('导出功能开发中...'); };
     window.importWorkshop = function() { alert('导入功能开发中...'); };
     window.exportProductionLine = function() { alert('导出功能开发中...'); };
@@ -2491,20 +2994,21 @@
     }
 
     // 厂区相关函数（占位，需要完整实现）
-    window.showFactoryForm = function() {
+    window._showFactoryFormImpl = function() {
         currentEditingId = null;
         document.getElementById('factory-modal-title').textContent = '新增厂区';
         document.getElementById('factory-form').reset();
         updateECCOptions('factory-ecc', 'company');
         document.getElementById('factory-modal').classList.add('active');
     };
+    window.showFactoryForm = window._showFactoryFormImpl;
 
     window.closeFactoryModal = function() {
         document.getElementById('factory-modal').classList.remove('active');
         currentEditingId = null;
     };
 
-    window.editFactory = function(id) {
+    window._editFactoryImpl = function(id) {
         const item = factoryData.find(d => d.id === id);
         if (!item) return;
         currentEditingId = id;
@@ -2518,13 +3022,15 @@
         document.getElementById('factory-description').value = item.description || '';
         document.getElementById('factory-modal').classList.add('active');
     };
+    window.editFactory = window._editFactoryImpl;
 
-    window.deleteFactory = function(id) {
+    window._deleteFactoryImpl = function(id) {
         if (confirm('确定要删除这个厂区吗？删除后相关的车间、产线等数据也会受影响。')) {
             factoryData = factoryData.filter(d => d.id !== id);
             renderFactoryTable();
         }
     };
+    window.deleteFactory = window._deleteFactoryImpl;
 
     window.saveFactory = function(e) {
         e.preventDefault();
@@ -2560,7 +3066,7 @@
         closeFactoryModal();
     };
 
-    window.filterFactory = function() {
+    window._filterFactoryImpl = function() {
         const keyword = document.getElementById('search-factory').value.toLowerCase();
         const filtered = factoryData.filter(item => 
             item.code.toLowerCase().includes(keyword) ||
@@ -2569,6 +3075,7 @@
         );
         renderFactoryTable(filtered);
     };
+    window.filterFactory = window._filterFactoryImpl;
 
     // 车间、产线、工艺、工序、设备相关函数（类似实现，这里先占位）
     window.showWorkshopForm = function() {
@@ -3088,21 +3595,70 @@
     }
 
     // 在iframe环境中，需要多次尝试确保初始化成功
+    // 使用更激进的重试策略，确保在iframe环境中能正确初始化
+    function tryInitMultipleTimes() {
+        let attempts = 0;
+        const maxAttempts = 15;
+        
+        function attemptInit() {
+            attempts++;
+            const factoryTableBody = document.getElementById('factory-table-body');
+            
+            if (factoryTableBody) {
+                // DOM元素存在
+                try {
+                    init();
+                    // 验证初始化是否成功
+                    setTimeout(function() {
+                        const hasData = factoryTableBody.children.length > 0;
+                        if (!hasData && attempts < maxAttempts) {
+                            console.log('Init attempt', attempts, '- no data found, retrying...');
+                            attemptInit();
+                        } else if (hasData) {
+                            console.log('Init successful on attempt', attempts);
+                        }
+                    }, 300);
+                } catch (error) {
+                    console.error('Init error on attempt', attempts, ':', error);
+                    if (attempts < maxAttempts) {
+                        setTimeout(attemptInit, 500);
+                    }
+                }
+            } else {
+                // DOM元素不存在，延迟重试
+                if (attempts < maxAttempts) {
+                    setTimeout(attemptInit, 300);
+                } else {
+                    console.error('Failed to find factory-table-body after', maxAttempts, 'attempts');
+                }
+            }
+        }
+        
+        // 开始尝试
+        attemptInit();
+    }
+    
     if (window.parent !== window) {
         // 在iframe环境中
-        // 监听load事件
+        // 监听load事件（最可靠的触发时机）
         window.addEventListener('load', function() {
-            setTimeout(init, 500);
+            setTimeout(tryInitMultipleTimes, 1000);
         });
+        
         // 也监听DOMContentLoaded
-        ensureInit();
-        // 备用：如果以上都没成功，延迟更长时间再试
-        setTimeout(function() {
-            const factoryTableBody = document.getElementById('factory-table-body');
-            if (factoryTableBody && factoryTableBody.children.length === 0) {
-                init();
-            }
-        }, 1000);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(tryInitMultipleTimes, 800);
+            });
+        } else {
+            // 文档已加载，立即尝试
+            setTimeout(tryInitMultipleTimes, 800);
+        }
+        
+        // 备用：强制在多个时间点尝试
+        setTimeout(tryInitMultipleTimes, 1500);
+        setTimeout(tryInitMultipleTimes, 2500);
+        setTimeout(tryInitMultipleTimes, 3500);
     } else {
         ensureInit();
     }
